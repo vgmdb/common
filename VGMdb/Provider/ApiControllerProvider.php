@@ -28,7 +28,7 @@ class ApiControllerProvider implements ControllerProviderInterface
         // Rules: each method must be bound to a default route name, no duplications
         $api->get('/user/{username}',
             function ($username, $version) use ($app) {
-                $data = $app['users']($username, $version);
+                $data = $app['data.user']($username, $version);
                 $view = $app['view']('userbox', $data);
                 return $view;
             }

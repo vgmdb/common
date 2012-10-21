@@ -8,8 +8,8 @@ namespace VGMdb;
  */
 class Widget extends AbstractView
 {
-    private $view;
-    private $callback;
+    protected $view;
+    protected $callback;
 
     /**
      * Create a new widget instance.

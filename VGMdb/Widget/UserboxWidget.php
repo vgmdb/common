@@ -4,7 +4,10 @@ namespace VGMdb\Widget;
 
 use VGMdb\Application;
 use VGMdb\ControllerWidget;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
+use Symfony\Component\Security\Core\Exception\InsufficientAuthenticationException;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 
 
 /**
@@ -29,27 +32,32 @@ class UserboxWidget extends ControllerWidget
         $this->lazy = false;
         $this->app = $app;
         $this->username = $username;
-
-        if (!$this->lazy) {
-            $view = $app['view']('userbox');
-        } else {
-            $view = $app['view']('lazybox');
-        }
+        $view = $app['view']('userbox');
 
         parent::__construct($app, $view);
     }
 
     public function onKernelView(GetResponseForControllerResultEvent $event) {
         $request = $event->getRequest();
-        $app = $event->getKernel();
 
         if ($this->lazy) {
             $this->with(array(
-                'url' => $app['url']('user', array('username' => $this->username)),
-                'tpl' => 'userbox'
+                'widget' => array(
+                    'url' => $app['url']('user', array('username' => $this->username)),
+                    'view' => 'userbox'
+                )
             ));
         } else {
-            $this->with($this->app['userbox']($this->username));
+            try {
+                $data = $this->app['data.user']($this->username);
+                $this->nest($this->app['view']('user', $data));
+            } catch (InsufficientAuthenticationException $e) {
+                $data = $this->app['data.login']();
+                $this->nest($this->app['view']('login', $data));
+            } catch (\Exception $e) {
+                $data = array('fatal' => $e->getMessage());
+                $this->with($data);
+            }
         }
     }
 }

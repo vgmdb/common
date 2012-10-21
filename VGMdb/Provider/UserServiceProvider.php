@@ -8,9 +8,13 @@ use VGMdb\Component\User\Security\InteractiveLoginListener;
 use VGMdb\Component\User\Security\Core\Encoder\BlowfishPasswordEncoder;
 use VGMdb\Component\User\Security\Core\Authentication\Provider\DaoAuthenticationProvider;
 use VGMdb\Component\User\Util\Canonicalizer;
+use VGMdb\ORM\Entity\User;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\Security\Core\Encoder\EncoderFactory;
+use Symfony\Component\Security\Core\Exception\InsufficientAuthenticationException;
+use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Security\Http\SecurityEvents;
 
@@ -58,6 +62,48 @@ class UserServiceProvider implements ServiceProviderInterface
 
         $app['user.security.interactive_login_listener'] = $app->share(function ($app) {
             return new InteractiveLoginListener($app['user_manager']);
+        });
+
+        $app['data.user'] = $app->protect(function ($username, $version = \VGMdb\Application::VERSION) use ($app) {
+            if ($username === 'me') {
+                $token = $app['security']->getToken();
+                if ($app['security.trust_resolver']->isAnonymous($token)) {
+                    throw new InsufficientAuthenticationException('Not logged in.');
+                }
+                $user = $token->getUser();
+                if (!($user instanceof User)) {
+                    throw new UnsupportedUserException(sprintf('Expected an instance of VGMdb\\ORM\\Entity\\User, got %s instead.', get_class($user)));
+                }
+                $username = $user->getUsername();
+                $roles = $token->getRoles();
+                $auth = $user->getAuthProviders()->first();
+                $uid = $auth->getProviderId();
+                $provider = 'Facebook';
+                $token = $app['form.csrf_provider']->generateCsrfToken('logout');
+            } else {
+                $user = $app['user_manager']->findUserByUsername($username);
+                if (!$user) {
+                    throw new UsernameNotFoundException(sprintf('User "%s" not found.', $username));
+                }
+                $username = $user->getUsername();
+                $roles = $user->getRoles();
+                $auth = $user->getAuthProviders()->first();
+                $uid = $auth->getProviderId();
+                $provider = 'Facebook';
+                $token = null;
+            }
+
+            return array(
+                'name' => $username,
+                'uid' => $uid,
+                'provider' => $provider,
+                'version' => $version,
+                'roles' => $roles,
+                'token' => $token,
+                'urls' => array(
+                    'logout' => $app['security.firewalls']['master']['logout']['logout_path']
+                )
+            );
         });
     }
 

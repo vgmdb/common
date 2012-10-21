@@ -44,12 +44,12 @@ class OpauthServiceProvider implements ServiceProviderInterface
 
         $app['security.authentication_listener.opauth._proto'] = $app->protect(function ($providerKey, $options) use ($app) {
             return $app->share(function () use ($app, $providerKey, $options) {
-                if (!isset($app['security.authentication.success_handler.'.$providerKey])) {
-                    $app['security.authentication.success_handler.'.$providerKey] = $app['security.authentication.success_handler._proto']($providerKey, $options);
+                if (!isset($app['security.authentication.success_handler.opauth.'.$providerKey])) {
+                    $app['security.authentication.success_handler.opauth.'.$providerKey] = $app['security.authentication.success_handler._proto']($providerKey, $options);
                 }
 
                 if (!isset($app['security.authentication.failure_handler.'.$providerKey])) {
-                    $app['security.authentication.failure_handler.'.$providerKey] = $app['security.authentication.failure_handler._proto']($providerKey, $options);
+                    $app['security.authentication.failure_handler.opauth.'.$providerKey] = $app['security.authentication.failure_handler._proto']($providerKey, $options);
                 }
                 return new OpauthAuthenticationListener(
                     $app['security'],
@@ -58,8 +58,8 @@ class OpauthServiceProvider implements ServiceProviderInterface
                     $app['security.http_utils'],
                     $providerKey,
                     $app['opauth'],
-                    $app['security.authentication.success_handler.'.$providerKey],
-                    $app['security.authentication.failure_handler.'.$providerKey],
+                    $app['security.authentication.success_handler.opauth.'.$providerKey],
+                    $app['security.authentication.failure_handler.opauth.'.$providerKey],
                     $options,
                     $app['logger'],
                     $app['dispatcher'],
