@@ -2,10 +2,10 @@
 
 namespace VGMdb\Provider;
 
-use VGMdb\Response;
-use VGMdb\JsonResponse;
-use VGMdb\XmlResponse;
-use VGMdb\BeaconResponse;
+use VGMdb\Component\HttpFoundation\Response;
+use VGMdb\Component\HttpFoundation\JsonResponse;
+use VGMdb\Component\HttpFoundation\XmlResponse;
+use VGMdb\Component\HttpFoundation\BeaconResponse;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;

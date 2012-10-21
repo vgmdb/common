@@ -2,11 +2,13 @@
 
 namespace VGMdb\Component\HttpFoundation;
 
+use Symfony\Component\HttpFoundation\ResponseHeaderBag as BaseResponseHeaderBag;
+
 /**
  * @brief       A container for Response HTTP headers, extended with the ability to preserve capitalization.
  * @author      Gigablah <gigablah@vgmdb.net>
  */
-class ResponseHeaderBag extends \Symfony\Component\HttpFoundation\ResponseHeaderBag
+class ResponseHeaderBag extends BaseResponseHeaderBag
 {
     protected $headerNames;
 

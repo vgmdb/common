@@ -75,7 +75,7 @@ class UserServiceProvider implements ServiceProviderInterface
                     throw new UnsupportedUserException(sprintf('Expected an instance of VGMdb\\ORM\\Entity\\User, got %s instead.', get_class($user)));
                 }
                 $username = $user->getUsername();
-                $roles = $token->getRoles();
+                $roles = array_map('strval', $token->getRoles());
                 $auth = $user->getAuthProviders()->first();
                 $uid = $auth->getProviderId();
                 $provider = 'Facebook';
@@ -86,7 +86,7 @@ class UserServiceProvider implements ServiceProviderInterface
                     throw new UsernameNotFoundException(sprintf('User "%s" not found.', $username));
                 }
                 $username = $user->getUsername();
-                $roles = $user->getRoles();
+                $roles = array_map('strval', $user->getRoles()->toArray());
                 $auth = $user->getAuthProviders()->first();
                 $uid = $auth->getProviderId();
                 $provider = 'Facebook';

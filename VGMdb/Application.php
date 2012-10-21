@@ -6,11 +6,12 @@ use VGMdb\Listener\ExceptionListener;
 use VGMdb\Listener\SubdomainListener;
 use VGMdb\Listener\ExtensionListener;
 use VGMdb\Component\Validator\Constraints\JsonpCallback;
-use VGMdb\Request;
-use VGMdb\Response;
-use VGMdb\JsonResponse;
-use VGMdb\BeaconResponse;
+use VGMdb\Component\HttpFoundation\Request;
+use VGMdb\Component\HttpFoundation\Response;
+use VGMdb\Component\HttpFoundation\JsonResponse;
+use VGMdb\Component\HttpFoundation\BeaconResponse;
 use VGMdb\ViewInterface;
+use Silex\Application as BaseApplication;
 use Silex\SilexEvents;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
@@ -19,7 +20,7 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
  * @brief       The VGMdb application class. Extends the Silex framework with custom methods.
  * @author      Gigablah <gigablah@vgmdb.net>
  */
-class Application extends \Silex\Application
+class Application extends BaseApplication
 {
     const VERSION = '1.0';
 

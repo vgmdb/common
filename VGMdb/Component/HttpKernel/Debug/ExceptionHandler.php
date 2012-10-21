@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\HttpKernel\Debug;
 
-use VGMdb\Response;
+use VGMdb\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\FlattenException;
 
 if (!defined('ENT_SUBSTITUTE')) {

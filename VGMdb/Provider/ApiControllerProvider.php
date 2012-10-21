@@ -2,8 +2,8 @@
 
 namespace VGMdb\Provider;
 
-use VGMdb\Request;
-use VGMdb\Response;
+use VGMdb\Component\HttpFoundation\Request;
+use VGMdb\Component\HttpFoundation\Response;
 use Silex\Application;
 use Silex\ControllerProviderInterface;
 
@@ -29,7 +29,7 @@ class ApiControllerProvider implements ControllerProviderInterface
         $api->get('/user/{username}',
             function ($username, $version) use ($app) {
                 $data = $app['data.user']($username, $version);
-                $view = $app['view']('userbox', $data);
+                $view = $app['view']('userbox')->nest($app['view']('user', $data));
                 return $view;
             }
         )->bind('user' . ($this->version ? '_v' . $this->version : ''));

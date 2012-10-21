@@ -3,10 +3,10 @@
 namespace VGMdb\Listener;
 
 use VGMdb\Component\HttpKernel\Debug\ExceptionHandler;
-use VGMdb\Response;
-use VGMdb\JsonResponse;
-use VGMdb\XmlResponse;
-use VGMdb\BeaconResponse;
+use VGMdb\Component\HttpFoundation\Response;
+use VGMdb\Component\HttpFoundation\JsonResponse;
+use VGMdb\Component\HttpFoundation\XmlResponse;
+use VGMdb\Component\HttpFoundation\BeaconResponse;
 use Silex\SilexEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
