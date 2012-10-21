@@ -8,6 +8,7 @@ use VGMdb\Component\User\Security\InteractiveLoginListener;
 use VGMdb\Component\User\Security\Core\Encoder\BlowfishPasswordEncoder;
 use VGMdb\Component\User\Security\Core\Authentication\Provider\DaoAuthenticationProvider;
 use VGMdb\Component\User\Util\Canonicalizer;
+use VGMdb\Component\User\Util\EmailCanonicalizer;
 use VGMdb\ORM\Entity\User;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -53,7 +54,7 @@ class UserServiceProvider implements ServiceProviderInterface
         });
 
         $app['user.util.email_canonicalizer'] = $app->share(function ($app) {
-            return new Canonicalizer;
+            return new EmailCanonicalizer;
         });
 
         $app['user_provider'] = $app->share(function ($app) {
