@@ -2,10 +2,10 @@
 
 namespace VGMdb;
 
-class Controller extends \Silex\Controller
-{
-    protected $route;
+use Silex\Controller as BaseController;
 
+class Controller extends BaseController
+{
     /**
      * Sets the controller's layout.
      *

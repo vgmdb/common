@@ -3,8 +3,9 @@
 namespace VGMdb;
 
 use VGMdb\Controller;
+use Silex\ControllerCollection as BaseControllerCollection;
 
-class ControllerCollection extends \Silex\ControllerCollection
+class ControllerCollection extends BaseControllerCollection
 {
     /**
      * {@inheritDoc}

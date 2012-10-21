@@ -73,7 +73,7 @@ class UserServiceProvider implements ServiceProviderInterface
                 }
                 $user = $token->getUser();
                 if (!($user instanceof User)) {
-                    throw new UnsupportedUserException(sprintf('Expected an instance of VGMdb\\ORM\\Entity\\User, got %s instead.', get_class($user)));
+                    throw new UnsupportedUserException(sprintf('Expected an instance of %s, got %s instead.', $app['user.model.user_class'], get_class($user)));
                 }
                 $username = $user->getUsername();
                 $roles = array_map('strval', $token->getRoles());
