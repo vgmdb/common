@@ -11,6 +11,7 @@ use VGMdb\Component\HttpFoundation\Response;
 use VGMdb\Component\HttpFoundation\JsonResponse;
 use VGMdb\Component\HttpFoundation\BeaconResponse;
 use VGMdb\Component\View\ViewInterface;
+use VGMdb\ControllerResolver;
 use Silex\Application as BaseApplication;
 use Silex\SilexEvents;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
@@ -76,6 +77,11 @@ class Application extends BaseApplication
 
             return $controllers;
         };
+
+        // replace the controller resolver
+        $this['resolver'] = $this->share(function () use ($app) {
+            return new ControllerResolver($app, $app['logger']);
+        });
     }
 
     /**
