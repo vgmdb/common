@@ -2,10 +2,9 @@
 
 namespace VGMdb\Provider;
 
-use VGMdb\ViewInterface;
-use VGMdb\View;
-use VGMdb\Widget;
-use VGMdb\Widget\UserboxWidget;
+use VGMdb\Component\View\ViewInterface;
+use VGMdb\Component\View\View;
+use VGMdb\Component\View\Widget;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Silex\SilexEvents;

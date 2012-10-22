@@ -2,6 +2,7 @@
 
 namespace VGMdb;
 
+use VGMdb\Component\View\ViewInterface;
 use Silex\Controller as BaseController;
 
 class Controller extends BaseController

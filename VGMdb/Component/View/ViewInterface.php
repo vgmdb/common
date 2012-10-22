@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb;
+namespace VGMdb\Component\View;
 
 /**
  * @brief       ViewInterface objects must implement render(), nest() and __toString().

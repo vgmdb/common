@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb;
+namespace VGMdb\Component\View;
 
 /**
  * @brief       Abstract view object.

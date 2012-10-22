@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\HttpFoundation;
 
-use VGMdb\View;
+use VGMdb\Component\View\View;
 
 /**
  * @brief       Representation of a HTTP response in JSON format.

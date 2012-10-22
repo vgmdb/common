@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb;
+namespace VGMdb\Component\View;
 
 /**
  * @brief       Widgets are mini-controllers with templating capabilities.

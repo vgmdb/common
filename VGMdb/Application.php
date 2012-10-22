@@ -10,7 +10,7 @@ use VGMdb\Component\HttpFoundation\Request;
 use VGMdb\Component\HttpFoundation\Response;
 use VGMdb\Component\HttpFoundation\JsonResponse;
 use VGMdb\Component\HttpFoundation\BeaconResponse;
-use VGMdb\ViewInterface;
+use VGMdb\Component\View\ViewInterface;
 use Silex\Application as BaseApplication;
 use Silex\SilexEvents;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;

@@ -48,7 +48,7 @@ class OpauthServiceProvider implements ServiceProviderInterface
                     $app['security.authentication.success_handler.opauth.'.$providerKey] = $app['security.authentication.success_handler._proto']($providerKey, $options);
                 }
 
-                if (!isset($app['security.authentication.failure_handler.'.$providerKey])) {
+                if (!isset($app['security.authentication.failure_handler.opauth.'.$providerKey])) {
                     $app['security.authentication.failure_handler.opauth.'.$providerKey] = $app['security.authentication.failure_handler._proto']($providerKey, $options);
                 }
                 return new OpauthAuthenticationListener(

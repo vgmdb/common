@@ -3,6 +3,7 @@
 namespace VGMdb\Provider;
 
 use Silex\Application;
+use Silex\Provider\DoctrineServiceProvider as BaseDoctrineServiceProvider;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Configuration;
 use Doctrine\Common\Cache\ArrayCache;
@@ -13,7 +14,7 @@ use Doctrine\DBAL\Logging\DebugStack;
  * @brief       Doctrine DBAL and ORM Provider.
  * @author      Gigablah <gigablah@vgmdb.net>
  */
-class DoctrineServiceProvider extends \Silex\Provider\DoctrineServiceProvider
+class DoctrineServiceProvider extends BaseDoctrineServiceProvider
 {
     public function register(Application $app)
     {

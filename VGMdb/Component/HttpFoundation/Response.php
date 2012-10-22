@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\HttpFoundation;
 
-use VGMdb\ViewInterface;
+use VGMdb\Component\View\ViewInterface;
 use VGMdb\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\Response as BaseResponse;
 

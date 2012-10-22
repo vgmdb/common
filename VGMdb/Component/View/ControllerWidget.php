@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb;
+namespace VGMdb\Component\View;
 
 use VGMdb\Application;
 use Symfony\Component\HttpKernel\KernelEvents;
