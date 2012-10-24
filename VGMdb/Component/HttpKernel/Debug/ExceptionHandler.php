@@ -161,7 +161,7 @@ EOF
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width">
   <title>{$title}</title>
-  <link rel="stylesheet" href="/css/bootstrap.css">
+  <link rel="stylesheet" href="/css/libs/bootstrap.css">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
