@@ -77,8 +77,8 @@ class UserServiceProvider implements ServiceProviderInterface
                 }
                 $username = $user->getUsername();
                 $roles = array_map('strval', $token->getRoles());
-                $auth = $user->getAuthProviders()->first();
-                $uid = $auth->getProviderId();
+                $auth = $user->getAuthProviders();
+                $uid = $auth[0]->getProviderId();
                 $provider = 'Facebook';
                 $token = $app['form.csrf_provider']->generateCsrfToken('logout');
             } else {
@@ -87,9 +87,9 @@ class UserServiceProvider implements ServiceProviderInterface
                     throw new UsernameNotFoundException(sprintf('User "%s" not found.', $username));
                 }
                 $username = $user->getUsername();
-                $roles = array_map('strval', $user->getRoles()->toArray());
-                $auth = $user->getAuthProviders()->first();
-                $uid = $auth->getProviderId();
+                $roles = array_map('strval', $user->getRoles());
+                $auth = $user->getAuthProviders();
+                $uid = $auth[0]->getProviderId();
                 $provider = 'Facebook';
                 $token = null;
             }

@@ -14,7 +14,7 @@ class OpauthToken extends AbstractToken
     public $providerId;
     private $providerKey;
 
-    public function __construct($providerKey, $roles = array())
+    public function __construct($providerKey, array $roles = array())
     {
         parent::__construct($roles);
 

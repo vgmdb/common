@@ -501,7 +501,7 @@ class User extends \VGMdb\Component\User\Model\AbstractUser
      */
     public function getAuthProviders()
     {
-        return $this->authProviders;
+        return $this->authProviders->toArray();
     }
 
     /**
@@ -524,7 +524,7 @@ class User extends \VGMdb\Component\User\Model\AbstractUser
      */
     public function getRoles()
     {
-        return $this->roles;
+        return $this->roles->toArray();
     }
 
     public function __sleep()

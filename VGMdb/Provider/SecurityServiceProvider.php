@@ -3,6 +3,7 @@
 namespace VGMdb\Provider;
 
 use VGMdb\Component\Security\Http\Authentication\AuthenticationSuccessHandler;
+use VGMdb\Component\Security\Http\Authentication\AuthenticationFailureHandler;
 use Silex\Application;
 use Silex\Provider\SecurityServiceProvider as BaseSecurityServiceProvider;
 
@@ -25,6 +26,17 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
                 $handler->setProviderKey($name);
 
                 return $handler;
+            });
+        });
+
+        $app['security.authentication.failure_handler._proto'] = $app->protect(function ($name, $options) use ($app) {
+            return $app->share(function () use ($name, $options, $app) {
+                return new AuthenticationFailureHandler(
+                    $app,
+                    $app['security.http_utils'],
+                    $options,
+                    $app['logger']
+                );
             });
         });
     }
