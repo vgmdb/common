@@ -2,14 +2,15 @@
 
 namespace VGMdb\Provider;
 
+use VGMdb\Component\User\Model\UserInterface;
 use VGMdb\Component\User\Model\Doctrine\UserManager;
 use VGMdb\Component\User\Provider\UserProvider;
+use VGMdb\Component\User\Security\LoginManager;
 use VGMdb\Component\User\Security\InteractiveLoginListener;
 use VGMdb\Component\User\Security\Core\Encoder\BlowfishPasswordEncoder;
 use VGMdb\Component\User\Security\Core\Authentication\Provider\DaoAuthenticationProvider;
 use VGMdb\Component\User\Util\Canonicalizer;
 use VGMdb\Component\User\Util\EmailCanonicalizer;
-use VGMdb\ORM\Entity\User;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\Security\Core\Encoder\EncoderFactory;
@@ -65,6 +66,23 @@ class UserServiceProvider implements ServiceProviderInterface
             return new InteractiveLoginListener($app['user_manager']);
         });
 
+        $app['user.security.login_manager'] = $app->share(function ($app) {
+            return new LoginManager(
+                $app['security'],
+                $app['security.user_checker'],
+                $app['security.session_strategy'],
+                $app
+            );
+        });
+
+        $app['user.registration.form'] = $app->share(function ($app) {
+
+        });
+
+        $app['user.registration.form_handler'] = $app->share(function ($app) {
+
+        });
+
         $app['data.user'] = $app->protect(function ($username, $version = \VGMdb\Application::VERSION) use ($app) {
             if ($username === 'me') {
                 $token = $app['security']->getToken();
@@ -72,7 +90,7 @@ class UserServiceProvider implements ServiceProviderInterface
                     throw new InsufficientAuthenticationException('Not logged in.');
                 }
                 $user = $token->getUser();
-                if (!($user instanceof User)) {
+                if (!($user instanceof UserInterface)) {
                     throw new UnsupportedUserException(sprintf('Expected an instance of %s, got %s instead.', $app['user.model.user_class'], get_class($user)));
                 }
                 $username = $user->getUsername();
