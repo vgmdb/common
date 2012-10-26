@@ -93,9 +93,13 @@ class UserServiceProvider implements ServiceProviderInterface
                 $provider = 'Facebook';
                 $token = null;
             }
+            $email = $user->getEmailCanonical();
+            $email_hash = md5($email);
 
             return array(
-                'name' => $username,
+                'username' => $username,
+                'email' => $email,
+                'email_hash' => $email_hash,
                 'uid' => $uid,
                 'provider' => $provider,
                 'version' => $version,
