@@ -3,7 +3,7 @@
 namespace VGMdb\Provider;
 
 use VGMdb\Component\User\Model\UserInterface;
-use VGMdb\Component\User\Model\Doctrine\UserManager;
+use VGMdb\Component\User\Model\Doctrine\ORM\UserManager;
 use VGMdb\Component\User\Provider\UserProvider;
 use VGMdb\Component\User\Security\LoginManager;
 use VGMdb\Component\User\Security\InteractiveLoginListener;
@@ -33,8 +33,10 @@ class UserServiceProvider implements ServiceProviderInterface
                 $app['security.encoder_factory'],
                 $app['user.util.username_canonicalizer'],
                 $app['user.util.email_canonicalizer'],
+                //$app['db'],
                 $app['entity_manager'],
                 $app['user.model.user_class'],
+                $app['user.model.role_class'],
                 $app['user.model.auth_class']
             );
         });
@@ -94,7 +96,7 @@ class UserServiceProvider implements ServiceProviderInterface
                     throw new UnsupportedUserException(sprintf('Expected an instance of %s, got %s instead.', $app['user.model.user_class'], get_class($user)));
                 }
                 $username = $user->getUsername();
-                $roles = array_map('strval', $token->getRoles());
+                $roles = $token->getRoles();
                 $auth = $user->getAuthProviders();
                 $uid = $auth[0]->getProviderId();
                 $provider = 'Facebook';
@@ -105,7 +107,7 @@ class UserServiceProvider implements ServiceProviderInterface
                     throw new UsernameNotFoundException(sprintf('User "%s" not found.', $username));
                 }
                 $username = $user->getUsername();
-                $roles = array_map('strval', $user->getRoles());
+                $roles = $user->getRoles();
                 $auth = $user->getAuthProviders();
                 $uid = $auth[0]->getProviderId();
                 $provider = 'Facebook';
@@ -125,6 +127,23 @@ class UserServiceProvider implements ServiceProviderInterface
                 'token' => $token,
                 'urls' => array(
                     'logout' => $app['security.firewalls']['master']['logout']['logout_path']
+                )
+            );
+        });
+
+        $app['data.login'] = $app->protect(function () use ($app) {
+            return array(
+                'error' => $app['security.last_error']($app['request']),
+                'last_username' => $app['session']->get('_security.last_username'),
+                'tokens' => array(
+                    'login' => $app['form.csrf_provider']->generateCsrfToken('authenticate'),
+                    'oauth' => $app['form.csrf_provider']->generateCsrfToken('oauth')
+                ),
+                'urls' => array(
+                    'login_check' => $app['security.firewalls']['master']['form']['check_path'],
+                    'login_facebook' => $app['security.firewalls']['master']['opauth.facebook']['login_path'],
+                    'login_twitter' => $app['security.firewalls']['master']['opauth.twitter']['login_path'],
+                    'login_google' => $app['security.firewalls']['master']['opauth.google']['login_path']
                 )
             );
         });

@@ -1,59 +1,52 @@
 <?php
 
-namespace VGMdb\ORM\Entity;
-
-use Doctrine\ORM\Mapping as ORM;
+namespace VGMdb\Component\User\Model;
 
 /**
- * VGMdb\ORM\Entity\AuthProvider
- *
- * @ORM\Entity(repositoryClass="VGMdb\ORM\Repository\AuthProviderRepository")
- * @ORM\Table(name="auth_provider", indexes={@ORM\Index(name="user_id_idx", columns={"user_id"})}, uniqueConstraints={@ORM\UniqueConstraint(name="provider_idx", columns={"provider", "provider_id"})})
+ * AuthProvider object
  */
-class AuthProvider extends \VGMdb\Component\User\Model\AbstractAuthProvider
+class AuthProvider implements \Serializable
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
+    protected $providers = array(
+        'facebook' => 1,
+        'twitter'  => 2,
+        'google'   => 3
+    );
+
     protected $id;
 
+    protected $user_id;
+
     /**
-     * @ORM\Column(type="integer")
+     * @var integer
      */
     protected $provider;
 
     /**
-     * @ORM\Column(type="string", length=32)
+     * @var integer
      */
     protected $provider_id;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @var string
      */
     protected $access_token;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @var Boolean
      */
     protected $enabled;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="authProviders")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
-     */
-    protected $user;
-
     public function __construct()
     {
+        $this->enabled = true;
     }
 
     /**
      * Set the value of id.
      *
      * @param integer $id
-     * @return \VGMdb\ORM\Entity\AuthProvider
+     * @return AuthProvider
      */
     public function setId($id)
     {
@@ -76,10 +69,14 @@ class AuthProvider extends \VGMdb\Component\User\Model\AbstractAuthProvider
      * Set the value of provider.
      *
      * @param integer $provider
-     * @return \VGMdb\ORM\Entity\AuthProvider
+     * @return AuthProvider
      */
     public function setProvider($provider)
     {
+        if (!is_numeric($provider)) {
+            $provider = intval($this->providers[strtolower($provider)]);
+        }
+
         $this->provider = $provider;
 
         return $this;
@@ -98,8 +95,8 @@ class AuthProvider extends \VGMdb\Component\User\Model\AbstractAuthProvider
     /**
      * Set the value of provider_id.
      *
-     * @param string $provider_id
-     * @return \VGMdb\ORM\Entity\AuthProvider
+     * @param integer $provider_id
+     * @return AuthProvider
      */
     public function setProviderId($provider_id)
     {
@@ -111,7 +108,7 @@ class AuthProvider extends \VGMdb\Component\User\Model\AbstractAuthProvider
     /**
      * Get the value of provider_id.
      *
-     * @return string
+     * @return integer
      */
     public function getProviderId()
     {
@@ -122,7 +119,7 @@ class AuthProvider extends \VGMdb\Component\User\Model\AbstractAuthProvider
      * Set the value of access_token.
      *
      * @param string $access_token
-     * @return \VGMdb\ORM\Entity\AuthProvider
+     * @return AuthProvider
      */
     public function setAccessToken($access_token)
     {
@@ -145,7 +142,7 @@ class AuthProvider extends \VGMdb\Component\User\Model\AbstractAuthProvider
      * Set the value of enabled.
      *
      * @param boolean $enabled
-     * @return \VGMdb\ORM\Entity\AuthProvider
+     * @return AuthProvider
      */
     public function setEnabled($enabled)
     {
@@ -165,30 +162,61 @@ class AuthProvider extends \VGMdb\Component\User\Model\AbstractAuthProvider
     }
 
     /**
-     * Set User entity (many to one).
+     * Set User id.
      *
-     * @param \VGMdb\ORM\Entity\User $user
-     * @return \VGMdb\ORM\Entity\AuthProvider
+     * @param integer $user_id
+     * @return AuthProvider
      */
-    public function setUser(User $user = null)
+    public function setUserId($user_id)
     {
-        $this->user = $user;
+        $this->user_id = $user_id;
 
         return $this;
     }
 
     /**
-     * Get User entity (many to one).
+     * Get User id.
      *
-     * @return \VGMdb\ORM\Entity\User
+     * @return integer
      */
-    public function getUser()
+    public function getUserId()
     {
-        return $this->user;
+        return $this->user_id;
     }
 
-    public function __sleep()
+    /**
+     * Serializes the auth provider.
+     *
+     * @return string
+     */
+    public function serialize()
     {
-        return array('id', 'user_id', 'provider', 'provider_id', 'access_token', 'enabled');
+        return serialize(array(
+            $this->id,
+            $this->user_id,
+            $this->provider,
+            $this->provider_id,
+            $this->access_token,
+            $this->enabled,
+        ));
+    }
+
+    /**
+     * Unserializes the auth provider.
+     *
+     * @param string $serialized
+     */
+    public function unserialize($serialized)
+    {
+        $data = unserialize($serialized);
+
+        list(
+            $this->id,
+            $this->user_id,
+            $this->provider,
+            $this->provider_id,
+            $this->access_token,
+            $this->enabled,
+        ) = $data;
     }
 }

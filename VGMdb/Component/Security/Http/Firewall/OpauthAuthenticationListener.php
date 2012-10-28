@@ -102,11 +102,29 @@ class OpauthAuthenticationListener extends AbstractAuthenticationListener
                 );
         }
 
-        if (is_null($response)) {
-            throw new AuthenticationException('Authentication failed');
+        if (is_null($response) || !is_array($response)) {
+            throw new AuthenticationException('Authentication response is invalid.');
+        }
+        if (array_key_exists('error', $response)) {
+            throw new AuthenticationException(sprintf('Authentication provider error: %s', $response['error']['code']));
+        }
+        if (!isset($response['auth']) || !isset($response['auth']['provider']) || !isset($response['auth']['uid']) || !isset($response['auth']['info'])) {
+            throw new AuthenticationException('Authentication data missing.');
+        }
+        if (!$opauth->validate(sha1(print_r($response['auth'], true)), $response['timestamp'], $response['signature'], $reason)) {
+            throw new AuthenticationException(sprintf('Authentication signature invalid: %s', $reason));
         }
 
-        $username = $response['auth']['info']['name'];
+        $username = '';
+        if (isset($response['auth']['info']['nickname'])) {
+            $username = $response['auth']['info']['nickname'];
+        }
+        if (!$username && isset($response['auth']['info']['name'])) {
+            $username = $response['auth']['info']['name'];
+        }
+        if (!$username) {
+            $username = $response['auth']['uid'];
+        }
 
         $authToken = new OpauthToken($this->providerKey);
         $authToken->setUser($username);

@@ -14,10 +14,14 @@ class AuthProviderRepository extends EntityRepository
      * Convert a provider string to integer id.
      *
      * @param string $provider
-     * @return integer|null
+     * @return integer
      */
     public function translateProvider($provider)
     {
+        if (is_numeric($provider)) {
+            return $provider;
+        }
+
         $provider = strtolower($provider);
         $providerMap = array(
             self::PROVIDER_FACEBOOK => 1,
@@ -26,7 +30,7 @@ class AuthProviderRepository extends EntityRepository
         );
 
         if (!isset($providerMap[$provider])) {
-            return null;
+            return 0;
         }
 
         return $providerMap[$provider];

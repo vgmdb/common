@@ -50,7 +50,8 @@ class UserProvider implements UserProviderInterface
             throw new UnsupportedUserException(sprintf('Expected an instance of AbstractUser, but got "%s".', get_class($user)));
         }
 
-        if (null === $reloadedUser = $this->userManager->findUserMatch($user)) {
+        //if (null === $reloadedUser = $this->userManager->findUserById($user->getId())) {
+        if (null === $reloadedUser = $this->userManager->reloadUser($user)) {
             throw new UsernameNotFoundException(sprintf('User with ID "%d" could not be reloaded.', $user->getId()));
         }
 

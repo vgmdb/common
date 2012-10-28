@@ -11,6 +11,8 @@ abstract class AbstractRole implements RoleInterface, \Serializable
 {
     protected $id;
 
+    protected $user_id;
+
     /**
      * @var string
      */
@@ -27,11 +29,51 @@ abstract class AbstractRole implements RoleInterface, \Serializable
     }
 
     /**
+     * Returns the role user id.
+     *
+     * @return mixed
+     */
+    public function getUserId()
+    {
+        return $this->userid;
+    }
+
+    /**
+     * Returns the role.
+     *
      * @return string
      */
     public function getRole()
     {
         return $this->role;
+    }
+
+    /**
+     * Sets the user id.
+     *
+     * @param mixed $user_id
+     *
+     * @return Role
+     */
+    public function setUserId($user_id)
+    {
+        $this->user_id = $user_id;
+
+        return $this;
+    }
+
+    /**
+     * Sets the role.
+     *
+     * @param string $role
+     *
+     * @return Role
+     */
+    public function setRole($role)
+    {
+        $this->role = $role;
+
+        return $this;
     }
 
     /**
@@ -42,8 +84,9 @@ abstract class AbstractRole implements RoleInterface, \Serializable
     public function serialize()
     {
         return serialize(array(
+            $this->id,
+            $this->user_id,
             $this->role,
-            $this->id
         ));
     }
 
@@ -57,8 +100,9 @@ abstract class AbstractRole implements RoleInterface, \Serializable
         $data = unserialize($serialized);
 
         list(
+            $this->id,
+            $this->user_id,
             $this->role,
-            $this->id
         ) = $data;
     }
 

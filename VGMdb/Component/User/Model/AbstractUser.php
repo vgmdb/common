@@ -101,6 +101,11 @@ abstract class AbstractUser implements UserInterface
     protected $roles;
 
     /**
+     * @var array
+     */
+    protected $authProviders;
+
+    /**
      * @var Boolean
      */
     protected $credentials_expired;
@@ -117,6 +122,7 @@ abstract class AbstractUser implements UserInterface
         $this->locked = false;
         $this->expired = false;
         $this->roles = array();
+        $this->authProviders = array();
         $this->credentials_expired = false;
     }
 
@@ -151,17 +157,22 @@ abstract class AbstractUser implements UserInterface
     public function serialize()
     {
         return serialize(array(
-            $this->password,
-            $this->salt,
-            $this->username_canonical,
-            $this->username,
-            $this->email_canonical,
-            $this->email,
-            $this->expired,
-            $this->locked,
-            $this->credentials_expired,
-            $this->enabled,
             $this->id,
+            $this->username,
+            $this->username_canonical,
+            $this->email,
+            $this->email_canonical,
+            $this->enabled,
+            $this->salt,
+            $this->password,
+            $this->last_login,
+            $this->locked,
+            $this->expired,
+            $this->expires_at,
+            $this->confirmation_token,
+            $this->password_requested_at,
+            $this->credentials_expired,
+            $this->credentials_expire_at,
         ));
     }
 
@@ -177,18 +188,33 @@ abstract class AbstractUser implements UserInterface
         // older data which does not include all properties.
         $data = array_merge($data, array_fill(0, 2, null));
 
+        $this->hydrate($data);
+    }
+
+    /**
+     * Hydrates user data.
+     *
+     * @param array $data
+     */
+    private function hydrate($data)
+    {
         list(
-            $this->password,
-            $this->salt,
-            $this->username_canonical,
+            $this->id,
             $this->username,
-            $this->email_canonical,
+            $this->username_canonical,
             $this->email,
-            $this->expired,
-            $this->locked,
-            $this->credentials_expired,
+            $this->email_canonical,
             $this->enabled,
-            $this->id
+            $this->salt,
+            $this->password,
+            $this->last_login,
+            $this->locked,
+            $this->expired,
+            $this->expires_at,
+            $this->confirmation_token,
+            $this->password_requested_at,
+            $this->credentials_expired,
+            $this->credentials_expire_at,
         ) = $data;
     }
 
@@ -305,12 +331,12 @@ abstract class AbstractUser implements UserInterface
     {
         $roles = $this->roles;
 
-        foreach ($this->getGroups() as $group) {
+        /*foreach ($this->getGroups() as $group) {
             $roles = array_merge($roles, $group->getRoles());
         }
 
         // we need to make sure to have at least one role
-        $roles[] = static::ROLE_DEFAULT;
+        $roles[] = static::ROLE_DEFAULT;*/
 
         return array_unique($roles);
     }
@@ -323,13 +349,22 @@ abstract class AbstractUser implements UserInterface
      *
      *         $securityContext->isGranted('ROLE_USER');
      *
-     * @param string $role
+     * @param string $rolename
      *
-     * @return Boolean
+     * @return mixed
      */
-    public function hasRole($role)
+    public function hasRole($rolename)
     {
-        return in_array(strtoupper($role), $this->getRoles(), true);
+        $rolename = strtoupper($rolename);
+        $roles = $this->getRoles();
+        foreach ($roles as $role) {
+            if (strval($role) === $rolename) {
+
+                return $role;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -377,7 +412,7 @@ abstract class AbstractUser implements UserInterface
             return false;
         }
 
-        if (null !== $this->credentials_expire_at && $this->credentials_expire_at->getTimestamp() < time()) {
+        if ($this->credentials_expire_at instanceof \DateTime && $this->credentials_expire_at->getTimestamp() < time()) {
             return false;
         }
 
@@ -436,16 +471,22 @@ abstract class AbstractUser implements UserInterface
     }
 
     /**
-     * Removes a role to the user.
+     * Removes a role from the user.
      *
      * @param string $role
+     *
+     * @return Boolean
      */
     public function removeRole($role)
     {
-        if (false !== $key = array_search(strtoupper($role), $this->roles, true)) {
+        if (false !== $key = array_search($role, $this->getRoles(), true)) {
             unset($this->roles[$key]);
-            $this->roles = array_values($this->roles);
+            //$this->roles = array_values($this->getRoles());
+
+            return true;
         }
+
+        return false;
     }
 
     /**
@@ -709,6 +750,58 @@ abstract class AbstractUser implements UserInterface
         }
 
         return $this;
+    }
+
+    /**
+     * Returns the auth providers
+     *
+     * @return array
+     */
+    public function getAuthProviders()
+    {
+        return $this->authProviders;
+    }
+
+    /**
+     * Removes an auth provider from the user.
+     *
+     * @param \VGMdb\Component\User\Model\AbstractAuthProvider $auth
+     *
+     * @return Boolean
+     */
+    public function removeAuthProvider($auth)
+    {
+        if (false !== $key = array_search($auth, $this->getAuthProviders(), true)) {
+            unset($this->authProviders[$key]);
+            //$this->roles = array_values($this->getRoles());
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if user has an auth provider. Provider ID is optional.
+     *
+     * @param integer $provider
+     * @param string  $providerId
+     *
+     * @return mixed
+     */
+    public function hasAuthProvider($provider, $providerId = null)
+    {
+        $providers = $this->getAuthProviders();
+        foreach ($providers as $auth) {
+            if ($auth->getProvider() === $provider) {
+                // no strict comparison here, bigint is compared as string
+                if (!$providerId || $auth->getProviderId() == $providerId) {
+                    return $auth;
+                }
+            }
+        }
+
+        return false;
     }
 
     public function __toString()

@@ -2,13 +2,13 @@
 
 namespace VGMdb\Provider;
 
+use VGMdb\Component\DBAL\Logging\SQLErrorLogger;
 use Silex\Application;
 use Silex\Provider\DoctrineServiceProvider as BaseDoctrineServiceProvider;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Configuration;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\ApcCache;
-use Doctrine\DBAL\Logging\DebugStack;
 
 /**
  * @brief       Doctrine DBAL and ORM Provider.
@@ -48,7 +48,9 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
     {
         // force Doctrine annotations to be loaded
         // should be removed when a better solution is found in Doctrine
-        class_exists('Doctrine\ORM\Mapping\Driver\AnnotationDriver');
+        if (isset($app['orm.entity_dir'])) {
+            class_exists('Doctrine\ORM\Mapping\Driver\AnnotationDriver');
+        }
 
         if (isset($app['orm.proxy_dir'])) {
             $namespace = $app['orm.proxy_namespace'];
@@ -65,9 +67,9 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
         }
 
         if ($app['debug'] && isset($app['monolog'])) {
-            $logger = new DebugStack;
+            $logger = new SQLErrorLogger($app['db.logfile']);
             $app['db.config']->setSQLLogger($logger);
-            $app->finish(function ($request, $response) use ($app, $logger) {
+            /*$app->finish(function ($request, $response) use ($app, $logger) {
                 if (isset($logger->queries) && count($logger->queries)) {
                     foreach ($logger->queries as $query) {
                         $app['monolog']->debug('[' . $query['executionMS'] . '] ' . $query['sql'], array(
@@ -76,7 +78,7 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
                         ));
                     }
                 }
-            });
+            });*/
         }
     }
 }
