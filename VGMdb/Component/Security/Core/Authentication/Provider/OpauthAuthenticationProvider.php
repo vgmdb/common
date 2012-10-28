@@ -34,7 +34,7 @@ class OpauthAuthenticationProvider implements AuthenticationProviderInterface
             return null;
         }
 
-        $user = $this->userProvider->loadUserByProviderId($token->provider, $token->providerId);
+        $user = $this->userProvider->loadUserByAuthProvider($token->provider, $token->providerId);
 
         if ($user) {
             $authenticatedToken = new OpauthToken($this->providerKey, $user->getRoles());
@@ -44,7 +44,7 @@ class OpauthAuthenticationProvider implements AuthenticationProviderInterface
             return $authenticatedToken;
         }
 
-        throw new AuthenticationServiceException('Opauth Authentication Failed.');
+        throw new AuthenticationServiceException('Authentication failed.');
     }
 
     public function supports(TokenInterface $token)

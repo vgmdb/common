@@ -90,7 +90,7 @@ class UserProvider implements UserProviderInterface
      *
      * @return UserInterface|null
      */
-    public function loadUserByProviderId($provider, $providerId)
+    public function loadUserByAuthProvider($provider, $providerId)
     {
         return $this->userManager->findUserByAuthProvider($provider, $providerId);
     }
