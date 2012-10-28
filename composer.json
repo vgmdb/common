@@ -1,7 +1,21 @@
 {
     "name": "vgmdb/common",
+    "description": "VGMdb core framework",
+    "keywords": [],
+    "homepage": "http://vgmdb.net",
+    "authors": [
+        {
+            "name": "Gigablah",
+            "email": "gigablah@vgmdb.net"
+        }
+    ],
     "require": {
         "php": ">=5.3.3",
         "silex/silex": "1.0.*"
+    }
+    "autoload": {
+        "psr-0": {
+            "VGMdb": ""
+        }
     }
 }
