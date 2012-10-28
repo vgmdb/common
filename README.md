@@ -9,6 +9,12 @@ Create a `composer.json` file and use [Composer] [2] to install it:
 
     {
         "minimum-stability": "dev",
+        "repositories": [
+            {
+                "type": "vcs",
+                "url": "http://github.com/vgmdb/common"
+            }
+        ],
         "require": {
             "vgmdb/common": "dev-master"
         }
