@@ -87,11 +87,15 @@ class AsseticServiceProvider implements ServiceProviderInterface
 
             if (count($filters)) {
                 foreach ($filters as $name => $parameters) {
-                    list($class, $path) = $parameters;
+                    list($class, $arguments) = $parameters;
                     if (!class_exists($class)) {
                         throw new \ErrorException(sprintf('No such filter: %s', $class));
                     }
-                    $filter_manager->set($name, new $class($path));
+                    if (!is_array($arguments)) {
+                        $arguments = array($arguments);
+                    }
+                    $reflection = new \ReflectionClass($class);
+                    $filter_manager->set($name, $reflection->newInstanceArgs($arguments));
                 }
             }
 
