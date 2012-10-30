@@ -64,6 +64,7 @@ class UserManipulator
         $user->setPlainPassword($password);
         $user->setEnabled((Boolean) $active);
         $user->setSuperAdmin((Boolean) $superadmin);
+        $user->setCreatedAt(new \DateTime());
         $this->userManager->updateUser($user);
 
         return $user;
@@ -146,9 +147,7 @@ class UserManipulator
             return false;
         }
 
-        $role = $this->userManager->createRole($rolename);
-        $role->setUser($user);
-        $user->addRole($role);
+        $user->addRole($rolename);
         $this->userManager->updateUser($user);
 
         return true;
@@ -169,8 +168,8 @@ class UserManipulator
             return false;
         }
 
+        $user->removeRole($rolename);
         $this->userManager->removeRole($role);
-        $user->removeRole($role);
         $this->userManager->updateUser($user);
 
         return true;
@@ -188,15 +187,12 @@ class UserManipulator
     public function addAuthProvider($user, $provider, $providerId)
     {
         $user = $this->checkUser($user);
-        $provider = $this->userManager->translateProvider($provider);
 
         if ($user->hasAuthProvider($provider, $providerId)) {
             return false;
         }
 
-        $auth = $this->userManager->createAuthProvider($provider, $providerId);
-        $auth->setUser($user);
-        $user->addAuthProvider($auth);
+        $user->addAuthProvider($provider, $providerId);
         $this->userManager->updateUser($user);
 
         return true;
@@ -213,14 +209,13 @@ class UserManipulator
     public function removeAuthProvider($user, $provider, $providerId = null)
     {
         $user = $this->checkUser($user);
-        $provider = $this->userManager->translateProvider($provider);
 
-        if (false === $auth = $user->hasAuthProvider($provider, $providerId)) {
+        if (false === $authProvider = $user->hasAuthProvider($provider, $providerId)) {
             return false;
         }
 
-        $this->userManager->removeAuthProvider($auth);
-        $user->removeAuthProvider($auth);
+        $user->removeAuthProvider($provider, $providerId);
+        $this->userManager->removeAuthProvider($authProvider);
         $this->userManager->updateUser($user);
 
         return true;

@@ -3,43 +3,71 @@
 namespace VGMdb\Component\User\Model;
 
 /**
- * Storage agnostic auth provider
+ * Auth provider basics.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
-abstract class AbstractAuthProvider implements \Serializable
+abstract class AbstractAuthProvider
 {
+    protected $id;
+
     /**
-     * Serializes the auth provider.
-     *
-     * @return string
+     * @var integer
      */
-    public function serialize()
+    protected $provider;
+
+    /**
+     * @var string
+     */
+    protected $provider_id;
+
+    /**
+     * @var array
+     */
+    protected static $providerMap = array(
+        'facebook' => 1,
+        'twitter'  => 2,
+        'google'   => 3
+    );
+
+    /**
+     * Get the numeric value of provider.
+     *
+     * @param string $provider
+     * @return integer
+     */
+    public static function getProviderFromName($provider)
     {
-        return serialize(array(
-            $this->id,
-            $this->user_id,
-            $this->provider,
-            $this->provider_id,
-            $this->access_token,
-            $this->enabled,
-        ));
+        $provider = strtolower($provider);
+
+        if (!isset(static::$providerMap[$provider])) {
+            return 0;
+        }
+
+        return static::$providerMap[$provider];
     }
 
     /**
-     * Unserializes the auth provider.
+     * Get the string value of provider.
      *
-     * @param string $serialized
+     * @param integer $provider
+     * @return string
      */
-    public function unserialize($serialized)
+    public static function getNameFromProvider($provider)
     {
-        $data = unserialize($serialized);
+        $provider = intval($provider);
 
-        list(
-            $this->id,
-            $this->user_id,
-            $this->provider,
-            $this->provider_id,
-            $this->access_token,
-            $this->enabled,
-        ) = $data;
+        $providerMap = array_flip(static::$providerMap);
+
+        if (!isset($providerMap[$provider])) {
+            return 'unknown';
+        }
+
+        return $providerMap[$provider];
+    }
+
+    public function __toString()
+    {
+        return (string) $this->getProvider() . '|' . $this->getProviderId();
     }
 }

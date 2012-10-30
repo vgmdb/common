@@ -3,7 +3,7 @@
 namespace VGMdb\Provider;
 
 use VGMdb\Component\User\Model\UserInterface;
-use VGMdb\Component\User\Model\Doctrine\ORM\UserManager;
+use VGMdb\Component\User\Model\Doctrine\UserManager;
 use VGMdb\Component\User\Provider\UserProvider;
 use VGMdb\Component\User\Security\LoginManager;
 use VGMdb\Component\User\Security\InteractiveLoginListener;
@@ -36,7 +36,6 @@ class UserServiceProvider implements ServiceProviderInterface
                 //$app['db'],
                 $app['entity_manager'],
                 $app['user.model.user_class'],
-                $app['user.model.role_class'],
                 $app['user.model.auth_class']
             );
         });
@@ -126,7 +125,7 @@ class UserServiceProvider implements ServiceProviderInterface
                 'roles' => $roles,
                 'token' => $token,
                 'urls' => array(
-                    'logout' => $app['security.firewalls']['master']['logout']['logout_path']
+                    'logout' => $app['security.firewalls'][$app['user.firewall_name']]['logout']['logout_path']
                 )
             );
         });
@@ -140,10 +139,10 @@ class UserServiceProvider implements ServiceProviderInterface
                     'oauth' => $app['form.csrf_provider']->generateCsrfToken('oauth')
                 ),
                 'urls' => array(
-                    'login_check' => $app['security.firewalls']['master']['form']['check_path'],
-                    'login_facebook' => $app['security.firewalls']['master']['opauth.facebook']['login_path'],
-                    'login_twitter' => $app['security.firewalls']['master']['opauth.twitter']['login_path'],
-                    'login_google' => $app['security.firewalls']['master']['opauth.google']['login_path']
+                    'login_check' => $app['security.firewalls'][$app['user.firewall_name']]['form']['check_path'],
+                    'login_facebook' => $app['security.firewalls'][$app['user.firewall_name']]['opauth.facebook']['login_path'],
+                    'login_twitter' => $app['security.firewalls'][$app['user.firewall_name']]['opauth.twitter']['login_path'],
+                    'login_google' => $app['security.firewalls'][$app['user.firewall_name']]['opauth.google']['login_path']
                 )
             );
         });

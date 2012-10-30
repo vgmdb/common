@@ -5,18 +5,18 @@ namespace VGMdb\Component\User\Model\Doctrine;
 use VGMdb\Component\User\Model\UserInterface;
 use VGMdb\Component\User\Model\AbstractUserManager;
 use VGMdb\Component\User\Util\CanonicalizerInterface;
-use Doctrine\DBAL\Connection;
+use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\Proxy\Proxy;
+use Symfony\Component\Security\Core\Role\RoleInterface;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 
-/**
- * Test implementation of UserManager without Doctrine ORM. DO NOT USE!
- */
 class UserManager extends AbstractUserManager
 {
-    protected $conn;
+    protected $objectManager;
     protected $userClass;
-    protected $roleClass;
     protected $authClass;
+    protected $userRepository;
+    protected $authRepository;
 
     /**
      * Constructor.
@@ -24,19 +24,29 @@ class UserManager extends AbstractUserManager
      * @param EncoderFactoryInterface $encoderFactory
      * @param CanonicalizerInterface  $usernameCanonicalizer
      * @param CanonicalizerInterface  $emailCanonicalizer
-     * @param QueryBuilder            $queryBuilder
+     * @param ObjectManager           $om
      * @param string                  $userClass
-     * @param string                  $roleClass
      * @param string                  $authClass
      */
-    public function __construct(EncoderFactoryInterface $encoderFactory, CanonicalizerInterface $usernameCanonicalizer, CanonicalizerInterface $emailCanonicalizer, Connection $conn, $userClass, $roleClass, $authClass)
+    public function __construct(EncoderFactoryInterface $encoderFactory, CanonicalizerInterface $usernameCanonicalizer, CanonicalizerInterface $emailCanonicalizer, ObjectManager $om, $userClass, $authClass)
     {
         parent::__construct($encoderFactory, $usernameCanonicalizer, $emailCanonicalizer);
 
-        $this->conn = $conn;
-        $this->userClass = $userClass;
-        $this->roleClass = $roleClass;
+        $this->objectManager = $om;
+        $this->userRepository = $om->getRepository($userClass);
+        $this->authRepository = $om->getRepository($authClass);
+
+        $metadata = $om->getClassMetadata($userClass);
+        $this->userClass = $metadata->getName();
         $this->authClass = $authClass;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function createUser()
+    {
+        return parent::createUser();
     }
 
     /**
@@ -44,7 +54,8 @@ class UserManager extends AbstractUserManager
      */
     public function deleteUser(UserInterface $user)
     {
-        throw new \Exception('Not implemented yet.');
+        $this->objectManager->remove($user);
+        $this->objectManager->flush();
     }
 
     /**
@@ -56,33 +67,31 @@ class UserManager extends AbstractUserManager
     }
 
     /**
+     * Removes a role.
+     *
+     * @param RoleInterface $role
+     */
+    public function removeRole(RoleInterface $role)
+    {
+        $this->objectManager->remove($role);
+    }
+
+    /**
+     * Removes an auth provider.
+     *
+     * @param \VGMdb\ORM\Entity\AuthProvider $authProvider
+     */
+    public function removeAuthProvider($authProvider)
+    {
+        $this->objectManager->remove($authProvider);
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function findUserBy(array $criteria)
     {
-        $query = $this->conn->createQueryBuilder();
-        $query->select('*')->from('user', 'u');
-        $counter = 0;
-        foreach ($criteria as $column => $value) {
-            $counter++;
-            if ($counter === 1) {
-                $query->where($query->expr()->eq('u.' . $column, ':' . $column . $counter));
-            } else {
-                $query->andWhere($query->expr()->eq('u.' . $column, ':' . $column . $counter));
-            }
-            $query->setParameter(':' . $column . $counter, $value);
-        }
-        $stmt = $query->execute();
-        $data = $stmt->fetch(\PDO::FETCH_NUM);
-
-        if ($data) {
-            $class = $this->getClass();
-            $user = new $class;
-            $user->hydrate($data);
-            return $user;
-        }
-
-        return null;
+        return $this->userRepository->findOneBy($criteria);
     }
 
     /**
@@ -95,7 +104,30 @@ class UserManager extends AbstractUserManager
      */
     public function findUserByAuthProvider($provider, $providerId)
     {
-        throw new \Exception('Not implemented yet.');
+        $auth = $this->authRepository->findOneByProvider($provider, $providerId);
+
+        if ($auth) {
+            return $auth->getUser();
+        }
+
+        return null;
+    }
+
+    /**
+     * Refresh an unserialized user. Used by UserProvider.
+     *
+     * @param UserInterface $user
+     *
+     * @return UserInterface
+     */
+    public function findUserMatch(UserInterface $user)
+    {
+        if ($user instanceof Proxy) {
+            // Doctrine Proxy class must be initialized, otherwise getId() returns null
+            $user = $this->objectManager->merge($user);
+        }
+
+        return $this->userRepository->findOneBy(array('id' => $user->getId()));
     }
 
     /**
@@ -103,7 +135,7 @@ class UserManager extends AbstractUserManager
      */
     public function findUsers()
     {
-        throw new \Exception('Not implemented yet.');
+        return $this->userRepository->findAll();
     }
 
     /**
@@ -111,70 +143,29 @@ class UserManager extends AbstractUserManager
      */
     public function reloadUser(UserInterface $user)
     {
-        return $this->findUserBy(array('id' => $user->getId()));
+        if ($user instanceof Proxy) {
+            // Doctrine Proxy class must be initialized, otherwise getId() returns null
+            $user = $this->objectManager->merge($user);
+        }
+
+        //$this->objectManager->refresh($user);
+        return $this->userRepository->findOneBy(array('id' => $user->getId()));
     }
 
     /**
      * Updates a user.
      *
      * @param UserInterface $user
+     * @param Boolean       $andFlush Whether to flush the changes (default true)
      */
-    public function updateUser(UserInterface $user)
+    public function updateUser(UserInterface $user, $andFlush = true)
     {
         $this->updateCanonicalFields($user);
         $this->updatePassword($user);
 
-        $query = $this->conn->createQueryBuilder();
-        $query->update('user', 'u')
-              ->set('u.last_login', ':last_login')
-              ->where($query->expr()->eq('u.id', ':id1'))
-              ->setParameter(':last_login', $user->getLastLogin()->format('Y-m-d H:i:s'))
-              ->setParameter(':id1', $user->getId());
-
-        $query->execute();
-    }
-
-    /**
-     * Adds a role to the user
-     *
-     * @param string        $role
-     * @param UserInterface $user
-     *
-     * @return UserInterface
-     */
-    public function addRole($role, UserInterface $user)
-    {
-        $class = $this->roleClass;
-        $role = new $class;
-        $role->setRole($role);
-        $role->setUserId($user->getId());
-
-        throw new \Exception('Not implemented yet.');
-
-        $user->addRole($role);
-        return $user;
-    }
-
-    /**
-     * Adds an auth provider to the user
-     *
-     * @param string        $provider
-     * @param integer       $provider_id
-     * @param UserInterface $user
-     * @return UserInterface
-     */
-    public function addAuthProvider($provider, $provider_id, UserInterface $user)
-    {
-        $class = $this->authClass;
-        $auth = new $class;
-
-        $auth->setProvider($provider);
-        $auth->setProviderId($provider_id);
-        $auth->setUserId($user->getId());
-
-        throw new \Exception('Not implemented yet.');
-
-        $user->addAuthProvider($auth);
-        return $user;
+        $this->objectManager->persist($user);
+        if ($andFlush) {
+            $this->objectManager->flush();
+        }
     }
 }

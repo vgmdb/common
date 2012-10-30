@@ -187,7 +187,7 @@ interface UserInterface extends AdvancedUserInterface, \Serializable
      *
      * @param string $role
      */
-    //public function addRole($role);
+    public function addRole($role);
 
     /**
      * Removes a role to the user.

@@ -163,16 +163,8 @@ abstract class AbstractUser implements UserInterface
             $this->email,
             $this->email_canonical,
             $this->enabled,
-            $this->salt,
-            $this->password,
-            $this->last_login,
             $this->locked,
-            $this->expired,
-            $this->expires_at,
-            $this->confirmation_token,
-            $this->password_requested_at,
-            $this->credentials_expired,
-            $this->credentials_expire_at,
+            $this->expired
         ));
     }
 
@@ -188,16 +180,6 @@ abstract class AbstractUser implements UserInterface
         // older data which does not include all properties.
         $data = array_merge($data, array_fill(0, 2, null));
 
-        $this->hydrate($data);
-    }
-
-    /**
-     * Hydrates user data.
-     *
-     * @param array $data
-     */
-    private function hydrate($data)
-    {
         list(
             $this->id,
             $this->username,
@@ -205,16 +187,8 @@ abstract class AbstractUser implements UserInterface
             $this->email,
             $this->email_canonical,
             $this->enabled,
-            $this->salt,
-            $this->password,
-            $this->last_login,
             $this->locked,
-            $this->expired,
-            $this->expires_at,
-            $this->confirmation_token,
-            $this->password_requested_at,
-            $this->credentials_expired,
-            $this->credentials_expire_at,
+            $this->expired
         ) = $data;
     }
 
@@ -481,7 +455,6 @@ abstract class AbstractUser implements UserInterface
     {
         if (false !== $key = array_search($role, $this->getRoles(), true)) {
             unset($this->roles[$key]);
-            //$this->roles = array_values($this->getRoles());
 
             return true;
         }
@@ -750,58 +723,6 @@ abstract class AbstractUser implements UserInterface
         }
 
         return $this;
-    }
-
-    /**
-     * Returns the auth providers
-     *
-     * @return array
-     */
-    public function getAuthProviders()
-    {
-        return $this->authProviders;
-    }
-
-    /**
-     * Removes an auth provider from the user.
-     *
-     * @param \VGMdb\Component\User\Model\AbstractAuthProvider $auth
-     *
-     * @return Boolean
-     */
-    public function removeAuthProvider($auth)
-    {
-        if (false !== $key = array_search($auth, $this->getAuthProviders(), true)) {
-            unset($this->authProviders[$key]);
-            //$this->roles = array_values($this->getRoles());
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Check if user has an auth provider. Provider ID is optional.
-     *
-     * @param integer $provider
-     * @param string  $providerId
-     *
-     * @return mixed
-     */
-    public function hasAuthProvider($provider, $providerId = null)
-    {
-        $providers = $this->getAuthProviders();
-        foreach ($providers as $auth) {
-            if ($auth->getProvider() === $provider) {
-                // no strict comparison here, bigint is compared as string
-                if (!$providerId || $auth->getProviderId() == $providerId) {
-                    return $auth;
-                }
-            }
-        }
-
-        return false;
     }
 
     public function __toString()
