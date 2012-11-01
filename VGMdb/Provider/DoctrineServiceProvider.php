@@ -2,7 +2,7 @@
 
 namespace VGMdb\Provider;
 
-use VGMdb\Component\DBAL\Logging\SQLErrorLogger;
+use VGMdb\Component\DBAL\Logging\SQLDebugLogger;
 use Silex\Application;
 use Silex\Provider\DoctrineServiceProvider as BaseDoctrineServiceProvider;
 use Doctrine\ORM\EntityManager;
@@ -67,7 +67,8 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
         }
 
         if ($app['debug'] && isset($app['monolog'])) {
-            $logger = new SQLErrorLogger($app['db.logfile']);
+            //$logger = new SQLErrorLogger($app['db.logfile']);
+            $logger = new SQLDebugLogger($app['monolog']);
             $app['db.config']->setSQLLogger($logger);
             /*$app->finish(function ($request, $response) use ($app, $logger) {
                 if (isset($logger->queries) && count($logger->queries)) {

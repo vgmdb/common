@@ -2,12 +2,12 @@
 
 namespace VGMdb\Provider;
 
+use VGMdb\Component\Security\Http\Firewall\OpauthAuthenticationListener;
+use VGMdb\Component\Security\Core\Authentication\Provider\OpauthAuthenticationProvider;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\HttpFoundation\RequestMatcher;
 use Symfony\Component\Security\Http\EntryPoint\FormAuthenticationEntryPoint;
-use VGMdb\Component\Security\Http\Firewall\OpauthAuthenticationListener;
-use VGMdb\Component\Security\Core\Authentication\Provider\OpauthAuthenticationProvider;
 
 /**
  * @brief       Opauth authentication library integration.
@@ -80,8 +80,12 @@ class OpauthServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
+        $app->match($app['opauth.path'], function() {
+
+        });
+
         // fake route which will be handled by auth listener
-        $app->match('/auth/{strategy}', function() {});
+        $app->match($app['opauth.path'] . '/{strategy}', function() {});
 
         // this route must be unsecured
         $app->match('/login/{strategy}/{callback}', function ($strategy, $callback) use ($app) {

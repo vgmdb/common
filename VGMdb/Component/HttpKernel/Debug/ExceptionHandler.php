@@ -27,6 +27,8 @@ class ExceptionHandler
     /**
      * Register the exception handler.
      *
+     * @param Boolean $debug
+     *
      * @return ExceptionHandler The registered exception handler
      */
     public static function register($debug = true)
@@ -34,7 +36,10 @@ class ExceptionHandler
         $handler = new static($debug);
 
         set_exception_handler(array($handler, 'handle'));
-        register_shutdown_function(array($handler, 'shutdown'));
+
+        if ($debug) {
+            register_shutdown_function(array($handler, 'shutdown'));
+        }
 
         return $handler;
     }
@@ -45,6 +50,7 @@ class ExceptionHandler
     public function shutdown()
     {
         $error = error_get_last();
+
         if (isset($error)) {
             $this->handle(new \ErrorException($error['message'], $error['type'], 0, $error['file'], $error['line']));
         }
@@ -161,6 +167,7 @@ EOF
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width">
   <title>{$title}</title>
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700">
   <link rel="stylesheet" href="/css/libs/bootstrap.css">
   <link rel="stylesheet" href="/css/style.css">
 </head>
