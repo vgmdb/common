@@ -34,7 +34,7 @@ class SubdomainListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            KernelEvents::REQUEST => array(array('onKernelRequest', 512)),
+            KernelEvents::REQUEST => array(array('onKernelRequest', Application::EARLY_EVENT)),
         );
     }
 }

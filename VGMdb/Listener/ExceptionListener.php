@@ -7,9 +7,9 @@ use VGMdb\Component\HttpFoundation\Response;
 use VGMdb\Component\HttpFoundation\JsonResponse;
 use VGMdb\Component\HttpFoundation\XmlResponse;
 use VGMdb\Component\HttpFoundation\BeaconResponse;
-use Silex\SilexEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @brief       Custom exception listener.
@@ -17,10 +17,17 @@ use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
  */
 class ExceptionListener implements EventSubscriberInterface
 {
+    protected $debug;
+
+    public function __construct($debug)
+    {
+        $this->debug = $debug;
+    }
+
     public function onSilexError(GetResponseForExceptionEvent $event)
     {
         $app = $event->getKernel();
-        $handler = new ExceptionHandler($app['debug']);
+        $handler = new ExceptionHandler($this->debug);
         list($title, $html, $code, $headers) = $handler->createResponse($event->getException());
 
         switch ($format = $event->getRequest()->getRequestFormat()) {
@@ -49,6 +56,6 @@ class ExceptionListener implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(SilexEvents::ERROR => array('onSilexError', -255));
+        return array(KernelEvents::EXCEPTION => array('onSilexError', -255));
     }
 }

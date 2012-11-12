@@ -7,8 +7,8 @@ use VGMdb\Component\View\View;
 use VGMdb\Component\View\Widget;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
-use Silex\SilexEvents;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @brief       View service provides view and widget factories.
@@ -52,7 +52,7 @@ class ViewServiceProvider implements ServiceProviderInterface
     {
         View::share('DEBUG', $app['debug']);
 
-        $app['dispatcher']->addListener(SilexEvents::AFTER, function (FilterResponseEvent $event) use ($app) {
+        $app['dispatcher']->addListener(KernelEvents::RESPONSE, function (FilterResponseEvent $event) use ($app) {
             if ($event->getRequest()->getRequestFormat() === 'html') {
                 $content = $event->getResponse()->getContent();
                 $layout = $event->getRequest()->attributes->get('_layout');

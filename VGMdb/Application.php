@@ -13,9 +13,7 @@ use VGMdb\Component\HttpFoundation\BeaconResponse;
 use VGMdb\Component\View\ViewInterface;
 use VGMdb\ControllerResolver;
 use Silex\Application as BaseApplication;
-use Silex\SilexEvents;
-use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
-use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @brief       The VGMdb application class. Extends the Silex framework with custom methods.
@@ -34,8 +32,8 @@ class Application extends BaseApplication
         $app = $this;
 
         // replace the default exception handler
-        $this['exception_handler'] = $this->share(function () {
-            return new ExceptionListener();
+        $this['exception_handler'] = $this->share(function () use ($app) {
+            return new ExceptionListener($app['debug']);
         });
 
         // subdomain handler listens to onKernelRequest
@@ -107,47 +105,5 @@ class Application extends BaseApplication
     public function patch($pattern, $to)
     {
         return $this['controllers']->patch($pattern, $to);
-    }
-
-    /**
-     * Custom error handler.
-     *
-     * @param mixed   $callback Error handler callback, takes an Exception argument
-     * @param integer $priority The higher this value, the earlier an event
-     *                          listener will be triggered in the chain (defaults to 0)
-     */
-    public function error($callback, $priority = 0)
-    {
-        $this['dispatcher']->addListener(SilexEvents::ERROR, function (GetResponseForExceptionEvent $event) use ($callback) {
-            $exception = $event->getException();
-            $code = $exception instanceof HttpExceptionInterface ? $exception->getStatusCode() : 500;
-
-            if (is_array($callback)) {
-                $callbackReflection = new \ReflectionMethod($callback[0], $callback[1]);
-            } elseif (is_object($callback) && !$callback instanceof \Closure) {
-                $callbackReflection = new \ReflectionObject($callback);
-                $callbackReflection = $callbackReflection->getMethod('__invoke');
-            } else {
-                $callbackReflection = new \ReflectionFunction($callback);
-            }
-
-            if ($callbackReflection->getNumberOfParameters() > 0) {
-                $parameters = $callbackReflection->getParameters();
-                $expectedParameter = $parameters[0];
-                if ($expectedParameter->getClass() && $expectedParameter->getClass()->isInstance($event)) {
-                    $result = call_user_func($callback, $event, $code);
-                } elseif ($expectedParameter->getClass() && !$expectedParameter->getClass()->isInstance($exception)) {
-                    return;
-                } else {
-                    $result = call_user_func($callback, $exception, $code);
-                }
-            }
-
-            if (null !== $result) {
-                $response = $result instanceof Response ? $result : new Response($result);
-
-                $event->setResponse($response);
-            }
-        }, $priority);
     }
 }
