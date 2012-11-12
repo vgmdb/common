@@ -2,6 +2,7 @@
 
 namespace VGMdb\Listener;
 
+use VGMdb\Application;
 use VGMdb\Component\HttpKernel\Debug\ExceptionHandler;
 use VGMdb\Component\HttpFoundation\Response;
 use VGMdb\Component\HttpFoundation\JsonResponse;
@@ -24,7 +25,7 @@ class ExceptionListener implements EventSubscriberInterface
         $this->debug = $debug;
     }
 
-    public function onSilexError(GetResponseForExceptionEvent $event)
+    public function onKernelException(GetResponseForExceptionEvent $event)
     {
         $app = $event->getKernel();
         $handler = new ExceptionHandler($this->debug);
@@ -56,6 +57,6 @@ class ExceptionListener implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(KernelEvents::EXCEPTION => array('onSilexError', -255));
+        return array(KernelEvents::EXCEPTION => array('onKernelException', Application::EARLY_EVENT));
     }
 }

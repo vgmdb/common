@@ -35,6 +35,7 @@ class ApiControllerProvider implements ControllerProviderInterface
                 if ($username === 'me' && $app['request']->getRequestFormat() !== 'html') {
                     throw new HttpException(401, 'Unauthorised: Authentication credentials were missing or incorrect.');
                 }
+                throw $e;
             }
             $view = $app['view']('userbox')->nest($app['view']('user', $data));
             return $view;

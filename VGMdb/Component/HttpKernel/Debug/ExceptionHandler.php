@@ -91,11 +91,13 @@ class ExceptionHandler
                     $title = 'Sorry, the page you are looking for could not be found.';
                     break;
                 default:
-                    $title = $exception->getMessage() ?: 'Whoops, looks like something went wrong.';
+                    $title = /*$exception->getMessage() ?: */'Whoops, looks like something went wrong.';
             }
 
             if ($this->debug) {
                 $content = $this->getContent($exception);
+            } else {
+                $content = $this->getPublicContent($exception);
             }
         } catch (\Exception $e) {
             // something nasty happened and we cannot throw an exception here anymore
@@ -153,6 +155,13 @@ EOF
             $content .= "    </ol>\n</div>\n";
         }
 
+        return $content;
+    }
+
+    private function getPublicContent($exception)
+    {
+        $content = '<h3>There was an error processing your request.</h3>' . PHP_EOL;
+        $content .= '<p>Our engineers are working on a fix. You might want to check back later.</p>' . PHP_EOL;
         return $content;
     }
 

@@ -12,6 +12,7 @@ use VGMdb\Component\HttpFoundation\JsonResponse;
 use VGMdb\Component\HttpFoundation\BeaconResponse;
 use VGMdb\Component\View\ViewInterface;
 use VGMdb\ControllerResolver;
+use VGMdb\ExceptionListenerWrapper;
 use Silex\Application as BaseApplication;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -29,6 +30,7 @@ class Application extends BaseApplication
     public function __construct()
     {
         parent::__construct();
+
         $app = $this;
 
         // replace the default exception handler
@@ -36,12 +38,16 @@ class Application extends BaseApplication
             return new ExceptionListener($app['debug']);
         });
 
-        // subdomain handler listens to onKernelRequest
-        $this['dispatcher']->addSubscriber(new SubdomainListener($app));
+        $this['dispatcher'] = $this->share($this->extend('dispatcher', function ($dispatcher) use ($app) {
+            // subdomain handler listens to onKernelRequest
+            $dispatcher->addSubscriber(new SubdomainListener($app));
+            // extension handler listens to onKernelRequest
+            $dispatcher->addSubscriber(new ExtensionListener($app));
 
-        // extension handler listens to onKernelRequest
+            return $dispatcher;
+        }));
+
         $this['request.format.extensions'] = array('json', 'xml', 'gif');
-        $this['dispatcher']->addSubscriber(new ExtensionListener($app));
 
         // replace the controller factory with our own implementation
         $this['controllers_factory'] = function () use ($app) {
@@ -105,5 +111,13 @@ class Application extends BaseApplication
     public function patch($pattern, $to)
     {
         return $this['controllers']->patch($pattern, $to);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function error($callback, $priority = -8)
+    {
+        $this['dispatcher']->addListener(KernelEvents::EXCEPTION, new ExceptionListenerWrapper($this, $callback), $priority);
     }
 }

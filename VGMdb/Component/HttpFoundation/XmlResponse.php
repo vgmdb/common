@@ -3,6 +3,7 @@
 namespace VGMdb\Component\HttpFoundation;
 
 use VGMdb\Component\View\View;
+use Symfony\Component\HttpFoundation\Request as BaseRequest;
 
 /**
  * @brief       Representation of a HTTP response in XML format.
@@ -19,7 +20,7 @@ class XmlResponse extends Response
      * @param integer $status  The response status code
      * @param array   $headers An array of response headers
      */
-    public function __construct($data, $status = 200, $headers = array())
+    public function __construct($data = '', $status = 200, $headers = array())
     {
         parent::__construct('', $status, $headers);
 
@@ -29,7 +30,7 @@ class XmlResponse extends Response
     /**
      * {@inheritDoc}
      */
-    public static function create($data, $status = 200, $headers = array())
+    public static function create($data = '', $status = 200, $headers = array())
     {
         return new static($data, $status, $headers);
     }
@@ -37,7 +38,7 @@ class XmlResponse extends Response
     /**
      * {@inheritdoc}
      */
-    public function prepare(Request $request)
+    public function prepare(BaseRequest $request)
     {
         $this->headers->set('Content-Type', 'application/xml');
         $this->headers->set('Vary', 'Accept');

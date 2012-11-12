@@ -30,7 +30,7 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
             if (!isset($app['orm.proxy_namespace'])) {
                 throw new \RuntimeException('The orm.proxy_namespace path is not set.');
             }
-            $cache = $app['debug'] ? new ArrayCache : new ApcCache;
+            $cache = ($app['debug'] || !extension_loaded('apc')) ? new ArrayCache : new ApcCache;
             $config = new Configuration;
             $config->setMetadataCacheImpl($cache);
             $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver($app['orm.entity_dir'], false));
