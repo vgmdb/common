@@ -2,6 +2,8 @@
 
 namespace VGMdb\Provider;
 
+use VGMdb\Component\User\Form\Type\RegistrationFormType;
+use VGMdb\Component\User\Form\Handler\RegistrationFormHandler;
 use VGMdb\Component\User\Model\UserInterface;
 use VGMdb\Component\User\Model\Doctrine\UserManager;
 use VGMdb\Component\User\Provider\UserProvider;
@@ -11,6 +13,8 @@ use VGMdb\Component\User\Security\Core\Encoder\BlowfishPasswordEncoder;
 use VGMdb\Component\User\Security\Core\Authentication\Provider\DaoAuthenticationProvider;
 use VGMdb\Component\User\Util\Canonicalizer;
 use VGMdb\Component\User\Util\EmailCanonicalizer;
+use VGMdb\Component\User\Util\TokenGenerator;
+use VGMdb\Component\User\Mailer\MockMailer;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\Security\Core\Encoder\EncoderFactory;
@@ -52,11 +56,15 @@ class UserServiceProvider implements ServiceProviderInterface
         });
 
         $app['user.util.username_canonicalizer'] = $app->share(function ($app) {
-            return new Canonicalizer;
+            return new Canonicalizer();
         });
 
         $app['user.util.email_canonicalizer'] = $app->share(function ($app) {
-            return new EmailCanonicalizer;
+            return new EmailCanonicalizer();
+        });
+
+        $app['user.token_generator'] = $app->share(function ($app) {
+            return new TokenGenerator();
         });
 
         $app['user_provider'] = $app->share(function ($app) {
@@ -77,11 +85,22 @@ class UserServiceProvider implements ServiceProviderInterface
         });
 
         $app['user.registration.form'] = $app->share(function ($app) {
-
+            $form = $app['form.factory']->create(new RegistrationFormType($app['user.model.user_class']));
+            return $form;
         });
 
         $app['user.registration.form_handler'] = $app->share(function ($app) {
+            return new RegistrationFormHandler(
+                $app['user.registration.form'],
+                $app['request'],
+                $app['user_manager'],
+                $app['user.mailer'],
+                $app['user.token_generator']
+            );
+        });
 
+        $app['user.mailer'] = $app->share(function ($app) {
+            return new MockMailer($app['logger']);
         });
 
         $app['data.user'] = $app->protect(function ($username, $version = \VGMdb\Application::VERSION) use ($app) {
