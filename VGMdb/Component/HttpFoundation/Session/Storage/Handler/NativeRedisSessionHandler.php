@@ -2,6 +2,8 @@
 
 namespace VGMdb\Component\HttpFoundation\Session\Storage\Handler;
 
+use Symfony\Component\HttpFoundation\Session\Storage\Handler\NativeSessionHandler;
+
 /**
  * NativeRedisSessionStorage.
  *
