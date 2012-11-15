@@ -17,7 +17,9 @@ use VGMdb\Component\User\Util\TokenGenerator;
 use VGMdb\Component\User\Mailer\MockMailer;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Encoder\EncoderFactory;
+use Symfony\Component\Security\Core\Exception\TokenNotFoundException;
 use Symfony\Component\Security\Core\Exception\InsufficientAuthenticationException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
@@ -106,6 +108,9 @@ class UserServiceProvider implements ServiceProviderInterface
         $app['data.user'] = $app->protect(function ($username, $version = \VGMdb\Application::VERSION) use ($app) {
             if ($username === 'me') {
                 $token = $app['security']->getToken();
+                if (!($token instanceof TokenInterface)) {
+                    throw new TokenNotFoundException('Token not found.');
+                }
                 if ($app['security.trust_resolver']->isAnonymous($token)) {
                     throw new InsufficientAuthenticationException('Not logged in.');
                 }
