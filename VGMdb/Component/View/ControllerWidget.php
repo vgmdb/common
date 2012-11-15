@@ -21,7 +21,7 @@ abstract class ControllerWidget extends Widget
      */
     public function __construct(Application $app, ViewInterface $view)
     {
-        $app['dispatcher']->addListener(KernelEvents::VIEW, array($this, 'onKernelView'), 0);
+        $app['dispatcher']->addListener(KernelEvents::RESPONSE, array($this, 'onKernelResponse'), 0);
         parent::__construct($view);
     }
 
@@ -30,5 +30,5 @@ abstract class ControllerWidget extends Widget
      *
      * @param GetResponseForControllerResultEvent $event The event to handle
      */
-    abstract public function onKernelView(GetResponseForControllerResultEvent $event);
+    abstract public function onKernelResponse(GetResponseForControllerResultEvent $event);
 }

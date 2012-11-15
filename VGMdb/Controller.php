@@ -10,13 +10,13 @@ class Controller extends BaseController
     /**
      * Sets the controller's layout.
      *
-     * @param ViewInterface $view
+     * @param string $layout Layout name.
      *
      * @return Controller $this The current Controller instance
      */
-    public function layout(ViewInterface $view)
+    public function layout($layout)
     {
-        $this->getRoute()->setDefault('_layout', $view);
+        $this->getRoute()->setDefault('_layout', $layout);
 
         return $this;
     }

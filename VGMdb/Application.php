@@ -89,15 +89,27 @@ class Application extends BaseApplication
     }
 
     /**
-     * Sets the layout to wrap the controller view with.
+     * Sets the layout provider.
      *
-     * @param ViewInterface $view View object.
+     * @param \Closure $layout_provider A function that returns layouts.
      *
      * @return Controller
      */
-    public function layout(ViewInterface $view)
+    public function layouts(\Closure $layout_provider)
     {
-        return $this['controllers']->value('_layout', $view);
+        return $this['controllers']->value('_layouts', $layout_provider);
+    }
+
+    /**
+     * Sets the layout to wrap the controller view with.
+     *
+     * @param string $layout Layout name.
+     *
+     * @return Controller
+     */
+    public function layout($layout)
+    {
+        return $this['controllers']->value('_layout', $layout);
     }
 
     /**

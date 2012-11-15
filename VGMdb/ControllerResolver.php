@@ -62,6 +62,7 @@ class ControllerResolver extends BaseControllerResolver
             list($class, $method) = array($controller, $action . 'Action');
         } else {
             list($class, $method) = explode('::', $controller, 2);
+            $method .= 'Action';
         }
 
         if (isset($this->app['controller.namespace'])) {
