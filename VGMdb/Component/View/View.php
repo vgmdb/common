@@ -85,4 +85,16 @@ class View extends AbstractView
 
         return $render($this);
     }
+
+    /**
+     * Exports data to an array, along with template name.
+     *
+     * @return array Exported array.
+     */
+    public function getArrayCopy()
+    {
+        $data = array_merge(parent::getArrayCopy(), array('_template' => $this->template));
+
+        return $data;
+    }
 }

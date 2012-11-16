@@ -31,13 +31,17 @@ class ApiControllerProvider implements ControllerProviderInterface
         $api->get('/user/{username}', function ($username, $version) use ($app) {
             try {
                 $data = $app['data.user']($username, $version);
-            } catch (InsufficientAuthenticationException $e) {
-                if ($username === 'me' && $app['request']->getRequestFormat() !== 'html') {
+                $data['is_authenticated'] = true;
+            } catch (\Exception $e) {
+                /*if ($username === 'me' && $app['request']->getRequestFormat() !== 'html') {
                     throw new HttpException(401, 'Unauthorised: Authentication credentials were missing or incorrect.');
                 }
-                throw $e;
+                throw $e;*/
+                $data = $app['data.login']();
+                $data['is_authenticated'] = false;
             }
-            $view = $app['view']('userbox')->nest($app['view']('user', $data));
+            $view = $app['view']('userbox', $data);
+
             return $view;
         })->bind('user' . ($this->version ? '_v' . $this->version : ''));
 

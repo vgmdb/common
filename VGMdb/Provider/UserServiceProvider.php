@@ -147,7 +147,9 @@ class UserServiceProvider implements ServiceProviderInterface
                 'provider' => $provider,
                 'version' => $version,
                 'roles' => $roles,
-                'token' => $token,
+                'tokens' => array(
+                    'logout' => $token
+                ),
                 'urls' => array(
                     'logout' => $app['security.firewalls'][$app['user.firewall_name']]['logout']['logout_path']
                 )

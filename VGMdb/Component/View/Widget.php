@@ -63,4 +63,16 @@ class Widget extends AbstractView
 
         return $this->view->render($this);
     }
+
+    /**
+     * Exports data to an array, along with template name.
+     *
+     * @return array Exported array.
+     */
+    public function getArrayCopy()
+    {
+        $data = array_merge(parent::getArrayCopy(), array('_template' => $this->view->template));
+
+        return $data;
+    }
 }

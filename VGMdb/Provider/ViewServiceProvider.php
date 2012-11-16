@@ -59,9 +59,9 @@ class ViewServiceProvider implements ServiceProviderInterface
                 $layout_name = $event->getRequest()->attributes->get('_layout');
                 if (is_callable($layout_provider)) {
                     $layout = $layout_provider($layout_name);
-                }
-                if ($content instanceof ViewInterface && $layout instanceof ViewInterface) {
-                    $event->getResponse()->setContent($content->wrap($layout));
+                    if ($content instanceof ViewInterface && $layout instanceof ViewInterface) {
+                        $event->getResponse()->setContent($content->wrap($layout));
+                    }
                 }
             }
         }, -255);
