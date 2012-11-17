@@ -44,7 +44,7 @@ class RegistrationFormHandler
             $this->form->bind($this->request);
 
             if ($this->form->isValid()) {
-                $this->onSuccess($user, $requireConfirmation);
+                $this->activateUser($user, $requireConfirmation);
 
                 return true;
             }
@@ -54,16 +54,17 @@ class RegistrationFormHandler
     }
 
     /**
-     * @param boolean $requireConfirmation
+     * @param UserInterface $user
+     * @param boolean       $requireConfirmation
      */
-    protected function onSuccess(UserInterface $user, $requireConfirmation)
+    public function activateUser(UserInterface $user, $requireConfirmation)
     {
         if ($requireConfirmation) {
             $user->setEnabled(false);
             if (null === $user->getConfirmationToken()) {
                 $user->setConfirmationToken($this->tokenGenerator->generateToken());
             }
-            $this->mailer->sendConfirmationEmailMessage($user);
+            $this->mailer->sendConfirmationEmail($user);
         } else {
             $user->setEnabled(true);
         }
