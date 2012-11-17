@@ -88,7 +88,7 @@ class XmlResponse extends Response
      *
      * @return string
      */
-    static public function xmlEncode($data, $domElement = null, $domDocument = null)
+    static public function xmlEncode($data, $domElement = null, $domDocument = null, $indexOverride = null)
     {
         if (is_null($domDocument)) {
             $domDocument = new \DOMDocument();
@@ -96,31 +96,44 @@ class XmlResponse extends Response
             self::xmlEncode($data, $domDocument, $domDocument);
 
             return $domDocument->saveXML();
+        }
 
-        } else {
-            if (is_array($data) || $data instanceof \ArrayAccess) {
-                foreach ($data as $index => $element){
-                    if (is_int($index)) {
-                        if ($index === 0) {
-                            $node = $domElement;
-                        } else {
-                            $node = $domDocument->createElement($domElement->tagName);
-                            $domElement->parentNode->appendChild($node);
-                        }
+        if (is_array($data) || $data instanceof \ArrayAccess) {
+            foreach ($data as $index => $element){
+                if (is_int($index)) {
+                    if ($index === 0) {
+                        $node = $domElement;
+                    } else {
+                        $node = $domDocument->createElement($domElement->tagName);
+                        $domElement->parentNode->appendChild($node);
+                    }
+                } else {
+                    if ($indexOverride) {
+                        $plural = $domDocument->createElement($indexOverride);
+                        $plural->setAttribute('name', $index);
                     } else {
                         $plural = $domDocument->createElement($index);
-                        $domElement->appendChild($plural);
-                        $node = $plural;
-                        if (rtrim($index, 's') !== $index) {
-                            $singular = $domDocument->createElement(rtrim($index, 's'));
-                            $plural->appendChild($singular);
-                            $node = $singular;
-                        }
                     }
-                    self::xmlEncode($element, $node, $domDocument);
+                    $domElement->appendChild($plural);
+                    $node = $plural;
+                    $singular = null;
+                    if (rtrim($index, 's') !== $index) {
+                        $singular = rtrim($index, 's');
+                    }
                 }
+                self::xmlEncode($element, $node, $domDocument, $singular);
+            }
+        } else {
+            $data = (string) $data;
+            if (strpos($data, '[') !== false ||
+                strpos($data, ']') !== false ||
+                strpos($data, '<') !== false ||
+                strpos($data, '>') !== false ||
+                strpos($data, '&') !== false
+            ) {
+                $domElement->appendChild($domDocument->createCDATASection($data));
             } else {
-                $domElement->appendChild($domDocument->createTextNode((string) $data));
+                $domElement->appendChild($domDocument->createTextNode($data));
             }
         }
     }

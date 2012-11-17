@@ -4,6 +4,7 @@ namespace VGMdb\Component\HttpFoundation;
 
 use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser;
 use Symfony\Component\HttpFoundation\File\MimeType\FileinfoMimeTypeGuesser;
+use Symfony\Component\HttpFoundation\Request as BaseRequest;
 
 /**
  * @brief       Representation of a static file.
@@ -27,7 +28,7 @@ class FileResponse extends Response
 
     protected $file;
     protected $method;
-    protected $save_as;
+    protected $saveAs;
 
     /**
      * Constructor.
@@ -36,7 +37,7 @@ class FileResponse extends Response
      * @param integer $status  The response status code
      * @param array   $headers An array of response headers
      */
-    public function __construct($file, $status = 200, $headers = array())
+    public function __construct($file = '', $status = 200, $headers = array())
     {
         parent::__construct('', $status, $headers);
 
@@ -46,7 +47,7 @@ class FileResponse extends Response
     /**
      * {@inheritDoc}
      */
-    public static function create($file, $status = 200, $headers = array())
+    public static function create($file = '', $status = 200, $headers = array())
     {
         return new static($file, $status, $headers);
     }
@@ -54,7 +55,7 @@ class FileResponse extends Response
     /**
      * {@inheritdoc}
      */
-    public function prepare(Request $request)
+    public function prepare(BaseRequest $request)
     {
         $guesser = MimeTypeGuesser::getInstance();
         $guesser->register(new FileInfoMimeTypeGuesser());
@@ -72,8 +73,8 @@ class FileResponse extends Response
             $this->setContent(file_get_contents($this->file));
         }
 
-        if ($this->save_as) {
-            $this->headers->set('Content-Disposition', sprintf('attachment; filename="%s"', $this->save_as));
+        if ($this->saveAs) {
+            $this->headers->set('Content-Disposition', sprintf('attachment; filename="%s"', $this->saveAs));
         }
 
         return parent::prepare($request);
@@ -116,7 +117,7 @@ class FileResponse extends Response
      */
     public function setSaveAs($name = null)
     {
-        $this->save_as = $name;
+        $this->saveAs = $name;
 
         return $this;
     }
