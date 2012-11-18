@@ -24,7 +24,9 @@ class OpauthToken extends AbstractToken
 
         $this->providerKey = $providerKey;
 
-        $this->setAuthenticated(count($roles) > 0);
+        if ($roles) {
+            $this->setAuthenticated(true);
+        }
     }
 
     public function getCredentials()

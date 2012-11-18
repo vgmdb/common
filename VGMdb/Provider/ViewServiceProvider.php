@@ -55,8 +55,11 @@ class ViewServiceProvider implements ServiceProviderInterface
         $app['dispatcher']->addListener(KernelEvents::RESPONSE, function (FilterResponseEvent $event) use ($app) {
             if ($event->getRequest()->getRequestFormat() === 'html') {
                 $content = $event->getResponse()->getContent();
-                $layout_provider = $event->getRequest()->attributes->get('_layouts');
-                $layout_name = $event->getRequest()->attributes->get('_layout');
+
+                $attributes = $event->getRequest()->attributes;
+                $layout_provider = $attributes->get('_layouts');
+                $layout_name = $attributes->get('_layout');
+
                 if (is_callable($layout_provider)) {
                     $layout = $layout_provider($layout_name);
                     if ($content instanceof ViewInterface && $layout instanceof ViewInterface) {

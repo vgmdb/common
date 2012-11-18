@@ -159,9 +159,8 @@ abstract class AbstractUser implements UserInterface
         return serialize(array(
             $this->id,
             $this->username,
-            $this->username_canonical,
-            $this->email,
-            $this->email_canonical,
+            $this->salt,
+            $this->password,
             $this->enabled,
             $this->locked,
             $this->expired
@@ -183,9 +182,8 @@ abstract class AbstractUser implements UserInterface
         list(
             $this->id,
             $this->username,
-            $this->username_canonical,
-            $this->email,
-            $this->email_canonical,
+            $this->salt,
+            $this->password,
             $this->enabled,
             $this->locked,
             $this->expired
