@@ -69,7 +69,7 @@ class RegistrationFormHandler
             $user->setEnabled(true);
         }
 
-        //$this->userManager->updateUser($user);
+        $this->userManager->updateUser($user);
     }
 
     /**

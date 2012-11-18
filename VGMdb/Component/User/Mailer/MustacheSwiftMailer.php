@@ -46,10 +46,10 @@ class MustacheSwiftMailer implements MailerInterface
     public function sendResetPasswordEmail(UserInterface $user)
     {
         $template = $this->parameters['user.mailer.resetpassword.template'];
-        $url = $this->urlGenerator->generate('user_profile_resetpassword', array('token' => $user->getConfirmationToken()), true);
+        $url = $this->urlGenerator->generate('login_reset', array('token' => $user->getConfirmationToken()), true);
         $context = array(
             'user' => $user,
-            'confirmationUrl' => $url
+            'resetUrl' => $url
         );
 
         if (null !== $this->logger) {
@@ -57,6 +57,20 @@ class MustacheSwiftMailer implements MailerInterface
         }
 
         $this->sendMessage($template, $context, $this->parameters['user.mailer.resetpassword.from_email'], $user->getEmail());
+    }
+
+    public function sendNewPasswordEmail(UserInterface $user)
+    {
+        $template = $this->parameters['user.mailer.newpassword.template'];
+        $context = array(
+            'user' => $user
+        );
+
+        if (null !== $this->logger) {
+            $this->logger->info(sprintf('Sending new password notification email to "%s"', $user->getEmail()));
+        }
+
+        $this->sendMessage($template, $context, $this->parameters['user.mailer.newpassword.from_email'], $user->getEmail());
     }
 
     /**
@@ -67,11 +81,9 @@ class MustacheSwiftMailer implements MailerInterface
      */
     protected function sendMessage($templates, $context, $fromEmail, $toEmail)
     {
-        $subject = $this->mustache->loadTemplate($templates['subject'])->render($context);
-        $textBody = $this->mustache->loadTemplate($templates['text'])->render($context);
-        if (isset($templates['html'])) {
-            $htmlBody = $this->mustache->loadTemplate($templates['html'])->render($context);
-        }
+        $subject = trim($this->mustache->loadTemplate($templates)->render(array_merge($context, array('subject' => true))));
+        $textBody = trim($this->mustache->loadTemplate($templates)->render(array_merge($context, array('text' => true))));
+        $htmlBody = trim($this->mustache->loadTemplate($templates)->render(array_merge($context, array('html' => true))));
 
         $message = \Swift_Message::newInstance()
             ->setSubject($subject)

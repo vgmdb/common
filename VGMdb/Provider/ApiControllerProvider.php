@@ -37,7 +37,7 @@ class ApiControllerProvider implements ControllerProviderInterface
                     throw new HttpException(401, 'Unauthorised: Authentication credentials were missing or incorrect.');
                 }
                 throw $e;*/
-                $data = $app['data.login']();
+                $data = $app['data.login'];
                 $data['is_authenticated'] = false;
             }
             $view = $app['view']('userbox', $data);

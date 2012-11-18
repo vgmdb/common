@@ -148,7 +148,6 @@ class UserManager extends AbstractUserManager
             $user = $this->objectManager->merge($user);
         }
 
-        //$this->objectManager->refresh($user);
         return $this->userRepository->findOneBy(array('id' => $user->getId()));
     }
 

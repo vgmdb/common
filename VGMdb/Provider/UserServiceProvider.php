@@ -3,7 +3,9 @@
 namespace VGMdb\Provider;
 
 use VGMdb\Component\User\Form\Type\RegistrationFormType;
+use VGMdb\Component\User\Form\Type\ResetPasswordFormType;
 use VGMdb\Component\User\Form\Handler\RegistrationFormHandler;
+use VGMdb\Component\User\Form\Handler\ResetPasswordFormHandler;
 use VGMdb\Component\User\Model\UserInterface;
 use VGMdb\Component\User\Model\Doctrine\UserManager;
 use VGMdb\Component\User\Provider\UserProvider;
@@ -14,7 +16,8 @@ use VGMdb\Component\User\Security\Core\Authentication\Provider\DaoAuthentication
 use VGMdb\Component\User\Util\Canonicalizer;
 use VGMdb\Component\User\Util\EmailCanonicalizer;
 use VGMdb\Component\User\Util\TokenGenerator;
-use VGMdb\Component\User\Mailer\MockMailer;
+use VGMdb\Component\User\Util\UserManipulator;
+use VGMdb\Component\User\Mailer\MustacheSwiftMailer;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -44,6 +47,10 @@ class UserServiceProvider implements ServiceProviderInterface
                 $app['user.model.user_class'],
                 $app['user.model.auth_class']
             );
+        });
+
+        $app['user_manipulator'] = $app->share(function ($app) {
+            return new UserManipulator($app['user_manager']);
         });
 
         $app['security.encoder_factory'] = $app->share(function ($app) {
@@ -101,8 +108,28 @@ class UserServiceProvider implements ServiceProviderInterface
             );
         });
 
+        $app['user.resetpassword.form'] = $app->share(function ($app) {
+            $form = $app['form.factory']->create(new ResetPasswordFormType($app['user.model.user_class']));
+            return $form;
+        });
+
+        $app['user.resetpassword.form_handler'] = $app->share(function ($app) {
+            return new ResetPasswordFormHandler(
+                $app['user.resetpassword.form'],
+                $app['request'],
+                $app['user_manager'],
+                $app['user.mailer']
+            );
+        });
+
         $app['user.mailer'] = $app->share(function ($app) {
-            return new MockMailer($app['logger']);
+            return new MustacheSwiftMailer(
+                $app['mailer'],
+                $app['url_generator'],
+                $app['mustache'],
+                $app['logger'],
+                $app['user.mailer.config']
+            );
         });
 
         $app['data.user'] = $app->protect(function ($username, $version = \VGMdb\Application::VERSION) use ($app) {
@@ -121,8 +148,6 @@ class UserServiceProvider implements ServiceProviderInterface
                 $username = $user->getUsername();
                 $roles = $token->getRoles();
                 $auth = $user->getAuthProviders();
-                $uid = $auth[0]->getProviderId();
-                $provider = 'Facebook';
                 $token = $app['form.csrf_provider']->generateCsrfToken('logout');
             } else {
                 $user = $app['user_manager']->findUserByUsername($username);
@@ -132,8 +157,6 @@ class UserServiceProvider implements ServiceProviderInterface
                 $username = $user->getUsername();
                 $roles = $user->getRoles();
                 $auth = $user->getAuthProviders();
-                $uid = $auth[0]->getProviderId();
-                $provider = 'Facebook';
                 $token = null;
             }
             $email = $user->getEmailCanonical();
@@ -143,8 +166,6 @@ class UserServiceProvider implements ServiceProviderInterface
                 'username' => $username,
                 'email' => $email,
                 'email_hash' => $email_hash,
-                'uid' => $uid,
-                'provider' => $provider,
                 'version' => $version,
                 'roles' => $roles,
                 'tokens' => array(
@@ -156,7 +177,7 @@ class UserServiceProvider implements ServiceProviderInterface
             );
         });
 
-        $app['data.login'] = $app->protect(function () use ($app) {
+        $app['data.login'] = $app->share(function ($app) {
             return array(
                 'error' => $app['security.last_error']($app['request']),
                 'last_username' => $app['session']->get('_security.last_username'),
@@ -166,6 +187,7 @@ class UserServiceProvider implements ServiceProviderInterface
                 ),
                 'urls' => array(
                     'login_check' => $app['security.firewalls'][$app['user.firewall_name']]['form']['check_path'],
+                    'login_reset' => $app['security.firewalls'][$app['user.firewall_name']]['form']['reset_path'],
                     'login_facebook' => $app['security.firewalls'][$app['user.firewall_name']]['opauth.facebook']['login_path'],
                     'login_twitter' => $app['security.firewalls'][$app['user.firewall_name']]['opauth.twitter']['login_path'],
                     'login_google' => $app['security.firewalls'][$app['user.firewall_name']]['opauth.google']['login_path']

@@ -7,6 +7,7 @@ use VGMdb\Component\Security\Core\Authentication\Provider\OpauthAuthenticationPr
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\HttpFoundation\RequestMatcher;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Http\EntryPoint\FormAuthenticationEntryPoint;
 
 /**
@@ -89,7 +90,11 @@ class OpauthServiceProvider implements ServiceProviderInterface
 
         // this route must be unsecured
         $app->match('/login/{strategy}/{callback}', function ($strategy, $callback) use ($app) {
-            $app['opauth']->run();
+            if ($strategy === 'facebook' || $strategy === 'twitter' || $strategy === 'google') {
+                $app['opauth']->run();
+            }
+
+            throw new NotFoundHttpException();
         });
     }
 }

@@ -44,6 +44,7 @@ abstract class AbstractUserManager implements UserManagerInterface, UserProvider
     {
         $class = $this->getClass();
         $user = new $class;
+        $user->setCreatedAt(new \DateTime());
 
         return $user;
     }
