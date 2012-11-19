@@ -109,6 +109,7 @@ class FormatNegotiatorProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
+        // priority must be lower than ExtensionListener or anything that modifies _format
         $app['dispatcher']->addListener(KernelEvents::REQUEST, array($this, 'onKernelRequest'), 255);
         $app['dispatcher']->addListener(KernelEvents::VIEW, array($this, 'onKernelView'), -5);
     }

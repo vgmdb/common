@@ -46,7 +46,11 @@ class UserManager extends AbstractUserManager
      */
     public function createUser()
     {
-        return parent::createUser();
+        $user = parent::createUser();
+        $user->setCreatedAt(new \DateTime());
+        $user->addRole('ROLE_USER');
+
+        return $user;
     }
 
     /**

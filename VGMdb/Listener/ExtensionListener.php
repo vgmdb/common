@@ -52,7 +52,7 @@ class ExtensionListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            KernelEvents::REQUEST => array(array('onKernelRequest', 255)),
+            KernelEvents::REQUEST => array(array('onKernelRequest', 256)),
         );
     }
 }
