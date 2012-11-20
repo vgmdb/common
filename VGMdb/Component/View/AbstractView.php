@@ -13,11 +13,16 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
     /**
      * Initialize view data.
      *
-     * @param array $data
+     * @param mixed $data
+     * @param mixed $value
      * @return View
      */
-    public function with($data = array())
+    public function with($data, $value = null)
     {
+        if (!is_array($data) && !($data instanceof \ArrayAccess)) {
+            $data = array($data => $value);
+        }
+
         foreach ($data as $key => $value) {
             $this[$key] = $value;
         }
@@ -33,7 +38,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
      */
     static public function share($data, $value = null)
     {
-        if (!is_array($data)) {
+        if (!is_array($data) && !($data instanceof \ArrayAccess)) {
             $data = array($data => $value);
         }
 
