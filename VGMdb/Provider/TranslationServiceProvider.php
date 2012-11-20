@@ -34,7 +34,7 @@ class TranslationServiceProvider extends BaseTranslationServiceProvider
         $app['translator.po_dir'] = __DIR__;
 
         $app['translate'] = $app->protect(function ($p0, $p1 = null, $p2 = null, $p3 = null, $p4 = null) use ($app) {
-            if (!is_null($p1) && !is_array($p1)) {
+            if (!is_null($p1) && !(is_array($p1) || $p1 instanceof \ArrayAccess)) {
                 list($id, $number, $parameters, $domain, $locale) = array($p0, $p1, $p2, $p3, $p4);
             } else {
                 list($id, $number, $parameters, $domain, $locale) = array($p0, null, $p1, $p2, $p3);
@@ -45,6 +45,7 @@ class TranslationServiceProvider extends BaseTranslationServiceProvider
             if (is_null($domain)) {
                 $domain = 'messages';
             }
+
             if (!is_null($number)) {
                 return $app['translator']->transChoice($id, $number, $parameters, $domain, $locale);
             }

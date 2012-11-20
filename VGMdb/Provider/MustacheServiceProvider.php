@@ -23,6 +23,15 @@ class MustacheServiceProvider implements ServiceProviderInterface
                 'loader' => $loader,
                 'partials_loader' => $loader
             ));
+            if (isset($app['translate'])) {
+                $mustache->addHelper('t', function ($string) use ($app) {
+                    return $app['translate']($string);
+                });
+            } else {
+                $mustache->addHelper('t', function ($string) {
+                    return $string;
+                });
+            }
 
             return $mustache;
         });
