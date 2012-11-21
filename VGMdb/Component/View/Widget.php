@@ -25,16 +25,30 @@ class Widget extends AbstractView
     }
 
     /**
-     * Insert another view as a data element.
-     *
-     * @param mixed  $view
-     * @param string $key
-     * @return Widget
+     * {@inheritDoc}
+     */
+    static public function share($data, $value = null)
+    {
+        if (!(is_array($data) || $data instanceof \ArrayAccess)) {
+            $data = array($data => $value);
+        }
+
+        foreach ($data as $key => $value) {
+            if (strtoupper($key) !== $key) {
+                throw new \InvalidArgumentException(sprintf('Global "%s" must be uppercased.', $key));
+            }
+            self::$globals[$key] = $value;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public function nest($view, $key = 'content')
     {
         if (!($view instanceof ViewInterface)) {
-            $view = new View((string) $view);
+            $view_class = get_class($this->view);
+            $view = new $view_class((string) $view);
         }
 
         if (isset($this[$key]) && $this[$key] instanceof ViewInterface) {
@@ -50,10 +64,7 @@ class Widget extends AbstractView
     }
 
     /**
-     * Get the evaluated string content of the widget.
-     *
-     * @param array $data
-     * @return string
+     * {@inheritDoc}
      */
     public function render($data = array())
     {
@@ -65,13 +76,11 @@ class Widget extends AbstractView
     }
 
     /**
-     * Exports data to an array, along with template name.
-     *
-     * @return array Exported array.
+     * {@inheritDoc}
      */
-    public function getArrayCopy()
+    public function getArrayCopy($globals = false)
     {
-        $data = array_merge(parent::getArrayCopy(), array('_template' => $this->view->template));
+        $data = array_merge(parent::getArrayCopy($globals), array('_template' => $this->view->template));
 
         return $data;
     }

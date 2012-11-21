@@ -118,7 +118,11 @@ class JsonResponse extends Response
      */
     public function sendContent()
     {
-        $data = $this->content->getArrayCopy();
+        $data = $this->content;
+
+        if ($data instanceof \ArrayObject) {
+            $data = $data->getArrayCopy(true);
+        }
 
         // Encode <, >, ', &, and " for RFC4627-compliant JSON, which may also be embedded into HTML.
         $data = json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);

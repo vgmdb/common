@@ -74,7 +74,13 @@ class XmlResponse extends Response
      */
     public function sendContent()
     {
-        $data = array('document' => $this->content->getArrayCopy());
+        $data = $this->content;
+
+        if ($data instanceof \ArrayObject) {
+            $data = $data->getArrayCopy(true);
+        }
+
+        $data = array('content' => $data);
 
         echo self::xmlEncode($data);
 

@@ -11,11 +11,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
     static protected $globals = array();
 
     /**
-     * Initialize view data.
-     *
-     * @param mixed $data
-     * @param mixed $value
-     * @return View
+     * {@inheritDoc}
      */
     public function with($data, $value = null)
     {
@@ -31,23 +27,19 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
     }
 
     /**
-     * Apply global value across all views.
-     *
-     * @param mixed $data
-     * @param mixed $value
+     * {@inheritDoc}
      */
     static public function share($data, $value = null)
     {
-        if (!is_array($data) && !($data instanceof \ArrayAccess)) {
-            $data = array($data => $value);
-        }
+        throw new \RuntimeException('Missing implementation for share()');
+    }
 
-        foreach ($data as $key => $value) {
-            if (strtoupper($key) !== $key) {
-                throw new \InvalidArgumentException(sprintf('Global "%s" must be uppercased.', $key));
-            }
-            static::$globals[$key] = $value;
-        }
+    /**
+     * {@inheritDoc}
+     */
+    static public function globals()
+    {
+        return static::$globals;
     }
 
     /**
@@ -69,10 +61,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
     }
 
     /**
-     * Get the evaluated string content of the view.
-     *
-     * @param array $data
-     * @return string
+     * {@inheritDoc}
      */
     public function render($data = array())
     {
@@ -80,11 +69,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
     }
 
     /**
-     * Insert a view object as a data element.
-     *
-     * @param mixed  $view
-     * @param string $key
-     * @return View
+     * {@inheritDoc}
      */
     public function nest($view, $key = 'content')
     {
@@ -92,9 +77,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
     }
 
     /**
-     * Get the evaluated string content of the view, magically.
-     *
-     * @return string
+     * {@inheritDoc}
      */
     public function __toString()
     {
@@ -116,8 +99,8 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
      */
     function offsetGet($id)
     {
-        if (array_key_exists($id, static::$globals)) {
-            $value = static::$globals[$id];
+        if (array_key_exists($id, self::$globals)) {
+            $value = self::$globals[$id];
         } else {
             if (!$this->offsetExists($id)) {
                 throw new \InvalidArgumentException(sprintf('Identifier "%s" is not defined.', $id));
@@ -136,7 +119,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
      */
     public function offsetExists($id)
     {
-        if (array_key_exists($id, static::$globals)) {
+        if (array_key_exists($id, self::$globals)) {
             return true;
         }
 
@@ -144,13 +127,15 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
     }
 
     /**
-     * Exports data to an array.
-     *
-     * @return array Exported array.
+     * {@inheritDoc}
      */
-    public function getArrayCopy()
+    public function getArrayCopy($globals = false)
     {
-        $data = array_merge(parent::getArrayCopy(), static::$globals);
+        $data = parent::getArrayCopy();
+
+        if ($globals) {
+            $data = array_merge($data, static::globals());
+        }
 
         foreach ($data as $key => $value) {
             if ($value instanceof ViewInterface) {

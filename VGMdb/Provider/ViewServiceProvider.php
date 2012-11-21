@@ -4,6 +4,7 @@ namespace VGMdb\Provider;
 
 use VGMdb\Component\View\ViewInterface;
 use VGMdb\Component\View\View;
+use VGMdb\Component\View\MustacheView;
 use VGMdb\Component\View\Widget;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -23,16 +24,13 @@ class ViewServiceProvider implements ServiceProviderInterface
             $callback = null;
 
             if (isset($app['view.template.engine']) && $app['view.template.engine'] === 'mustache') {
-                $callback = function ($view) use ($app) {
-                    return $app['mustache']->loadTemplate($view->template)->render($view);
-                };
+                $view = new MustacheView($template, array(), $app['mustache']);
             } else {
                 $callback = function ($view) {
                     return $view->getArrayCopy();
                 };
+                $view = new View($template, array(), $callback);
             }
-
-            $view = new View($template, array(), $callback);
 
             return $view->with($data);
         });
@@ -50,18 +48,28 @@ class ViewServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
-        View::share('DEBUG', $app['debug']);
-
         $app['dispatcher']->addListener(KernelEvents::RESPONSE, function (FilterResponseEvent $event) use ($app) {
-            if ($event->getRequest()->getRequestFormat() === 'html') {
-                $content = $event->getResponse()->getContent();
+            $attributes = $event->getRequest()->attributes;
+            $locale = strtoupper($attributes->get('_locale'));
+            if (!$locale) {
+                $locale = strtoupper($app['locale_fallback']);
+            }
 
-                $attributes = $event->getRequest()->attributes;
+            if (isset($app['mustache'])) {
+                $app['mustache']->addHelper($locale, true);
+                $app['mustache']->addHelper('DEBUG', $app['debug']);
+            } else {
+                View::share($locale, true);
+                View::share('DEBUG', $app['debug']);
+            }
+
+            if ($event->getRequest()->getRequestFormat() === 'html') {
                 $layout_provider = $attributes->get('_layouts');
                 $layout_name = $attributes->get('_layout');
 
                 if (is_callable($layout_provider)) {
                     $layout = $layout_provider($layout_name);
+                    $content = $event->getResponse()->getContent();
                     if ($content instanceof ViewInterface && $layout instanceof ViewInterface) {
                         $event->getResponse()->setContent($content->wrap($layout));
                     }

@@ -19,15 +19,22 @@ class View extends AbstractView
      * @param \Closure $callback
      * @return void
      */
-    public function __construct($template, array $data = array(), \Closure $callback = null)
+    public function __construct($template, array $data = array(), $callback = null)
     {
         $this->template = $template;
+
         if (!$callback) {
             $callback = function ($view) {
                 return vsprintf($view->template, $view);
             };
         }
+
+        if (!($callback instanceof \Closure)) {
+            throw new \InvalidArgumentException('Callback must be a Closure.');
+        }
+
         $this->render_callback = $callback;
+
         parent::__construct($data);
     }
 
@@ -39,7 +46,7 @@ class View extends AbstractView
      * @param \Closure $callback
      * @return View
      */
-    static public function create($template, array $data = array(), \Closure $callback = null)
+    static public function create($template, array $data = array(), $callback = null)
     {
         if ($template instanceof ViewInterface) {
             return $template;
@@ -49,16 +56,29 @@ class View extends AbstractView
     }
 
     /**
-     * Insert a view object as a data element.
-     *
-     * @param mixed  $view
-     * @param string $key
-     * @return View
+     * {@inheritDoc}
+     */
+    static public function share($data, $value = null)
+    {
+        if (!(is_array($data) || $data instanceof \ArrayAccess)) {
+            $data = array($data => $value);
+        }
+
+        foreach ($data as $key => $value) {
+            if (strtoupper($key) !== $key) {
+                throw new \InvalidArgumentException(sprintf('Global "%s" must be uppercased.', $key));
+            }
+            self::$globals[$key] = $value;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public function nest($view, $key = 'content')
     {
         if (!($view instanceof ViewInterface)) {
-            $view = new View((string) $view);
+            $view = new static((string) $view);
         }
 
         if (isset($this[$key]) && $this[$key] instanceof ViewInterface) {
@@ -74,10 +94,7 @@ class View extends AbstractView
     }
 
     /**
-     * Get the evaluated string content of the view.
-     *
-     * @param array $data
-     * @return string
+     * {@inheritDoc}
      */
     public function render($data = array())
     {
@@ -87,13 +104,11 @@ class View extends AbstractView
     }
 
     /**
-     * Exports data to an array, along with template name.
-     *
-     * @return array Exported array.
+     * {@inheritDoc}
      */
-    public function getArrayCopy()
+    public function getArrayCopy($globals = false)
     {
-        $data = array_merge(parent::getArrayCopy(), array('_template' => $this->template));
+        $data = array_merge(parent::getArrayCopy($globals), array('_template' => $this->template));
 
         return $data;
     }

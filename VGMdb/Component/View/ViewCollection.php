@@ -19,7 +19,7 @@ class ViewCollection extends AbstractView
     public function __construct($template = null, array $data = array(), \Closure $callback = null)
     {
         if ($template) {
-            if ($template instanceof View) {
+            if ($template instanceof ViewInterface) {
                 $this[] = $template->with($data);
             } else {
                 $this[] = View::create($template, $data, $callback);
@@ -28,10 +28,7 @@ class ViewCollection extends AbstractView
     }
 
     /**
-     * Initialize template data across all views.
-     *
-     * @param array $data
-     * @return ViewCollection
+     * {@inheritDoc}
      */
     public function with($data = array())
     {
@@ -45,11 +42,7 @@ class ViewCollection extends AbstractView
     }
 
     /**
-     * Insert a view object as a part of the collection.
-     *
-     * @param mixed  $view
-     * @param string $key
-     * @return ViewCollection
+     * {@inheritDoc}
      */
     public function nest($view, $key = 'content')
     {
@@ -63,10 +56,7 @@ class ViewCollection extends AbstractView
     }
 
     /**
-     * Get the evaluated string content of all views.
-     *
-     * @param array $data
-     * @return string
+     * {@inheritDoc}
      */
     public function render($data = array())
     {
@@ -80,16 +70,14 @@ class ViewCollection extends AbstractView
     }
 
     /**
-     * Exports data to an array.
-     *
-     * @return array Exported array.
+     * {@inheritDoc}
      */
-    public function getArrayCopy()
+    public function getArrayCopy($globals = false)
     {
         $array = array();
 
         foreach ($this as $view) {
-            $array[] = $view->getArrayCopy();
+            $array[] = $view->getArrayCopy($globals);
         }
 
         return $array;
