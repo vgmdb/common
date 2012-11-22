@@ -14,7 +14,10 @@ use VGMdb\Component\View\ViewInterface;
 use VGMdb\ControllerResolver;
 use VGMdb\ExceptionListenerWrapper;
 use Silex\Application as BaseApplication;
+use Silex\ControllerProviderInterface;
+use Silex\ControllerCollection;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Routing\RouteCollection;
 
 /**
  * @brief       The VGMdb application class. Extends the Silex framework with custom methods.
@@ -131,5 +134,25 @@ class Application extends BaseApplication
     public function error($callback, $priority = -8)
     {
         $this['dispatcher']->addListener(KernelEvents::EXCEPTION, new ExceptionListenerWrapper($this, $callback), $priority);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function mount($prefix, $app)
+    {
+        if ($app instanceof ControllerProviderInterface) {
+            $app = $app->connect($this);
+        }
+
+        if ($app instanceof ControllerCollection) {
+            $app = $app->flush($prefix);
+        }
+
+        if (!$app instanceof RouteCollection) {
+            throw new \LogicException('The "mount" method takes either a RouteCollection, ControllerCollection or ControllerProviderInterface instance.');
+        }
+
+        $this['routes']->addCollection($app, $prefix);
     }
 }
