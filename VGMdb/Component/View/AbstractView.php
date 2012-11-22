@@ -2,6 +2,8 @@
 
 namespace VGMdb\Component\View;
 
+use Symfony\Component\HttpKernel\Log\LoggerInterface;
+
 /**
  * @brief       Abstract view object.
  * @author      Gigablah <gigablah@vgmdb.net>
@@ -9,6 +11,61 @@ namespace VGMdb\Component\View;
 abstract class AbstractView extends \ArrayObject implements ViewInterface
 {
     static protected $globals = array();
+    static private $engine; // must be redeclared in child classes
+    protected $logger;
+
+    /**
+     * Create a new view instance.
+     *
+     * @param array           $data
+     * @param mixed           $engine
+     * @param LoggerInterface $logger
+     */
+    public function __construct(array $data = array(), $engine = null, LoggerInterface $logger = null)
+    {
+        if (!$engine) {
+            $engine = function ($view) {
+                return vsprintf($view->template, $view);
+            };
+        }
+
+        static::$engine = $engine;
+        $this->logger = $logger;
+
+        parent::__construct($data);
+    }
+
+    /**
+     * View factory for creating new view instances.
+     *
+     * @param mixed           $template
+     * @param array           $data
+     * @param mixed           $engine
+     * @param LoggerInterface $logger
+     * @return ViewInterface
+     */
+    static public function create($template, array $data = array(), $engine = null, $logger = null)
+    {
+        if (!$engine) {
+            $engine = static::$engine;
+        }
+
+        if (!$logger) {
+            $logger = $this->logger;
+        }
+
+        return new static($template, $data, $engine, $logger);
+    }
+
+    /**
+     * Return the view engine.
+     *
+     * @return mixed
+     */
+    public function getEngine()
+    {
+        return static::$engine;
+    }
 
     /**
      * {@inheritDoc}
@@ -31,7 +88,16 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
      */
     static public function share($data, $value = null)
     {
-        throw new \RuntimeException('Missing implementation for share()');
+        if (!(is_array($data) || $data instanceof \ArrayAccess)) {
+            $data = array($data => $value);
+        }
+
+        foreach ($data as $key => $value) {
+            if (strtoupper($key) !== $key) {
+                throw new \InvalidArgumentException(sprintf('Global "%s" must be uppercased.', $key));
+            }
+            self::$globals[$key] = $value;
+        }
     }
 
     /**
@@ -65,15 +131,45 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
      */
     public function render($data = array())
     {
-        throw new \RuntimeException('Missing implementation for render()');
+        $start = microtime(true);
+
+        $output = $this->renderInternal($data);
+
+        if (null !== $this->logger) {
+            $time = number_format((microtime(true) - $start) * 1000, 2);
+            $this->logger->info(sprintf('Template "%s" rendered with %s in %sms', $this->template, get_called_class(), $time));
+        }
+
+        return $output;
     }
+
+    /**
+     * Engine-specific render function.
+     *
+     * @param array $data
+     * @return string
+     */
+    abstract protected function renderInternal($data = array());
 
     /**
      * {@inheritDoc}
      */
     public function nest($view, $key = 'content')
     {
-        throw new \RuntimeException('Missing implementation for nest()');
+        if (!($view instanceof ViewInterface)) {
+            $view = new static((string) $view);
+        }
+
+        if (isset($this[$key]) && $this[$key] instanceof ViewInterface) {
+            if (!($this[$key] instanceof ViewCollection)) {
+                $this[$key] = new ViewCollection($this[$key]);
+            }
+            $this[$key]->nest($view);
+        } else {
+            $this[$key] = $view;
+        }
+
+        return $this;
     }
 
     /**

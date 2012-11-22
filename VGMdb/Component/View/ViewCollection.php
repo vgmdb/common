@@ -22,7 +22,7 @@ class ViewCollection extends AbstractView
             if ($template instanceof ViewInterface) {
                 $this[] = $template->with($data);
             } else {
-                $this[] = View::create($template, $data, $callback);
+                $this[] = ViewFactory::create($template, $data, $callback);
             }
         }
     }
@@ -58,7 +58,7 @@ class ViewCollection extends AbstractView
     /**
      * {@inheritDoc}
      */
-    public function render($data = array())
+    public function renderInternal($data = array())
     {
         $content = '';
 

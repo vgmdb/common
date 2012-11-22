@@ -27,23 +27,6 @@ class Widget extends AbstractView
     /**
      * {@inheritDoc}
      */
-    static public function share($data, $value = null)
-    {
-        if (!(is_array($data) || $data instanceof \ArrayAccess)) {
-            $data = array($data => $value);
-        }
-
-        foreach ($data as $key => $value) {
-            if (strtoupper($key) !== $key) {
-                throw new \InvalidArgumentException(sprintf('Global "%s" must be uppercased.', $key));
-            }
-            self::$globals[$key] = $value;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function nest($view, $key = 'content')
     {
         if (!($view instanceof ViewInterface)) {
@@ -66,7 +49,7 @@ class Widget extends AbstractView
     /**
      * {@inheritDoc}
      */
-    public function render($data = array())
+    protected function renderInternal($data = array())
     {
         if ($callback = $this->callback) {
             $this->with($callback($this));

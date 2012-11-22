@@ -2,6 +2,8 @@
 
 namespace VGMdb\Component\View;
 
+use Symfony\Component\HttpKernel\Log\LoggerInterface;
+
 /**
  * @brief       Nestable view container with rendering callback.
  * @author      Gigablah <gigablah@vgmdb.net>
@@ -9,98 +11,37 @@ namespace VGMdb\Component\View;
 class View extends AbstractView
 {
     public $template;
-    public $render_callback;
+    static protected $engine;
 
     /**
-     * Create a new view instance, with optional callback for render().
+     * Create a new view instance.
      *
-     * @param string   $template
-     * @param array    $data
-     * @param \Closure $callback
-     * @return void
+     * @param string          $template
+     * @param array           $data
+     * @param mixed           $callback
+     * @param LoggerInterface $logger
      */
-    public function __construct($template, array $data = array(), $callback = null)
+    public function __construct($template, array $data = array(), $callback = null, LoggerInterface $logger = null)
     {
         $this->template = $template;
 
-        if (!$callback) {
-            $callback = function ($view) {
-                return vsprintf($view->template, $view);
-            };
-        }
-
-        if (!($callback instanceof \Closure)) {
+        if ($callback && !($callback instanceof \Closure)) {
             throw new \InvalidArgumentException('Callback must be a Closure.');
         }
 
-        $this->render_callback = $callback;
-
-        parent::__construct($data);
-    }
-
-    /**
-     * Convenience static method for creating a new view instance.
-     *
-     * @param mixed    $template
-     * @param array    $data
-     * @param \Closure $callback
-     * @return View
-     */
-    static public function create($template, array $data = array(), $callback = null)
-    {
-        if ($template instanceof ViewInterface) {
-            return $template;
-        }
-
-        return new static($template, $data, $callback);
+        parent::__construct($data, $callback, $logger);
     }
 
     /**
      * {@inheritDoc}
      */
-    static public function share($data, $value = null)
+    protected function renderInternal($data = array())
     {
-        if (!(is_array($data) || $data instanceof \ArrayAccess)) {
-            $data = array($data => $value);
-        }
+        $render = self::$engine;
 
-        foreach ($data as $key => $value) {
-            if (strtoupper($key) !== $key) {
-                throw new \InvalidArgumentException(sprintf('Global "%s" must be uppercased.', $key));
-            }
-            self::$globals[$key] = $value;
-        }
-    }
+        $output = $render($this->with($data));
 
-    /**
-     * {@inheritDoc}
-     */
-    public function nest($view, $key = 'content')
-    {
-        if (!($view instanceof ViewInterface)) {
-            $view = new static((string) $view);
-        }
-
-        if (isset($this[$key]) && $this[$key] instanceof ViewInterface) {
-            if (!($this[$key] instanceof ViewCollection)) {
-                $this[$key] = new ViewCollection($this[$key]);
-            }
-            $this[$key]->nest($view);
-        } else {
-            $this[$key] = $view;
-        }
-
-        return $this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function render($data = array())
-    {
-        $render = $this->with($data)->render_callback;
-
-        return $render($this);
+        return $output;
     }
 
     /**

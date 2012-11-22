@@ -3,8 +3,8 @@
 namespace VGMdb\Provider;
 
 use VGMdb\Component\View\ViewInterface;
+use VGMdb\Component\View\ViewFactory;
 use VGMdb\Component\View\View;
-use VGMdb\Component\View\MustacheView;
 use VGMdb\Component\View\Widget;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -20,17 +20,21 @@ class ViewServiceProvider implements ServiceProviderInterface
     public function register(Application $app)
     {
         // View factory
-        $app['view'] = $app->protect(function ($template, array $data = array()) use ($app) {
-            $callback = null;
+        $app['view.proto'] = $app->protect(function ($template, $engine = null) use ($app) {
+            $view = ViewFactory::create($template, array(), $engine, ($app['debug'] ? $app['logger'] : null));
 
-            if (isset($app['view.template.engine']) && $app['view.template.engine'] === 'mustache') {
-                $view = new MustacheView($template, array(), $app['mustache']);
-            } else {
-                $callback = function ($view) {
-                    return $view->getArrayCopy();
-                };
-                $view = new View($template, array(), $callback);
+            $locale = $app['locale'] ?: $app['locale_fallback'];
+            $view::share(strtoupper($locale), true);
+            $view::share('DEBUG', $app['debug']);
+
+            return $view;
+        });
+
+        $app['view'] = $app->protect(function ($template, array $data = array(), $type = null) use ($app) {
+            if (!$type) {
+                $type = $app['view.template.engine'];
             }
+            $view = $app['view.proto']($template, $app[$type]);
 
             return $view->with($data);
         });
@@ -50,18 +54,6 @@ class ViewServiceProvider implements ServiceProviderInterface
     {
         $app['dispatcher']->addListener(KernelEvents::RESPONSE, function (FilterResponseEvent $event) use ($app) {
             $attributes = $event->getRequest()->attributes;
-            $locale = strtoupper($attributes->get('_locale'));
-            if (!$locale) {
-                $locale = strtoupper($app['locale_fallback']);
-            }
-
-            if (isset($app['mustache'])) {
-                $app['mustache']->addHelper($locale, true);
-                $app['mustache']->addHelper('DEBUG', $app['debug']);
-            } else {
-                View::share($locale, true);
-                View::share('DEBUG', $app['debug']);
-            }
 
             if ($event->getRequest()->getRequestFormat() === 'html') {
                 $layout_provider = $attributes->get('_layouts');

@@ -2,6 +2,8 @@
 
 namespace VGMdb\Component\View;
 
+use Symfony\Component\HttpKernel\Log\LoggerInterface;
+
 /**
  * @brief       View with Mustache rendering engine.
  * @author      Gigablah <gigablah@vgmdb.net>
@@ -9,7 +11,7 @@ namespace VGMdb\Component\View;
 class MustacheView extends AbstractView
 {
     public $template;
-    static private $mustache;
+    static protected $engine;
 
     /**
      * Create a new Mustache view instance.
@@ -17,9 +19,9 @@ class MustacheView extends AbstractView
      * @param string           $template
      * @param array            $data
      * @param \Mustache_Engine $mustache
-     * @return void
+     * @param LoggerInterface  $logger
      */
-    public function __construct($template, array $data = array(), $mustache = null)
+    public function __construct($template, array $data = array(), $mustache = null, LoggerInterface $logger = null)
     {
         if (!is_string($template)) {
             throw new \InvalidArgumentException('Template name must be a string.');
@@ -27,31 +29,11 @@ class MustacheView extends AbstractView
 
         $this->template = $template;
 
-        if ($mustache) {
-            if (!($mustache instanceof \Mustache_Engine)) {
-                throw new \InvalidArgumentException('Invalid Mustache object.');
-            }
-            self::$mustache = $mustache;
+        if ($mustache && !($mustache instanceof \Mustache_Engine)) {
+            throw new \InvalidArgumentException('Invalid Mustache object.');
         }
 
-        parent::__construct($data);
-    }
-
-    /**
-     * Convenience static method for creating a new view instance.
-     *
-     * @param string           $template
-     * @param array            $data
-     * @param \Mustache_Engine $mustache
-     * @return MustacheView
-     */
-    static public function create($template, array $data = array(), $mustache = null)
-    {
-        if ($template instanceof ViewInterface) {
-            return $template;
-        }
-
-        return new static($template, $data, $mustache);
+        parent::__construct($data, $mustache, $logger);
     }
 
     /**
@@ -67,7 +49,7 @@ class MustacheView extends AbstractView
             if (strtoupper($key) !== $key) {
                 throw new \InvalidArgumentException(sprintf('Global "%s" must be uppercased.', $key));
             }
-            self::$mustache->addHelper($key, $value);
+            self::$engine->addHelper($key, $value);
         }
     }
 
@@ -78,7 +60,7 @@ class MustacheView extends AbstractView
     {
         $data = array();
 
-        foreach (self::$mustache->getHelpers() as $name => $helper) {
+        foreach (self::$engine->getHelpers() as $name => $helper) {
             if (is_scalar($helper) || is_null($helper) || is_array($helper)) {
                 $data[$name] = $helper;
             }
@@ -90,30 +72,11 @@ class MustacheView extends AbstractView
     /**
      * {@inheritDoc}
      */
-    public function nest($view, $key = 'content')
+    protected function renderInternal($data = array())
     {
-        if (!($view instanceof ViewInterface)) {
-            $view = new static((string) $view);
-        }
+        $output = self::$engine->loadTemplate($this->template)->render($this->with($data));
 
-        if (isset($this[$key]) && $this[$key] instanceof ViewInterface) {
-            if (!($this[$key] instanceof ViewCollection)) {
-                $this[$key] = new ViewCollection($this[$key]);
-            }
-            $this[$key]->nest($view);
-        } else {
-            $this[$key] = $view;
-        }
-
-        return $this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function render($data = array())
-    {
-        return self::$mustache->loadTemplate($this->template)->render($this->with($data));
+        return $output;
     }
 
     /**
@@ -121,8 +84,8 @@ class MustacheView extends AbstractView
      */
     function offsetGet($id)
     {
-        if (self::$mustache->hasHelper($id)) {
-            $value = self::$mustache->getHelper($id);
+        if (self::$engine->hasHelper($id)) {
+            $value = self::$engine->getHelper($id);
         } else {
             if (!$this->offsetExists($id)) {
                 throw new \InvalidArgumentException(sprintf('Identifier "%s" is not defined.', $id));
@@ -138,8 +101,8 @@ class MustacheView extends AbstractView
      */
     public function offsetExists($id)
     {
-        if (self::$mustache->hasHelper($id)) {
-            $value = self::$mustache->getHelper($id);
+        if (self::$engine->hasHelper($id)) {
+            $value = self::$engine->getHelper($id);
             if (is_scalar($value) || is_null($value) || is_array($value)) {
                 return true;
             }

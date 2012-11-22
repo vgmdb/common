@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\HttpFoundation;
 
-use VGMdb\Component\View\View;
+use VGMdb\Component\View\ViewFactory;
 use Symfony\Component\HttpFoundation\Request as BaseRequest;
 
 /**
@@ -60,7 +60,7 @@ class XmlResponse extends Response
     public function setData($data = array())
     {
         if (is_array($data)) {
-            $data = View::create(null, $data);
+            $data = ViewFactory::create(null, $data);
         }
 
         $this->data = $data;
