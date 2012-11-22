@@ -5,6 +5,7 @@ namespace VGMdb\Provider;
 use VGMdb\Component\Templating\TemplateNameParser;
 use VGMdb\Component\Templating\Helper\FormHelper;
 use VGMdb\Component\Templating\Helper\TranslatorHelper;
+use VGMdb\Component\Form\Extension\Csrf\CsrfProvider\ExpiringSessionCsrfProvider;
 use Silex\Application;
 use Silex\Provider\FormServiceProvider as BaseFormServiceProvider;
 use Symfony\Component\Templating\PhpEngine;
@@ -35,5 +36,9 @@ class FormServiceProvider extends BaseFormServiceProvider
 
             return $form_helper;
         });
+
+        /*$app['form.csrf_provider'] = $app->share(function ($app) {
+            return new ExpiringSessionCsrfProvider($app['session'], $app['form.secret']);
+        });*/
     }
 }
