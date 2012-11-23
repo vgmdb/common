@@ -5,8 +5,12 @@ namespace VGMdb\Component\User\Security\Core\Encoder;
 use Symfony\Component\Security\Core\Encoder\BasePasswordEncoder;
 
 /**
- * @brief       Uses the bcrypt algorithm to encode passwords.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Uses the bcrypt algorithm to encode passwords.
+ *
+ * @link https://gist.github.com/1053158
+ *
+ * @author Marco Arment <me@marco.org>
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class BlowfishPasswordEncoder extends BasePasswordEncoder
 {

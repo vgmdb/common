@@ -5,6 +5,11 @@ namespace VGMdb;
 use VGMdb\Controller;
 use Silex\ControllerCollection as BaseControllerCollection;
 
+/**
+ * Overrides the default Controller class, and adds support for PATCH.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
+ */
 class ControllerCollection extends BaseControllerCollection
 {
     /**

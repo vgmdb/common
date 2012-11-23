@@ -9,8 +9,9 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @brief       Handles password reset form submissions.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Handles password reset form submissions.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class ResetPasswordFormHandler
 {

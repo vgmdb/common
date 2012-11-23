@@ -4,6 +4,11 @@ namespace VGMdb\Component\DBAL\Logging;
 
 use Doctrine\DBAL\Logging\SQLLogger;
 
+/**
+ * A SQL logger that dumps to the error log.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
+ */
 class SQLErrorLogger implements SQLLogger
 {
     public $queries = array();

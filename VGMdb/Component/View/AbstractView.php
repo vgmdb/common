@@ -5,8 +5,9 @@ namespace VGMdb\Component\View;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 
 /**
- * @brief       Abstract view object.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Abstract view object.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 abstract class AbstractView extends \ArrayObject implements ViewInterface
 {
@@ -137,7 +138,9 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
 
         if (null !== $this->logger) {
             $time = number_format((microtime(true) - $start) * 1000, 2);
-            $this->logger->info(sprintf('Template "%s" rendered with %s in %sms', $this->template, get_called_class(), $time));
+            $this->logger->info(
+                sprintf('Template "%s" rendered with %s in %sms', $this->template, get_called_class(), $time)
+            );
         }
 
         return $output;

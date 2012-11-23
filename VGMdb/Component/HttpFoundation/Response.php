@@ -7,8 +7,9 @@ use VGMdb\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\Response as BaseResponse;
 
 /**
- * @brief       Representation of a HTTP response.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Representation of a HTTP response.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class Response extends BaseResponse
 {

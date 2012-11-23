@@ -12,8 +12,9 @@ use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @brief       View service provides view and widget factories.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * View service provides view and widget factories.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class ViewServiceProvider implements ServiceProviderInterface
 {

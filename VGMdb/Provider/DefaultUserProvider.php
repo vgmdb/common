@@ -8,8 +8,9 @@ use Symfony\Component\Security\Core\User\User;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 
 /**
- * @brief       User entity provider.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Placeholder user entity provider.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class DefaultUserProvider implements UserProviderInterface
 {

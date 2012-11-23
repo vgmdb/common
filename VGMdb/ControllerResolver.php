@@ -6,7 +6,7 @@ use Silex\ControllerResolver as BaseControllerResolver;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Adds Application as a valid argument for controllers.
+ * Attaches the application context to controllers.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */

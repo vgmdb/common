@@ -8,8 +8,9 @@ use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Config\FileLocator;
 
 /**
- * @brief       Provides routes loaded from YAML configuration.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Provides routes loaded from YAML configuration.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class YamlRouteProvider implements ControllerProviderInterface
 {

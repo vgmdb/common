@@ -72,5 +72,4 @@ class TranslatorHelper implements HelperInterface
     {
         return 'translator';
     }
-
 }

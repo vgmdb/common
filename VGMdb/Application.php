@@ -20,8 +20,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouteCollection;
 
 /**
- * @brief       The VGMdb application class. Extends the Silex framework with custom methods.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * The VGMdb application class. Extends the Silex framework with custom methods.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class Application extends BaseApplication
 {
@@ -89,18 +90,6 @@ class Application extends BaseApplication
         $this['resolver'] = $this->share(function () use ($app) {
             return new ControllerResolver($app, $app['logger']);
         });
-    }
-
-    /**
-     * Sets the layout provider.
-     *
-     * @param \Closure $layout_provider A function that returns layouts.
-     *
-     * @return Controller
-     */
-    public function layouts(\Closure $layout_provider)
-    {
-        return $this['controllers']->value('_layouts', $layout_provider);
     }
 
     /**

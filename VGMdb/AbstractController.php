@@ -2,18 +2,17 @@
 
 namespace VGMdb;
 
-use VGMdb\Application;
-
 /**
- * @brief       Base class for application controllers.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Base class for application controllers.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 abstract class AbstractController
 {
     protected $app;
 
     /**
-     * Attaches the application scope.
+     * Attaches the application context.
      *
      * @param Application $app
      */

@@ -8,8 +8,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @brief       Sets request _format based on a matching extension in the URL.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Sets request _format based on a matching extension in the URL.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class ExtensionListener implements EventSubscriberInterface
 {

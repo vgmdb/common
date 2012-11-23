@@ -8,8 +8,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @brief       Sets request attributes and format priorities based on a matching subdomain.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Sets request attributes and format priorities based on a matching subdomain.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class SubdomainListener implements EventSubscriberInterface
 {

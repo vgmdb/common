@@ -5,8 +5,9 @@ namespace VGMdb\Component\View;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 
 /**
- * @brief       View factory for creating views based on renderer type.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * View factory for creating views based on renderer type.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class ViewFactory
 {

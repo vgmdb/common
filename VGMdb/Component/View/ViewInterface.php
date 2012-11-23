@@ -3,8 +3,9 @@
 namespace VGMdb\Component\View;
 
 /**
- * @brief       ViewInterface provides the basic signature of all View objects.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * ViewInterface provides the basic signature of all View objects.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 interface ViewInterface
 {

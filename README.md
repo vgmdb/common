@@ -8,7 +8,6 @@ Extends the [Silex] [1] microframework to do the thing with the stuff.
 Create a `composer.json` file and use [Composer] [2] to install it:
 
     {
-        "minimum-stability": "dev",
         "repositories": [
             {
                 "type": "vcs",
@@ -23,6 +22,10 @@ Create a `composer.json` file and use [Composer] [2] to install it:
 ## Developer Guidelines
 
 Adhere to the [PSR-1] [3] and [PSR-2] [4] coding standards.
+
+## License
+
+Licensed under the MIT license.
 
 [1]: https://github.com/fabpot/Silex
 [2]: http://getcomposer.org

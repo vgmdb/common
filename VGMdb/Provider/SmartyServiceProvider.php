@@ -6,8 +6,9 @@ use Silex\Application;
 use Silex\ServiceProviderInterface;
 
 /**
- * @brief       Smarty templating integration.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Smarty templating integration.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class SmartyServiceProvider implements ServiceProviderInterface
 {

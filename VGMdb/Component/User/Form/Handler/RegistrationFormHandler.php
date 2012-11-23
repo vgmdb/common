@@ -10,8 +10,9 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @brief       Handles registration form submissions.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Handles registration form submissions.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class RegistrationFormHandler
 {

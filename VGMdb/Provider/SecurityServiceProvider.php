@@ -8,8 +8,9 @@ use Silex\Application;
 use Silex\Provider\SecurityServiceProvider as BaseSecurityServiceProvider;
 
 /**
- * @brief       Security component provider.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Security component provider.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class SecurityServiceProvider extends BaseSecurityServiceProvider
 {

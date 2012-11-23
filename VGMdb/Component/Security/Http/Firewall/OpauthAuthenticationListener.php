@@ -19,8 +19,9 @@ use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @brief       Authentication listener handling OAuth Authentication requests.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Authentication listener handling OAuth Authentication requests.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class OpauthAuthenticationListener extends AbstractAuthenticationListener
 {

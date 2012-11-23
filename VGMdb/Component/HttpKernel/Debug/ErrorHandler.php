@@ -3,8 +3,9 @@
 namespace VGMdb\Component\HttpKernel\Debug;
 
 /**
- * @brief       Handles general errors. Mostly copied from Symfony's HttpKernel.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Handles general errors. Mostly copied from Symfony's HttpKernel.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class ErrorHandler
 {

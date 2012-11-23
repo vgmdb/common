@@ -10,6 +10,14 @@ use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface as SecurityUserInterface;
 
+/**
+ * User entity provider, to be used with the Symfony Security Component.
+ *
+ * @author Christophe Coevoet <stof@notk.org>
+ * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+ * @author Gigablah <gigablah@vgmdb.net>
+ * @copyright (c) 2010-2012 FriendsOfSymfony
+ */
 class UserProvider implements UserProviderInterface
 {
     /**

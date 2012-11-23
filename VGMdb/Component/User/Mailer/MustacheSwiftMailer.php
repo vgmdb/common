@@ -8,6 +8,8 @@ use Symfony\Component\HttpKernel\Log\LoggerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
+ * Mailer with Mustache templating.
+ *
  * @author Gigablah <gigablah@vgmdb.net>
  */
 class MustacheSwiftMailer implements MailerInterface
@@ -27,6 +29,9 @@ class MustacheSwiftMailer implements MailerInterface
         $this->parameters = $parameters;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function sendConfirmationEmail(UserInterface $user)
     {
         $template = $this->parameters['user.mailer.confirmation.template'];
@@ -43,6 +48,9 @@ class MustacheSwiftMailer implements MailerInterface
         $this->sendMessage($template, $context, $this->parameters['user.mailer.confirmation.from_email'], $user->getEmail());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function sendResetPasswordEmail(UserInterface $user)
     {
         $template = $this->parameters['user.mailer.resetpassword.template'];
@@ -59,6 +67,9 @@ class MustacheSwiftMailer implements MailerInterface
         $this->sendMessage($template, $context, $this->parameters['user.mailer.resetpassword.from_email'], $user->getEmail());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function sendNewPasswordEmail(UserInterface $user)
     {
         $template = $this->parameters['user.mailer.newpassword.template'];
@@ -74,6 +85,8 @@ class MustacheSwiftMailer implements MailerInterface
     }
 
     /**
+     * Sends a message using SwiftMailer.
+     *
      * @param string $templateName
      * @param array  $context
      * @param string $fromEmail

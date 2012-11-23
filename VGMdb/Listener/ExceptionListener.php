@@ -13,8 +13,9 @@ use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @brief       Custom exception listener.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Custom exception listener.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class ExceptionListener implements EventSubscriberInterface
 {

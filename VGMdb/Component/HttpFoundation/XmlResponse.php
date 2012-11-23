@@ -6,8 +6,9 @@ use VGMdb\Component\View\ViewFactory;
 use Symfony\Component\HttpFoundation\Request as BaseRequest;
 
 /**
- * @brief       Representation of a HTTP response in XML format.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Representation of a HTTP response in XML format.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class XmlResponse extends Response
 {
@@ -113,6 +114,7 @@ class XmlResponse extends Response
                         $node = $domDocument->createElement($domElement->tagName);
                         $domElement->parentNode->appendChild($node);
                     }
+                    $singular = null;
                 } else {
                     if ($indexOverride) {
                         $plural = $domDocument->createElement($indexOverride);

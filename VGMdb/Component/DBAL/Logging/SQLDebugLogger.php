@@ -5,6 +5,11 @@ namespace VGMdb\Component\DBAL\Logging;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 
+/**
+ * A SQL logger that dumps to a log manager.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
+ */
 class SQLDebugLogger implements SQLLogger
 {
     public $queries = array();

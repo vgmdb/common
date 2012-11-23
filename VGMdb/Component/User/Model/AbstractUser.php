@@ -7,6 +7,8 @@ namespace VGMdb\Component\User\Model;
  *
  * @author Thibault Duplessis <thibault.duplessis@gmail.com>
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+ * @author Gigablah <gigablah@vgmdb.net>
+ * @copyright (c) 2010-2012 FriendsOfSymfony
  */
 abstract class AbstractUser implements UserInterface
 {

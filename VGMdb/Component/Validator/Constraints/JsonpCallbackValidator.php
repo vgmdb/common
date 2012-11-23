@@ -8,13 +8,13 @@ use Symfony\Component\Validator\ConstraintValidator;
 /**
  * Validate JSONP Callback
  *
- * https://github.com/tav/scripts/blob/master/validate_jsonp.py
- * https://github.com/talis/jsonp-validator/blob/master/src/main/java/com/talis/jsonp/JsonpCallbackValidator.java
- * http://tav.espians.com/sanitising-jsonp-callback-identifiers-for-security.html
- * http://news.ycombinator.com/item?id=809291
- * https://gist.github.com/1217080
+ * @link https://github.com/tav/scripts/blob/master/validate_jsonp.py
+ * @link https://github.com/talis/jsonp-validator/blob/master/src/main/java/com/talis/jsonp/JsonpCallbackValidator.java
+ * @link http://tav.espians.com/sanitising-jsonp-callback-identifiers-for-security.html
+ * @link http://news.ycombinator.com/item?id=809291
+ * @link https://gist.github.com/1217080
  *
- * @author      Gigablah <gigablah@vgmdb.net>
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class JsonpCallbackValidator extends ConstraintValidator
 {

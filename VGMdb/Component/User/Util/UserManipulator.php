@@ -10,6 +10,8 @@ use VGMdb\Component\User\Model\UserInterface;
  *
  * @author Christophe Coevoet <stof@notk.org>
  * @author Luis Cordova <cordoval@gmail.com>
+ * @author Gigablah <gigablah@vgmdb.net>
+ * @copyright (c) 2010-2012 FriendsOfSymfony
  */
 class UserManipulator
 {

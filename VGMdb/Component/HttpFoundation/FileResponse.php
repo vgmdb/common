@@ -7,8 +7,9 @@ use Symfony\Component\HttpFoundation\File\MimeType\FileinfoMimeTypeGuesser;
 use Symfony\Component\HttpFoundation\Request as BaseRequest;
 
 /**
- * @brief       Representation of a static file.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Representation of a static file.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class FileResponse extends Response
 {

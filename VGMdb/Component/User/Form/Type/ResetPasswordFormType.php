@@ -7,8 +7,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
- * @brief       Password reset form.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Password reset form.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class ResetPasswordFormType extends AbstractType
 {

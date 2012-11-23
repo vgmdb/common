@@ -5,10 +5,16 @@ namespace VGMdb\Component\Form\Extension\Csrf\CsrfProvider;
 use Symfony\Component\Form\Extension\Csrf\CsrfProvider\SessionCsrfProvider;
 use Symfony\Component\HttpFoundation\Session\Session;
 
+/**
+ * This provider expires a token after a time limit.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
+ */
 class ExpiringSessionCsrfProvider extends SessionCsrfProvider
 {
     /**
      * The expiry time limit.
+     *
      * @var integer
      */
     protected $ttl;

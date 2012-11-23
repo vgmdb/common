@@ -4,6 +4,12 @@ namespace VGMdb\Component\User\Util;
 
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 
+/**
+ * Token generator for registration and password resets.
+ *
+ * @author Christophe Coevoet <stof@notk.org>
+ * @copyright (c) 2010-2012 FriendsOfSymfony
+ */
 class TokenGenerator implements TokenGeneratorInterface
 {
     private $logger;

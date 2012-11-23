@@ -5,10 +5,12 @@ namespace VGMdb\Component\User\Model;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 
 /**
- * @brief       User interface definition.
- * @author      Thibault Duplessis <thibault.duplessis@gmail.com>
- * @author      Johannes M. Schmitt <schmittjoh@gmail.com>
- * @author      Gigablah <gigablah@vgmdb.net>
+ * User interface definition.
+ *
+ * @author Thibault Duplessis <thibault.duplessis@gmail.com>
+ * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+ * @author Gigablah <gigablah@vgmdb.net>
+ * @copyright (c) 2010-2012 FriendsOfSymfony
  */
 interface UserInterface extends AdvancedUserInterface, \Serializable
 {

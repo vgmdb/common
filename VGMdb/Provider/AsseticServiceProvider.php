@@ -14,12 +14,20 @@ use Assetic\Cache\FilesystemCache;
 use Assetic\Filter\Yui\CssCompressorFilter;
 use Assetic\Filter\Yui\JsCompressorFilter;
 
+/**
+ * Asset management.
+ *
+ * @author Michael Heap <m@michaelheap.com>
+ * @author Gigablah <gigablah@vgmdb.net>
+ */
 class AsseticServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
         $app['assetic.options'] = array();
-        $app['assetic.assets'] = $app->protect(function() {});
+        if (!isset($app['assetic.assets'])) {
+            $app['assetic.assets'] = $app->protect(function() {});
+        }
 
         /**
          * Asset Factory configuration happens here

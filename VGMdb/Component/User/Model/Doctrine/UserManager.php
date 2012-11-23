@@ -10,6 +10,13 @@ use Doctrine\ORM\Proxy\Proxy;
 use Symfony\Component\Security\Core\Role\RoleInterface;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 
+/**
+ * User Manager for Doctrine.
+ *
+ * @author Christophe Coevoet <stof@notk.org>
+ * @author Gigablah <gigablah@vgmdb.net>
+ * @copyright (c) 2010-2012 FriendsOfSymfony
+ */
 class UserManager extends AbstractUserManager
 {
     protected $objectManager;

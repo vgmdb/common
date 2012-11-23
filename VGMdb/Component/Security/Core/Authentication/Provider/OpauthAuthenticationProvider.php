@@ -9,8 +9,9 @@ use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProvid
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 /**
- * @brief       Authentication provider handling OAuth Authentication requests.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Authentication provider handling OAuth Authentication requests.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class OpauthAuthenticationProvider implements AuthenticationProviderInterface
 {

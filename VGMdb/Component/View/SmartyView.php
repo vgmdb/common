@@ -5,8 +5,9 @@ namespace VGMdb\Component\View;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 
 /**
- * @brief       View with Smarty rendering engine.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * View with Smarty rendering engine.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class SmartyView extends AbstractView
 {

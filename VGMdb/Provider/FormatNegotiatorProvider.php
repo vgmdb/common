@@ -17,8 +17,9 @@ use FOS\Rest\Util\Codes;
 use FOS\Rest\Util\FormatNegotiator;
 
 /**
- * @brief       Handles Accept header format and version negotiation.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Handles Accept header format and version negotiation.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class FormatNegotiatorProvider implements ServiceProviderInterface
 {

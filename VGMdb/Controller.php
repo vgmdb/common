@@ -5,6 +5,11 @@ namespace VGMdb;
 use VGMdb\Component\View\ViewInterface;
 use Silex\Controller as BaseController;
 
+/**
+ * Extends the Silex Controller with a convenience layout function.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
+ */
 class Controller extends BaseController
 {
     /**

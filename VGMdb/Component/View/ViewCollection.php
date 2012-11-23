@@ -3,8 +3,9 @@
 namespace VGMdb\Component\View;
 
 /**
- * @brief       An array-like collection of ViewInterface objects.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * An array-like collection of ViewInterface objects.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class ViewCollection extends AbstractView
 {

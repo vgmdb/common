@@ -3,8 +3,9 @@
 namespace VGMdb\Component\View;
 
 /**
- * @brief       Widgets are mini-controllers with templating capabilities.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Widgets are mini-controllers with templating capabilities.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class Widget extends AbstractView
 {

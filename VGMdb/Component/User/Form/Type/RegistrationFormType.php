@@ -7,8 +7,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
- * @brief       User registration form.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * User registration form.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class RegistrationFormType extends AbstractType
 {

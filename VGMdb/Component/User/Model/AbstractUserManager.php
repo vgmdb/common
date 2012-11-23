@@ -10,10 +10,10 @@ use Symfony\Component\Security\Core\User\UserInterface as SecurityUserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 /**
- * Abstract User Manager implementation which can be used as base class for your
- * concrete manager.
+ * Abstract User Manager implementation which can be used as base class for your concrete manager.
  *
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+ * @copyright (c) 2010-2012 FriendsOfSymfony
  */
 abstract class AbstractUserManager implements UserManagerInterface, UserProviderInterface
 {

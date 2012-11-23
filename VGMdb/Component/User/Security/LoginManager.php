@@ -15,6 +15,7 @@ use Symfony\Component\Security\Http\Session\SessionAuthenticationStrategyInterfa
  * Abstracts process for manually logging in a user.
  *
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+ * @copyright (c) 2010-2012 FriendsOfSymfony
  */
 class LoginManager implements LoginManagerInterface
 {

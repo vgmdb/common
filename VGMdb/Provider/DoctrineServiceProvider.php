@@ -11,8 +11,9 @@ use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\ApcCache;
 
 /**
- * @brief       Doctrine DBAL and ORM Provider.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Doctrine DBAL and ORM Provider.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class DoctrineServiceProvider extends BaseDoctrineServiceProvider
 {

@@ -5,8 +5,9 @@ namespace VGMdb\Component\View;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 
 /**
- * @brief       Nestable view container with rendering callback.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Nestable view container with rendering callback.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class View extends AbstractView
 {

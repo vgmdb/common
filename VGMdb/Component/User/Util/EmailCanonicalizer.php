@@ -2,6 +2,11 @@
 
 namespace VGMdb\Component\User\Util;
 
+/**
+ * Removes portions after the plus sign from email addresses.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
+ */
 class EmailCanonicalizer implements CanonicalizerInterface
 {
     public function canonicalize($string)

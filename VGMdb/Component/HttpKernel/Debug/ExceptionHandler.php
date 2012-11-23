@@ -10,8 +10,9 @@ if (!defined('ENT_SUBSTITUTE')) {
 }
 
 /**
- * @brief       Handles exceptions and fatal errors. Mostly copied from Symfony's HttpKernel.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Handles exceptions and fatal errors. Mostly copied from Symfony's HttpKernel.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class ExceptionHandler
 {

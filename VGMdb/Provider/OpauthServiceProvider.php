@@ -11,8 +11,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Http\EntryPoint\FormAuthenticationEntryPoint;
 
 /**
- * @brief       Opauth authentication library integration.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Opauth authentication library integration.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class OpauthServiceProvider implements ServiceProviderInterface
 {
@@ -86,7 +87,7 @@ class OpauthServiceProvider implements ServiceProviderInterface
         });
 
         // fake route which will be handled by auth listener
-        $app->match($app['opauth.path'] . '/{strategy}', function() {});
+        $app->match($app['opauth.path'] . '/{strategy}', function () {});
 
         // this route must be unsecured
         $app->match('/login/{strategy}/{callback}', function ($strategy, $callback) use ($app) {

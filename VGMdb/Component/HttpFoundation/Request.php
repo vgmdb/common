@@ -5,8 +5,9 @@ namespace VGMdb\Component\HttpFoundation;
 use Symfony\Component\HttpFoundation\Request as BaseRequest;
 
 /**
- * @brief       Representation of a HTTP request, with additional logic for versioning.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Representation of a HTTP request, with additional logic for versioning.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class Request extends BaseRequest
 {

@@ -5,8 +5,9 @@ namespace VGMdb\Component\Security\Core\Authentication\Token;
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 
 /**
- * @brief       Token for OAuth Authentication requests.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Token for OAuth Authentication requests.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class OpauthToken extends AbstractToken
 {

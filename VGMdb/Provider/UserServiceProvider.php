@@ -30,8 +30,9 @@ use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Security\Http\SecurityEvents;
 
 /**
- * @brief       Provides user management.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Provides user management. Adapted from FriendsOfSymfony UserBundle.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class UserServiceProvider implements ServiceProviderInterface
 {

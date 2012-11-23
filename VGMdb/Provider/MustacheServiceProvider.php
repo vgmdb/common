@@ -6,8 +6,9 @@ use Silex\Application;
 use Silex\ServiceProviderInterface;
 
 /**
- * @brief       Mustache templating integration.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Mustache templating integration.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class MustacheServiceProvider implements ServiceProviderInterface
 {

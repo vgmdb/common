@@ -6,8 +6,9 @@ use VGMdb\Component\View\ViewFactory;
 use Symfony\Component\HttpFoundation\Request as BaseRequest;
 
 /**
- * @brief       Representation of a HTTP response in JSON format.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Representation of a HTTP response in JSON format.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class JsonResponse extends Response
 {

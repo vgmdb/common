@@ -10,8 +10,9 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Security\Core\Exception\InsufficientAuthenticationException;
 
 /**
- * @brief       Provides API route definitions.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Provides API route definitions.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class ApiControllerProvider implements ControllerProviderInterface
 {

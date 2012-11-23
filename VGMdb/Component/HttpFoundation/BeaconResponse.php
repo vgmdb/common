@@ -5,8 +5,9 @@ namespace VGMdb\Component\HttpFoundation;
 use Symfony\Component\HttpFoundation\Request as BaseRequest;
 
 /**
- * @brief       Representation of a beacon, usually a 1x1 transparent GIF.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Representation of a beacon, usually a 1x1 transparent GIF.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class BeaconResponse extends Response
 {

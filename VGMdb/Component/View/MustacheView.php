@@ -5,8 +5,9 @@ namespace VGMdb\Component\View;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 
 /**
- * @brief       View with Mustache rendering engine.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * View with Mustache rendering engine.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class MustacheView extends AbstractView
 {

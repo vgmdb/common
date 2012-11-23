@@ -7,8 +7,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 
 /**
- * @brief       Controller widgets are activated immediately after the main route, within the request scope.
- * @author      Gigablah <gigablah@vgmdb.net>
+ * Controller widgets are activated immediately after the main route, within the request scope.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 abstract class ControllerWidget extends Widget
 {

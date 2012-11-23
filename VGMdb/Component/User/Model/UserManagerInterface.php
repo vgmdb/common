@@ -14,6 +14,7 @@ namespace VGMdb\Component\User\Model;
  * @author Gordon Franke <info@nevalon.de>
  * @author Thibault Duplessis <thibault.duplessis@gmail.com>
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+ * @copyright (c) 2010-2012 FriendsOfSymfony
  */
 interface UserManagerInterface
 {
