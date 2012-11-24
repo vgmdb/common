@@ -39,11 +39,17 @@ class ControllerResolver extends BaseControllerResolver
 
         list($controller, $method) = $this->createController($controller, $request);
 
-        if (!method_exists($controller, $method)) {
-            throw new \InvalidArgumentException(sprintf('Method "%s::%s" does not exist.', get_class($controller), $method));
+        $verbMethod = strtolower($request->getMethod()) . ucfirst($method);
+        if (method_exists($controller, $verbMethod)) {
+            return array($controller, $verbMethod);
+        }
+        if (method_exists($controller, $method)) {
+            return array($controller, $method);
         }
 
-        return array($controller, $method);
+        throw new \InvalidArgumentException(
+            sprintf('Method "%s::%s" does not exist.', get_class($controller), $verbMethod)
+        );
     }
 
     /**
