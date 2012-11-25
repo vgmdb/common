@@ -106,7 +106,7 @@ class UserManager extends AbstractUserManager
     }
 
     /**
-     * Updates a user.
+     * Retrieves a user based on auth provider details.
      *
      * @param string $provider
      * @param string $providerId

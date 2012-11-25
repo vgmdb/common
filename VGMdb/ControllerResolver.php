@@ -79,11 +79,7 @@ class ControllerResolver extends BaseControllerResolver
             throw new \InvalidArgumentException(sprintf('Class "%s" does not exist.', $class));
         }
 
-        $controller = new $class();
-
-        if ($controller instanceof AbstractController) {
-            $controller->setContainer($this->app);
-        }
+        $controller = new $class($this->app);
 
         return array($controller, $method);
     }
