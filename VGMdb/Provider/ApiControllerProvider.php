@@ -26,7 +26,7 @@ class ApiControllerProvider implements ControllerProviderInterface
     public function connect(Application $app)
     {
         $api = $app['controllers_factory'];
-        $api->value('_version', $this->version ?: (string) \VGMdb\Application::VERSION);
+        $api->value('_version', $this->version ?: (string) $app['version']);
 
         // Rules: each method must be bound to a default route name, no duplications
         $api->get('/user/{username}', function ($username, $version) use ($app) {

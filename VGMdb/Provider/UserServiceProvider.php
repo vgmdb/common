@@ -133,7 +133,10 @@ class UserServiceProvider implements ServiceProviderInterface
             );
         });
 
-        $app['data.user'] = $app->protect(function ($username, $version = \VGMdb\Application::VERSION) use ($app) {
+        $app['data.user'] = $app->protect(function ($username, $version = null) use ($app) {
+            if (null === $version) {
+                $version = $app['version'];
+            }
             if ($username === 'me') {
                 $token = $app['security']->getToken();
                 if (!($token instanceof TokenInterface)) {

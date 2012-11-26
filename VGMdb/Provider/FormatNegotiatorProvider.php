@@ -65,7 +65,7 @@ class FormatNegotiatorProvider implements ServiceProviderInterface
         $versions = $request->splitHttpAcceptHeader(
             $request->headers->get('Accept'),
             'version',
-            \VGMdb\Application::VERSION
+            $this->app['version']
         );
         foreach ($versions as $mimetype => $version) {
             if ($request->getFormat($mimetype) === $format) {
