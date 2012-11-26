@@ -11,8 +11,6 @@ use Symfony\Component\Security\Core\Role\RoleInterface;
  */
 abstract class AbstractRole implements RoleInterface
 {
-    abstract public function getRole();
-
     public function __toString()
     {
         return (string) $this->getRole();
