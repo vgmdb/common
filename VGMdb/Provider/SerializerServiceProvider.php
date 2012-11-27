@@ -54,6 +54,13 @@ use Metadata\Driver\FileLocator;
  */
 class SerializerServiceProvider implements ServiceProviderInterface
 {
+    private $version;
+
+    public function __construct($version = '1.0')
+    {
+        $this->version = $version;
+    }
+
     public function register(Application $app)
     {
         // default settings
@@ -191,8 +198,6 @@ class SerializerServiceProvider implements ServiceProviderInterface
         });
 
         $app['serializer.metadata.annotation_reader'] = $app->share(function () use ($app) {
-            AnnotationRegistry::registerAutoloadNamespace('JMS\\SerializerBundle\\Annotation', $app['serializer.src_dir']);
-
             return new AnnotationReader();
         });
 
@@ -232,8 +237,9 @@ class SerializerServiceProvider implements ServiceProviderInterface
         });
 
         // exclusion strategies
-        $app['serializer.version_exclusion_strategy'] = $app->share(function () use ($app) {
-            return new VersionExclusionStrategy($app['version']);
+        $_version = $this->version;
+        $app['serializer.version_exclusion_strategy'] = $app->share(function () use ($app, $_version) {
+            return new VersionExclusionStrategy($_version);
         });
 
         // naming strategies
@@ -294,15 +300,15 @@ class SerializerServiceProvider implements ServiceProviderInterface
         $app['serializer.serialization_visitors'] = $app->share(function () use ($app) {
             return array(
                 'json' => $app['serializer.json_serialization_visitor'],
-                'xml' => $app['serializer.xml_serialization_visitor'],
-                'yaml' => $app['serializer.yaml_serialization_visitor']
+                'xml'  => $app['serializer.xml_serialization_visitor'],
+                'yml'  => $app['serializer.yaml_serialization_visitor']
             );
         });
 
         $app['serializer.deserialization_visitors'] = $app->share(function () use ($app) {
             return array(
                 'json' => $app['serializer.json_deserialization_visitor'],
-                'xml' => $app['serializer.xml_deserialization_visitor']
+                'xml'  => $app['serializer.xml_deserialization_visitor']
             );
         });
 
@@ -346,5 +352,7 @@ class SerializerServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
+        // Register our annotations upon boot so that Doctrine won't crash and burn
+        AnnotationRegistry::registerAutoloadNamespace('JMS\\SerializerBundle\\Annotation', $app['serializer.src_dir']);
     }
 }

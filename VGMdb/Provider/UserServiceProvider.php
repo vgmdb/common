@@ -36,6 +36,13 @@ use Symfony\Component\Security\Http\SecurityEvents;
  */
 class UserServiceProvider implements ServiceProviderInterface
 {
+    private $version;
+
+    public function __construct($version = '1.0')
+    {
+        $this->version = $version;
+    }
+
     public function register(Application $app)
     {
         $app['user_manager'] = $app->share(function ($app) {
@@ -133,9 +140,10 @@ class UserServiceProvider implements ServiceProviderInterface
             );
         });
 
-        $app['data.user'] = $app->protect(function ($username, $version = null) use ($app) {
+        $_version = $this->version;
+        $app['data.user'] = $app->protect(function ($username, $version = null) use ($app, $_version) {
             if (null === $version) {
-                $version = $app['version'];
+                $version = $_version;
             }
             if ($username === 'me') {
                 $token = $app['security']->getToken();
