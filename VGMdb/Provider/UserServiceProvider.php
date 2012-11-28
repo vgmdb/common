@@ -142,7 +142,7 @@ class UserServiceProvider implements ServiceProviderInterface
 
         $_version = $this->version;
         $app['data.user'] = $app->protect(function ($username, $version = null) use ($app, $_version) {
-            if (null === $version) {
+            if (!$version) {
                 $version = $_version;
             }
             if ($username === 'me') {
@@ -215,5 +215,22 @@ class UserServiceProvider implements ServiceProviderInterface
             array($app['user.security.interactive_login_listener'], 'onSecurityInteractiveLogin'),
             8
         );
+
+        $_version = $this->version;
+        $app->get($app['user.path'] . '/{username}', function ($username) use ($app, $_version) {
+            try {
+                $data = $app['data.user']($username, $_version);
+                $data['is_authenticated'] = true;
+            } catch (\Exception $e) {
+                /*if ($username === 'me' && $app['request']->getRequestFormat() !== 'html') {
+                    throw new HttpException(401, 'Unauthorised: Authentication credentials were missing or incorrect.');
+                }
+                throw $e;*/
+                $data = $app['data.login'];
+                $data['is_authenticated'] = false;
+            }
+
+            return $app['view']('userbox', $data);
+        })->bind('user');
     }
 }

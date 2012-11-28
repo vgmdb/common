@@ -194,11 +194,6 @@ EOF
       </div>
     </div>
   </div>
-  <footer class="footer">
-    <div class="container">
-      <p>Assembled using Silex, Opauth, Mustache.php, RequireJS, Hogan.js, Modernizr, jQuery, Backbone Boilerplate and Bootstrap 2.1</p>
-    </div>
-  </footer>
 </body>
 </html>
 EOF;
