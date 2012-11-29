@@ -4,6 +4,7 @@ namespace VGMdb\Provider;
 
 use Silex\Application;
 use Silex\ControllerProviderInterface;
+use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Config\FileLocator;
 
@@ -25,8 +26,21 @@ class YamlRouteProvider implements ControllerProviderInterface
 
     public function connect(Application $app)
     {
-        $locator = new FileLocator($this->path);
-        $loader = new YamlFileLoader($locator);
-        return $loader->load($this->path);
+        $collection = new RouteCollection();
+        $paths = array();
+
+        if (substr($this->path, -4) === '.yml') {
+            $paths[] = $this->path;
+        } else {
+            $paths = glob($this->path . '/*.yml');
+        }
+
+        foreach ($paths as $path) {
+            $locator = new FileLocator($path);
+            $loader = new YamlFileLoader($locator);
+            $collection->addCollection($loader->load($path));
+        }
+
+        return $collection;
     }
 }

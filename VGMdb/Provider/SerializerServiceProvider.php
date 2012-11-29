@@ -334,7 +334,8 @@ class SerializerServiceProvider implements ServiceProviderInterface
         });
 
         // serializer
-        $app['serializer'] = $app->share(function () use ($app) {
+        $_version = $this->version;
+        $app['serializer'] = $app->share(function () use ($app, $_version) {
             $serializer = new LazyLoadingSerializer(
                 $app['serializer.metadata_factory'],
                 $app['serializer.handler_registry'],
@@ -345,6 +346,7 @@ class SerializerServiceProvider implements ServiceProviderInterface
                 $app['serializer.deserialization_visitors']
             );
             $serializer->setContainer($app);
+            $serializer->setVersion($_version);
 
             return $serializer;
         });
