@@ -4,6 +4,8 @@ namespace VGMdb\Provider;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
+use Symfony\Component\Config\ConfigCache;
+use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -14,10 +16,14 @@ use Symfony\Component\Yaml\Yaml;
 class ConfigServiceProvider implements ServiceProviderInterface
 {
     private $filename;
+    private $cache;
     private $replacements = array();
 
     public function register(Application $app)
     {
+        $cacheFile = $app['config.cache_dir'] . '/' . basename($this->filename) . '.php';
+        $this->cache = new ConfigCache($cacheFile, $app['debug']);
+
         $config = $this->readConfig();
 
         foreach ($config as $name => $value) {
@@ -69,24 +75,37 @@ class ConfigServiceProvider implements ServiceProviderInterface
             throw new \RuntimeException('A valid configuration file must be passed before reading the config.');
         }
 
-        if (!file_exists($this->filename)) {
-            throw new \InvalidArgumentException(sprintf("The config file '%s' does not exist.", $this->filename));
-        }
-
-        if ('yaml' === $format) {
-            if (!class_exists('Symfony\\Component\\Yaml\\Yaml')) {
-                throw new \RuntimeException('Unable to read yaml as the Symfony Yaml Component is not installed.');
+        if (!$this->cache->isFresh()) {
+            if (!file_exists($this->filename)) {
+                throw new \InvalidArgumentException(sprintf("The config file '%s' does not exist.", $this->filename));
             }
-            $config = Yaml::parse($this->filename);
-            return ($config) ? $config : array();
+
+            if ('yaml' === $format) {
+                if (!class_exists('Symfony\\Component\\Yaml\\Yaml')) {
+                    throw new \RuntimeException('Unable to read yaml as the Symfony Yaml Component is not installed.');
+                }
+                $config = Yaml::parse($this->filename);
+            } elseif ('json' === $format) {
+                $config = json_decode(file_get_contents($this->filename), true);
+            } else {
+                throw new \InvalidArgumentException(
+                    sprintf("The config file '%s' appears has invalid format '%s'.", $this->filename, $format)
+                );
+            }
+
+            if (!$config) {
+                $config = array();
+            }
+
+            $this->cache->write(
+                '<?php' . PHP_EOL . '$config = ' . var_export($config, true) . ';',
+                array(new FileResource($this->filename))
+            );
         }
 
-        if ('json' === $format) {
-            $config = json_decode(file_get_contents($this->filename), true);
-            return ($config) ? $config : array();
-        }
+        require_once $this->cache;
 
-        throw new \InvalidArgumentException(sprintf("The config file '%s' appears has invalid format '%s'.", $this->filename, $format));
+        return $config;
     }
 
     public function getFileFormat()

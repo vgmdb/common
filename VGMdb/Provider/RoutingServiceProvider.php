@@ -2,13 +2,13 @@
 
 namespace VGMdb\Provider;
 
+use VGMdb\Component\Routing\Loader\CachedYamlFileLoader;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Silex\RedirectableUrlMatcher;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Routing\RouteCollection;
-use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Routing\Matcher\Dumper\PhpMatcherDumper;
 
 /**
@@ -28,7 +28,7 @@ class RoutingServiceProvider implements ServiceProviderInterface
 
             $class = $app['routing.matcher_cache_class'];
             $cache = new ConfigCache($app['config.cache_dir'].'/'.$class.'.php', $app['debug']);
-            if (!$cache->isFresh($class)) {
+            if (!$cache->isFresh()) {
                 $dumper = new PhpMatcherDumper($app['routes']);
 
                 $options = array(
@@ -45,25 +45,29 @@ class RoutingServiceProvider implements ServiceProviderInterface
         });
 
         $app['routing.matcher_cache_class'] = 'ProjectUrlMatcher';
+
+        $app['routes'] = $app->share($app->extend('routes', function ($routes, $app) {
+            $collection = new RouteCollection();
+            $paths = array();
+
+            if (substr($app['routing.config_dir'], -4) === '.yml') {
+                $paths[] = $app['routing.config_dir'];
+            } else {
+                $paths = glob($app['routing.config_dir'] . '/*.yml');
+            }
+            $cacheFile = $app['routing.cache_dir'] . '/' . md5(implode(',', $paths)) . '.php';
+
+            $locator = new FileLocator($paths);
+            $loader = new CachedYamlFileLoader($locator);
+            $loader->setCache(new ConfigCache($cacheFile, $app['debug']));
+            $collection->addCollection($loader->load($paths));
+            $routes->addCollection($collection);
+
+            return $routes;
+        }));
     }
 
     public function boot(Application $app)
     {
-        $collection = new RouteCollection();
-        $paths = array();
-
-        if (substr($app['routing.config_dir'], -4) === '.yml') {
-            $paths[] = $app['routing.config_dir'];
-        } else {
-            $paths = glob($app['routing.config_dir'] . '/*.yml');
-        }
-
-        foreach ($paths as $path) {
-            $locator = new FileLocator($path);
-            $loader = new YamlFileLoader($locator);
-            $collection->addCollection($loader->load($path));
-        }
-
-        $app['routes']->addCollection($collection);
     }
 }
