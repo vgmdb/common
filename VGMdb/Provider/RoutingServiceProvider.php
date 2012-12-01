@@ -6,25 +6,28 @@ use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Silex\RedirectableUrlMatcher;
 use Symfony\Component\Config\ConfigCache;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Routing\Matcher\Dumper\PhpMatcherDumper;
 
 /**
- * Provides caching for compiled routes. DOES NOT WORK WITH CLOSURES!
+ * Provides caching for routes loaded from YAML configuration.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class UrlMatcherCacheProvider implements ServiceProviderInterface
+class RoutingServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
          // replace the default url matcher with one that supports caching
         $app['url_matcher'] = $app->share(function () use ($app) {
-            if (!isset($app['routing.cache_dir']) || !isset($app['routing.matcher_cache_class'])) {
+            if (!isset($app['config.cache_dir']) || !isset($app['routing.matcher_cache_class'])) {
                 return new RedirectableUrlMatcher($app['routes'], $app['request_context']);
             }
 
             $class = $app['routing.matcher_cache_class'];
-            $cache = new ConfigCache($app['routing.cache_dir'].'/'.$class.'.php', $app['debug']);
+            $cache = new ConfigCache($app['config.cache_dir'].'/'.$class.'.php', $app['debug']);
             if (!$cache->isFresh($class)) {
                 $dumper = new PhpMatcherDumper($app['routes']);
 
@@ -46,5 +49,21 @@ class UrlMatcherCacheProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
+        $collection = new RouteCollection();
+        $paths = array();
+
+        if (substr($app['routing.config_dir'], -4) === '.yml') {
+            $paths[] = $app['routing.config_dir'];
+        } else {
+            $paths = glob($app['routing.config_dir'] . '/*.yml');
+        }
+
+        foreach ($paths as $path) {
+            $locator = new FileLocator($path);
+            $loader = new YamlFileLoader($locator);
+            $collection->addCollection($loader->load($path));
+        }
+
+        $app['routes']->addCollection($collection);
     }
 }

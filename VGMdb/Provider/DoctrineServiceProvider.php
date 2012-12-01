@@ -7,6 +7,10 @@ use Silex\Application;
 use Silex\Provider\DoctrineServiceProvider as BaseDoctrineServiceProvider;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Configuration;
+use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\AnnotationRegistry;
+use Doctrine\Common\Annotations\FileCacheReader;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\ApcCache;
 
@@ -22,6 +26,9 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
         parent::register($app);
 
         $app['entity_manager'] = $app->share(function () use ($app) {
+            if (!isset($app['orm.cache_dir'])) {
+                throw new \RuntimeException('The orm.cache_dir path is not set.');
+            }
             if (!isset($app['orm.entity_dir'])) {
                 throw new \RuntimeException('The orm.entity_dir path is not set.');
             }
@@ -31,14 +38,27 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
             if (!isset($app['orm.proxy_namespace'])) {
                 throw new \RuntimeException('The orm.proxy_namespace path is not set.');
             }
-            $cache = ($app['debug'] || !extension_loaded('apc')) ? new ArrayCache : new ApcCache;
-            $config = new Configuration;
-            $config->setMetadataCacheImpl($cache);
-            $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver($app['orm.entity_dir'], false));
-            $config->setQueryCacheImpl($cache);
+
+            $metadataCache = ($app['debug'] || !extension_loaded('apc')) ? new ArrayCache() : new ApcCache();
+            $queryCache    = ($app['debug'] || !extension_loaded('apc')) ? new ArrayCache() : new ApcCache();
+
+            $config = new Configuration();
+
+            $r = new \ReflectionClass(get_class($config));
+            AnnotationRegistry::registerFile(dirname($r->getFilename()) . '/Mapping/Driver/DoctrineAnnotations.php');
+
+            $driver = new AnnotationDriver(
+                new FileCacheReader(new AnnotationReader(), $app['orm.cache_dir'], $app['debug']),
+                (array) $app['orm.entity_dir']
+            );
+
+            $config->setMetadataCacheImpl($metadataCache);
+            $config->setMetadataDriverImpl($driver);
+            $config->setQueryCacheImpl($queryCache);
             $config->setProxyDir($app['orm.proxy_dir']);
             $config->setProxyNamespace($app['orm.proxy_namespace']);
             $config->setAutoGenerateProxyClasses($app['debug']);
+
             $em = EntityManager::create($app['db'], $config);
 
             return $em;
