@@ -4,7 +4,8 @@ namespace VGMdb\Component\Security\Core\Authentication\Provider;
 
 use VGMdb\Component\Security\Core\Authentication\Token\OpauthToken;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Core\Exception\AuthenticationServiceException;
+use Symfony\Component\Security\Core\User\UserCheckerInterface;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
@@ -18,11 +19,11 @@ class OpauthAuthenticationProvider implements AuthenticationProviderInterface
     private $userProvider;
     private $userChecker;
     private $providerKey;
-    private $encoderFactory;
 
-    public function __construct(UserProviderInterface $userProvider, $providerKey)
+    public function __construct(UserProviderInterface $userProvider, UserCheckerInterface $userChecker, $providerKey)
     {
         $this->userProvider = $userProvider;
+        $this->userChecker = $userChecker;
         $this->providerKey  = $providerKey;
     }
 
@@ -37,15 +38,17 @@ class OpauthAuthenticationProvider implements AuthenticationProviderInterface
 
         $user = $this->userProvider->loadUserByAuthProvider($token->provider, $token->providerId);
 
-        if ($user) {
-            $authenticatedToken = new OpauthToken($this->providerKey, $user->getRoles());
-            $authenticatedToken->setAuthenticated(true);
-            $authenticatedToken->setUser($user);
-
-            return $authenticatedToken;
+        if (!$user) {
+            throw new BadCredentialsException('No user found for given credentials.');
         }
 
-        throw new AuthenticationServiceException('Authentication failed.');
+        $this->userChecker->checkPostAuth($user);
+
+        $authenticatedToken = new OpauthToken($this->providerKey, $user->getRoles());
+        $authenticatedToken->setAuthenticated(true);
+        $authenticatedToken->setUser($user);
+
+        return $authenticatedToken;
     }
 
     public function supports(TokenInterface $token)

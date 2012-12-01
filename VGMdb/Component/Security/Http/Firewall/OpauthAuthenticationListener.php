@@ -2,6 +2,7 @@
 
 namespace VGMdb\Component\Security\Http\Firewall;
 
+use VGMdb\Component\User\Util\UserManipulator;
 use VGMdb\Component\Security\Core\Authentication\Provider\OpauthAuthenticationProvider;
 use VGMdb\Component\Security\Core\Authentication\Token\OpauthToken;
 use Symfony\Component\Form\Extension\Csrf\CsrfProvider\CsrfProviderInterface;
@@ -13,7 +14,10 @@ use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
 use Symfony\Component\Security\Http\Session\SessionAuthenticationStrategyInterface;
 use Symfony\Component\Security\Http\HttpUtils;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
+use Symfony\Component\Security\Core\Authentication\AuthenticationTrustResolverInterface;
+use Symfony\Component\Security\Core\Exception\AccountStatusException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -27,21 +31,27 @@ class OpauthAuthenticationListener extends AbstractAuthenticationListener
 {
     private $oauthProvider;
     private $csrfProvider;
+    private $trustResolver;
+    private $userManipulator;
+    private $token;
     protected $httpUtils;
 
     /**
      * {@inheritdoc}
      */
-    public function __construct(SecurityContextInterface $securityContext, AuthenticationManagerInterface $authenticationManager, SessionAuthenticationStrategyInterface $sessionStrategy, HttpUtils $httpUtils, $providerKey, \Opauth $oauthProvider, AuthenticationSuccessHandlerInterface $successHandler = null, AuthenticationFailureHandlerInterface $failureHandler = null, array $options = array(), LoggerInterface $logger = null, EventDispatcherInterface $dispatcher = null, CsrfProviderInterface $csrfProvider = null)
+    public function __construct(SecurityContextInterface $securityContext, AuthenticationManagerInterface $authenticationManager, SessionAuthenticationStrategyInterface $sessionStrategy, HttpUtils $httpUtils, $providerKey, \Opauth $oauthProvider, AuthenticationTrustResolverInterface $trustResolver, UserManipulator $userManipulator, AuthenticationSuccessHandlerInterface $successHandler = null, AuthenticationFailureHandlerInterface $failureHandler = null, array $options = array(), LoggerInterface $logger = null, EventDispatcherInterface $dispatcher = null, CsrfProviderInterface $csrfProvider = null)
     {
         parent::__construct($securityContext, $authenticationManager, $sessionStrategy, $httpUtils, $providerKey, $successHandler, $failureHandler, array_merge(array(
             'csrf_parameter' => '_csrf_token',
             'intention'      => 'oauth',
             'post_only'      => false,
         ), $options), $logger, $dispatcher);
-        $this->oauthProvider = $oauthProvider;
-        $this->csrfProvider  = $csrfProvider;
-        $this->httpUtils     = $httpUtils;
+        $this->oauthProvider   = $oauthProvider;
+        $this->csrfProvider    = $csrfProvider;
+        $this->trustResolver   = $trustResolver;
+        $this->userManipulator = $userManipulator;
+        $this->token           = $securityContext->getToken();
+        $this->httpUtils       = $httpUtils;
     }
 
     /**
@@ -127,11 +137,33 @@ class OpauthAuthenticationListener extends AbstractAuthenticationListener
             $username = $response['auth']['uid'];
         }
 
+        $email = '';
+        if (isset($response['auth']['info']['email'])) {
+            $email = $response['auth']['info']['email'];
+        }
+        if (!$email) {
+            $email = str_replace(' ', '', $username) . '@' . strtolower($response['auth']['provider']) . '.com';
+        }
+
         $authToken = new OpauthToken($this->providerKey);
         $authToken->setUser($username);
         $authToken->provider = $response['auth']['provider'];
         $authToken->providerId = $response['auth']['uid'];
 
-        return $this->authenticationManager->authenticate($authToken);
+        try {
+            return $this->authenticationManager->authenticate($authToken);
+        } catch (BadCredentialsException $e) {
+            if ($this->token && !$this->trustResolver->isAnonymous($token)) {
+                // add new auth provider to user
+                $user = $this->token->getUser();
+            } else {
+                // create new user
+                $user = $this->userManipulator->create($username, $email);
+            }
+
+            $this->userManipulator->addAuthProvider($user, $authToken->provider, $authToken->providerId);
+
+            return $this->authenticationManager->authenticate($authToken);
+        }
     }
 }

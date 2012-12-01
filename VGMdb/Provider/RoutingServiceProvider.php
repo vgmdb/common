@@ -21,13 +21,14 @@ class RoutingServiceProvider implements ServiceProviderInterface
     public function register(Application $app)
     {
          // replace the default url matcher with one that supports caching
-        $app['url_matcher'] = $app->share(function () use ($app) {
+        /*$app['url_matcher'] = $app->share(function () use ($app) {
+            throw new \Exception('shit');
             if (!isset($app['config.cache_dir']) || !isset($app['routing.matcher_cache_class'])) {
                 return new RedirectableUrlMatcher($app['routes'], $app['request_context']);
             }
 
             $class = $app['routing.matcher_cache_class'];
-            $cache = new ConfigCache($app['config.cache_dir'].'/'.$class.'.php', $app['debug']);
+            $cache = new ConfigCache($app['config.cache_dir'] . '/' . $class . '.php', $app['debug']);
             if (!$cache->isFresh()) {
                 $dumper = new PhpMatcherDumper($app['routes']);
 
@@ -42,9 +43,10 @@ class RoutingServiceProvider implements ServiceProviderInterface
             require_once $cache;
 
             return new $class($app['request_context']);
-        });
+        });*/
 
         $app['routing.matcher_cache_class'] = 'ProjectUrlMatcher';
+        $app['routing.loader_cache_class'] = 'ProjectRouteLoader';
 
         $app['routes'] = $app->share($app->extend('routes', function ($routes, $app) {
             $collection = new RouteCollection();
@@ -55,11 +57,12 @@ class RoutingServiceProvider implements ServiceProviderInterface
             } else {
                 $paths = glob($app['routing.config_dir'] . '/*.yml');
             }
-            $cacheFile = $app['routing.cache_dir'] . '/' . md5(implode(',', $paths)) . '.php';
 
+            $class = $app['routing.loader_cache_class'];
+            $cache = new ConfigCache($app['routing.cache_dir'] . '/' . $class . '.php', $app['debug']);
             $locator = new FileLocator($paths);
             $loader = new CachedYamlFileLoader($locator);
-            $loader->setCache(new ConfigCache($cacheFile, $app['debug']));
+            $loader->setCache($cache);
             $collection->addCollection($loader->load($paths));
             $routes->addCollection($collection);
 

@@ -60,6 +60,8 @@ class OpauthServiceProvider implements ServiceProviderInterface
                     $app['security.http_utils'],
                     $providerKey,
                     $app['opauth'],
+                    $app['security.trust_resolver'],
+                    $app['user_manipulator'],
                     $app['security.authentication.success_handler.'.$providerKey.'.opauth.'.$provider],
                     $app['security.authentication.failure_handler.'.$providerKey.'.opauth.'.$provider],
                     $options,
@@ -74,6 +76,7 @@ class OpauthServiceProvider implements ServiceProviderInterface
             return $app->share(function () use ($app, $name) {
                 return new OpauthAuthenticationProvider(
                     $app['security.user_provider.' . $app['opauth.firewall_name']],
+                    $app['security.user_checker'],
                     $name
                 );
             });
@@ -82,9 +85,7 @@ class OpauthServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
-        $app->match($app['opauth.path'], function() {
-
-        });
+        $app->match($app['opauth.path'], function() {});
 
         // fake route which will be handled by auth listener
         $app->match($app['opauth.path'] . '/{strategy}', function () {});
