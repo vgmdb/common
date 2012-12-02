@@ -58,6 +58,9 @@ class ViewServiceProvider implements ServiceProviderInterface
 
             if ($event->getRequest()->getRequestFormat() === 'html') {
                 $layout_name = $attributes->get('_layout');
+                if (!$layout_name && isset($app['view.default_layout'])) {
+                    $layout_name = $app['view.default_layout'];
+                }
 
                 if (isset($app['layouts'])) {
                     $layout = $app['layouts']($layout_name);

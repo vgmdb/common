@@ -26,6 +26,8 @@ use Symfony\Component\Routing\RouteCollection;
  */
 class Application extends BaseApplication
 {
+    private $booting = false;
+
     /**
      * Constructor.
      */
@@ -141,5 +143,35 @@ class Application extends BaseApplication
         }
 
         $this['routes']->addCollection($app, $prefix);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function share(\Closure $callable)
+    {
+        $booting = &$this->booting;
+        return function ($c) use ($callable, &$booting) {
+            static $object;
+
+            if (!$booting) {
+                throw new \ErrorException('Cannot instantiate service before application is booted.');
+            }
+
+            if (is_null($object)) {
+                $object = $callable($c);
+            }
+
+            return $object;
+        };
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function boot()
+    {
+        $this->booting = true;
+        parent::boot();
     }
 }

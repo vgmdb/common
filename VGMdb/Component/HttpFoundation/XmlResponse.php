@@ -3,6 +3,7 @@
 namespace VGMdb\Component\HttpFoundation;
 
 use VGMdb\Component\View\ViewFactory;
+use JMS\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\Request as BaseRequest;
 
 /**
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request as BaseRequest;
 class XmlResponse extends Response
 {
     protected $data;
+    protected $serializer;
 
     /**
      * Constructor.
@@ -34,6 +36,20 @@ class XmlResponse extends Response
     public static function create($data = '', $status = 200, $headers = array())
     {
         return new static($data, $status, $headers);
+    }
+
+    /**
+     * Sets the object serializer.
+     *
+     * @param Serializer $serializer
+     *
+     * @return XmlResponse
+     */
+    public function setSerializer(Serializer $serializer)
+    {
+        $this->serializer = $serializer;
+
+        return $this;
     }
 
     /**
@@ -83,7 +99,13 @@ class XmlResponse extends Response
 
         $data = array('content' => $data);
 
-        echo self::xmlEncode($data);
+        if ($this->serializer) {
+            $data = $this->serializer->serialize($data, 'xml');
+        } else {
+            $data = self::xmlEncode($data);
+        }
+
+        echo $data;
 
         return $this;
     }
