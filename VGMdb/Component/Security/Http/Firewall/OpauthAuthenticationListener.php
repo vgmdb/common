@@ -153,12 +153,11 @@ class OpauthAuthenticationListener extends AbstractAuthenticationListener
         try {
             return $this->authenticationManager->authenticate($authToken);
         } catch (BadCredentialsException $e) {
+            // if user is already logged in, add auth provider, otherwise create new account
             if ($this->token && !$this->trustResolver->isAnonymous($token)) {
-                // add new auth provider to user
                 $user = $this->token->getUser();
             } else {
-                // create new user
-                $user = $this->userManipulator->create($username, $email);
+                $user = $this->userManipulator->createOrFindByEmail($username, $email);
             }
 
             $this->userManipulator->addAuthProvider($user, $authToken->provider, $authToken->providerId);

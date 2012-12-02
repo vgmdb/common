@@ -73,6 +73,26 @@ class UserManipulator
     }
 
     /**
+     * Creates a user or returns existing user by email.
+     *
+     * @param string  $username
+     * @param string  $email
+     * @param string  $password
+     * @param Boolean $active
+     * @param Boolean $superadmin
+     *
+     * @return UserInterface
+     */
+    public function createOrFindByEmail($username, $email, $password = null, $active = true, $superadmin = false)
+    {
+        if ($user = $this->userManager->findUserByEmail($email)) {
+            return $user;
+        }
+
+        return $this->create($username, $email, $password, $active, $superadmin);
+    }
+
+    /**
      * Activates the given user.
      *
      * @param mixed $user
@@ -154,6 +174,7 @@ class UserManipulator
 
         return true;
     }
+
     /**
      * Removes a role from the given user.
      *
@@ -199,6 +220,7 @@ class UserManipulator
 
         return true;
     }
+
     /**
      * Removes an auth provider from the given user.
      *
