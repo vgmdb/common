@@ -19,9 +19,9 @@
 
 namespace VGMdb\Component\Serializer\Construction;
 
-use JMS\SerializerBundle\Serializer\Construction\ObjectConstructorInterface;
-use JMS\SerializerBundle\Serializer\VisitorInterface;
-use JMS\SerializerBundle\Metadata\ClassMetadata;
+use JMS\Serializer\Construction\ObjectConstructorInterface;
+use JMS\Serializer\VisitorInterface;
+use JMS\Serializer\Metadata\ClassMetadata;
 use Doctrine\Common\Persistence\ObjectManager;
 
 class DoctrineObjectConstructor implements ObjectConstructorInterface
@@ -32,15 +32,15 @@ class DoctrineObjectConstructor implements ObjectConstructorInterface
     private $objectManager;
 
     /**
-     * @var \JMS\SerializerBundle\Serializer\Construction\ObjectConstructorInterface
+     * @var \JMS\Serializer\Construction\ObjectConstructorInterface
      */
     private $fallbackConstructor;
 
     /**
      * Constructor.
      *
-     * @param \Doctrine\Common\Persistence\ObjectManager                               $objectManager
-     * @param \JMS\SerializerBundle\Serializer\Construction\ObjectConstructorInterface $fallbackConstructor
+     * @param \Doctrine\Common\Persistence\ObjectManager              $objectManager
+     * @param \JMS\Serializer\Construction\ObjectConstructorInterface $fallbackConstructor
      */
     public function __construct(ObjectManager $objectManager, ObjectConstructorInterface $fallbackConstructor)
     {

@@ -2,54 +2,50 @@
 
 namespace VGMdb\Provider;
 
-use VGMdb\Component\Serializer\LazyLoadingSerializer;
 use VGMdb\Component\Serializer\Construction\DoctrineObjectConstructor;
 use VGMdb\Component\Serializer\EventDispatcher\LazyEventDispatcher;
 use VGMdb\Component\Serializer\Handler\LazyHandlerRegistry;
 use VGMdb\Component\Serializer\Metadata\Driver\LazyLoadingDriver;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
+use JMS\Serializer\Serializer;
+use JMS\Serializer\GraphNavigator;
+use JMS\Serializer\JsonSerializationVisitor;
+use JMS\Serializer\JsonDeserializationVisitor;
+use JMS\Serializer\XmlSerializationVisitor;
+use JMS\Serializer\XmlDeserializationVisitor;
+use JMS\Serializer\YamlSerializationVisitor;
+//use JMS\Serializer\Construction\DoctrineObjectConstructor; // overridden to avoid ManagerRegistry
+use JMS\Serializer\Construction\UnserializeObjectConstructor;
+use JMS\Serializer\EventDispatcher\EventDispatcher;
+//use JMS\Serializer\EventDispatcher\LazyEventDispatcher; // overridden to avoid ContainerInterface
+use JMS\Serializer\EventDispatcher\Subscriber\DoctrineProxySubscriber;
+use JMS\Serializer\Exclusion\VersionExclusionStrategy;
+use JMS\Serializer\Handler\HandlerRegistry;
+//use JMS\Serializer\Handler\LazyHandlerRegistry; // overridden to avoid ContainerInterface
+use JMS\Serializer\Handler\ArrayCollectionHandler;
+use JMS\Serializer\Handler\ConstraintViolationHandler;
+use JMS\Serializer\Handler\DateTimeHandler;
+use JMS\Serializer\Handler\FormErrorHandler;
+use JMS\Serializer\Naming\CamelCaseNamingStrategy;
+use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
+use JMS\Serializer\Naming\CacheNamingStrategy;
+use JMS\Serializer\Metadata\Driver\AnnotationDriver;
+use JMS\Serializer\Metadata\Driver\YamlDriver;
+use JMS\Serializer\Metadata\Driver\XmlDriver;
+use JMS\Serializer\Metadata\Driver\PhpDriver;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use JMS\SerializerBundle\Serializer\Serializer;
-use JMS\SerializerBundle\Serializer\GraphNavigator;
-//use JMS\SerializerBundle\Serializer\LazyLoadingSerializer;
-use JMS\SerializerBundle\Serializer\JsonSerializationVisitor;
-use JMS\SerializerBundle\Serializer\JsonDeserializationVisitor;
-use JMS\SerializerBundle\Serializer\XmlSerializationVisitor;
-use JMS\SerializerBundle\Serializer\XmlDeserializationVisitor;
-use JMS\SerializerBundle\Serializer\YamlSerializationVisitor;
-//use JMS\SerializerBundle\Serializer\Construction\DoctrineObjectConstructor;
-use JMS\SerializerBundle\Serializer\Construction\UnserializeObjectConstructor;
-use JMS\SerializerBundle\Serializer\EventDispatcher\EventDispatcher;
-//use JMS\SerializerBundle\Serializer\EventDispatcher\LazyEventDispatcher;
-use JMS\SerializerBundle\Serializer\EventDispatcher\Subscriber\DoctrineProxySubscriber;
-use JMS\SerializerBundle\Serializer\Exclusion\VersionExclusionStrategy;
-use JMS\SerializerBundle\Serializer\Handler\HandlerRegistry;
-//use JMS\SerializerBundle\Serializer\Handler\LazyHandlerRegistry;
-use JMS\SerializerBundle\Serializer\Handler\ArrayCollectionHandler;
-use JMS\SerializerBundle\Serializer\Handler\ConstraintViolationHandler;
-use JMS\SerializerBundle\Serializer\Handler\DateTimeHandler;
-use JMS\SerializerBundle\Serializer\Handler\FormErrorHandler;
-use JMS\SerializerBundle\Serializer\Naming\CamelCaseNamingStrategy;
-use JMS\SerializerBundle\Serializer\Naming\SerializedNameAnnotationStrategy;
-use JMS\SerializerBundle\Serializer\Naming\CacheNamingStrategy;
-use JMS\SerializerBundle\Metadata\Driver\AnnotationDriver;
-use JMS\SerializerBundle\Metadata\Driver\YamlDriver;
-use JMS\SerializerBundle\Metadata\Driver\XmlDriver;
-use JMS\SerializerBundle\Metadata\Driver\PhpDriver;
 use Metadata\MetadataFactory;
 use Metadata\Cache\FileCache;
 use Metadata\Driver\DriverChain;
 use Metadata\Driver\FileLocator;
-//use Metadata\Driver\LazyLoadingDriver;
+//use Metadata\Driver\LazyLoadingDriver; // overridden to avoid ContainerInterface
+use PhpCollection\Map;
 
 /**
- * JMS Serializer Bundle integration for Silex.
+ * JMS Serializer integration for Silex.
  *
- * @link https://github.com/pink-tie/JMSSerializerServiceProvider
- *
- * @author Marijn Huizendveld <marijn@pink-tie.com>
  * @author Gigablah <gigablah@vgmdb.net>
  */
 class SerializerServiceProvider implements ServiceProviderInterface
@@ -79,7 +75,7 @@ class SerializerServiceProvider implements ServiceProviderInterface
         $app['serializer.event_dispatcher'] = $app->share(function () use ($app) {
             $listeners = array();
             $classes = array(
-                'serializer.doctrine_proxy_subscriber' => 'JMS\\SerializerBundle\\Serializer\\EventDispatcher\\Subscriber\\DoctrineProxySubscriber'
+                'serializer.doctrine_proxy_subscriber' => 'JMS\\Serializer\\EventDispatcher\\Subscriber\\DoctrineProxySubscriber'
             );
 
             $eventDispatcher = new LazyEventDispatcher($app);
@@ -124,10 +120,10 @@ class SerializerServiceProvider implements ServiceProviderInterface
         $app['serializer.handler_registry'] = $app->share(function () use ($app) {
             $handlers = array();
             $classes = array(
-                'serializer.datetime_handler'             => 'JMS\\SerializerBundle\\Serializer\\Handler\\DateTimeHandler',
-                'serializer.array_collection_handler'     => 'JMS\\SerializerBundle\\Serializer\\Handler\\ArrayCollectionHandler',
-                'serializer.form_error_handler'           => 'JMS\\SerializerBundle\\Serializer\\Handler\\FormErrorHandler',
-                'serializer.constraint_violation_handler' => 'JMS\\SerializerBundle\\Serializer\\Handler\\ConstraintViolationHandler'
+                'serializer.datetime_handler'             => 'JMS\\Serializer\\Handler\\DateTimeHandler',
+                'serializer.array_collection_handler'     => 'JMS\\Serializer\\Handler\\ArrayCollectionHandler',
+                'serializer.form_error_handler'           => 'JMS\\Serializer\\Handler\\FormErrorHandler',
+                'serializer.constraint_violation_handler' => 'JMS\\Serializer\\Handler\\ConstraintViolationHandler'
             );
 
             foreach ($classes as $id => $class) {
@@ -298,18 +294,18 @@ class SerializerServiceProvider implements ServiceProviderInterface
         });
 
         $app['serializer.serialization_visitors'] = $app->share(function () use ($app) {
-            return array(
+            return new Map(array(
                 'json' => $app['serializer.json_serialization_visitor'],
                 'xml'  => $app['serializer.xml_serialization_visitor'],
                 'yml'  => $app['serializer.yaml_serialization_visitor']
-            );
+            ));
         });
 
         $app['serializer.deserialization_visitors'] = $app->share(function () use ($app) {
-            return array(
+            return new Map(array(
                 'json' => $app['serializer.json_deserialization_visitor'],
                 'xml'  => $app['serializer.xml_deserialization_visitor']
-            );
+            ));
         });
 
         $app['serializer.serialization.custom_handlers'] = $app->share(function () use ($app) {
@@ -336,16 +332,15 @@ class SerializerServiceProvider implements ServiceProviderInterface
         // serializer
         $_version = $this->version;
         $app['serializer'] = $app->share(function () use ($app, $_version) {
-            $serializer = new LazyLoadingSerializer(
+            $serializer = new Serializer(
                 $app['serializer.metadata_factory'],
                 $app['serializer.handler_registry'],
                 $app['serializer.object_constructor'],
-                $app['serializer.event_dispatcher'],
-                null,
                 $app['serializer.serialization_visitors'],
-                $app['serializer.deserialization_visitors']
+                $app['serializer.deserialization_visitors'],
+                $app['serializer.event_dispatcher'],
+                null
             );
-            $serializer->setContainer($app);
             $serializer->setVersion($_version);
 
             return $serializer;
@@ -355,6 +350,6 @@ class SerializerServiceProvider implements ServiceProviderInterface
     public function boot(Application $app)
     {
         // Register our annotations upon boot so that Doctrine won't crash and burn
-        AnnotationRegistry::registerAutoloadNamespace('JMS\\SerializerBundle\\Annotation', $app['serializer.src_dir']);
+        AnnotationRegistry::registerAutoloadNamespace('JMS\\Serializer\\Annotation', $app['serializer.src_dir']);
     }
 }

@@ -3,7 +3,7 @@
 namespace VGMdb\Component\Serializer\EventDispatcher;
 
 use Silex\Application;
-use JMS\SerializerBundle\Serializer\EventDispatcher\EventDispatcher;
+use JMS\Serializer\EventDispatcher\EventDispatcher;
 
 class LazyEventDispatcher extends EventDispatcher
 {

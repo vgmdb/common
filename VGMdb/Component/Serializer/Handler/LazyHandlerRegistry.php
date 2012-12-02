@@ -3,7 +3,7 @@
 namespace VGMdb\Component\Serializer\Handler;
 
 use Silex\Application;
-use JMS\SerializerBundle\Serializer\Handler\HandlerRegistry;
+use JMS\Serializer\Handler\HandlerRegistry;
 
 class LazyHandlerRegistry extends HandlerRegistry
 {

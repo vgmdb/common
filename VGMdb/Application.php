@@ -11,11 +11,11 @@ use VGMdb\Component\HttpFoundation\Response;
 use VGMdb\Component\HttpFoundation\JsonResponse;
 use VGMdb\Component\HttpFoundation\BeaconResponse;
 use VGMdb\Component\View\ViewInterface;
+use VGMdb\ControllerCollection;
 use VGMdb\ControllerResolver;
 use VGMdb\ExceptionListenerWrapper;
 use Silex\Application as BaseApplication;
 use Silex\ControllerProviderInterface;
-use Silex\ControllerCollection;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouteCollection;
 

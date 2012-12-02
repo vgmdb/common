@@ -3,6 +3,7 @@
 namespace VGMdb\Component\HttpFoundation;
 
 use VGMdb\Component\View\ViewFactory;
+use JMS\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\Request as BaseRequest;
 
 /**
@@ -14,6 +15,7 @@ class JsonResponse extends Response
 {
     protected $data;
     protected $callback;
+    protected $serializer;
 
     /**
      * Constructor.
@@ -60,6 +62,20 @@ class JsonResponse extends Response
         $this->callback = $callback;
 
         return $this->update();
+    }
+
+    /**
+     * Sets the object serializer.
+     *
+     * @param Serializer $serializer
+     *
+     * @return JsonResponse
+     */
+    public function setSerializer(Serializer $serializer)
+    {
+        $this->serializer = $serializer;
+
+        return $this;
     }
 
     /**
@@ -126,7 +142,11 @@ class JsonResponse extends Response
         }
 
         // Encode <, >, ', &, and " for RFC4627-compliant JSON, which may also be embedded into HTML.
-        $data = json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+        if ($this->serializer) {
+            $data = $this->serializer->serialize($data, 'json');
+        } else {
+            $data = json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+        }
 
         if (null !== $this->callback) {
             $data = sprintf('%s(%s);', $this->callback, $data);
