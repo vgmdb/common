@@ -141,10 +141,10 @@ class JsonResponse extends Response
             $data = $data->getArrayCopy(true);
         }
 
-        // Encode <, >, ', &, and " for RFC4627-compliant JSON, which may also be embedded into HTML.
         if ($this->serializer) {
             $data = $this->serializer->serialize($data, 'json');
         } else {
+            // Encode <, >, ', &, and " for RFC4627-compliant JSON, which may also be embedded into HTML.
             $data = json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
         }
 

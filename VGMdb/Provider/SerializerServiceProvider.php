@@ -2,6 +2,7 @@
 
 namespace VGMdb\Provider;
 
+use VGMdb\Component\Serializer\ArraySerializationVisitor;
 use VGMdb\Component\Serializer\Construction\DoctrineObjectConstructor;
 use VGMdb\Component\Serializer\EventDispatcher\LazyEventDispatcher;
 use VGMdb\Component\Serializer\Handler\LazyHandlerRegistry;
@@ -131,7 +132,19 @@ class SerializerServiceProvider implements ServiceProviderInterface
                     continue;
                 }
 
-                foreach (call_user_func(array($class, 'getSubscribingMethods')) as $methodData) {
+                $methods = call_user_func(array($class, 'getSubscribingMethods'));
+
+                // patch in array support
+                if ($id == 'serializer.datetime_handler') {
+                    $methods[] = array(
+                        'type' => 'DateTime',
+                        'format' => 'array',
+                        'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
+                        'method' => 'serializeDateTime',
+                    );
+                }
+
+                foreach ($methods as $methodData) {
                     if (!isset($methodData['format'], $methodData['type'])) {
                         throw new \RuntimeException(
                             sprintf('Each method returned from getSubscribingMethods of service "%s" must have a "type", and "format" attribute.', $id)
@@ -264,6 +277,10 @@ class SerializerServiceProvider implements ServiceProviderInterface
         });
 
         // visitors
+        $app['serializer.array_serialization_visitor'] = $app->share(function () use ($app) {
+            return new ArraySerializationVisitor($app['serializer.naming_strategy']);
+        });
+
         $app['serializer.json_serialization_visitor'] = $app->share(function () use ($app) {
             $jsonSerializationVisitor = new JsonSerializationVisitor($app['serializer.naming_strategy']);
             $jsonSerializationVisitor->setOptions($app['serializer.json_serialization_visitor.options']);
@@ -295,9 +312,10 @@ class SerializerServiceProvider implements ServiceProviderInterface
 
         $app['serializer.serialization_visitors'] = $app->share(function () use ($app) {
             return new Map(array(
-                'json' => $app['serializer.json_serialization_visitor'],
-                'xml'  => $app['serializer.xml_serialization_visitor'],
-                'yml'  => $app['serializer.yaml_serialization_visitor']
+                'array' => $app['serializer.array_serialization_visitor'],
+                'json'  => $app['serializer.json_serialization_visitor'],
+                'xml'   => $app['serializer.xml_serialization_visitor'],
+                'yml'   => $app['serializer.yaml_serialization_visitor']
             ));
         });
 
@@ -310,11 +328,9 @@ class SerializerServiceProvider implements ServiceProviderInterface
 
         $app['serializer.serialization.custom_handlers'] = $app->share(function () use ($app) {
             $handlers = array();
-
             if (isset($app['serializer.constraint_violation_handler'])) {
                 $handlers[] = $app['serializer.constraint_violation_handler'];
             }
-
             if (isset($app['serializer.form_error_handler'])) {
                 $handlers[] = $app['serializer.form_error_handler'];
             }

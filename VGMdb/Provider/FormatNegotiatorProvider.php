@@ -96,7 +96,6 @@ class FormatNegotiatorProvider implements ServiceProviderInterface
                 case 'json':
                 case 'js':
                     $response = new JsonResponse($response);
-                    $response->setSerializer($this->app['serializer']);
                     break;
                 case 'xml':
                     $response = new XmlResponse($response);
