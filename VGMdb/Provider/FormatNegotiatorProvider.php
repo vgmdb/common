@@ -24,12 +24,6 @@ use FOS\Rest\Util\FormatNegotiator;
 class FormatNegotiatorProvider implements ServiceProviderInterface
 {
     private $app;
-    private $version;
-
-    public function __construct($version = '1.0')
-    {
-        $this->version = $version;
-    }
 
     public function register(Application $app)
     {
@@ -38,6 +32,8 @@ class FormatNegotiatorProvider implements ServiceProviderInterface
         $app['request.format.negotiator'] = $app->share(function () use ($app) {
             return new FormatNegotiator();
         });
+
+        $app['request.format.version'] = '1.0';
     }
 
     public function onKernelRequest(GetResponseEvent $event)
@@ -71,7 +67,7 @@ class FormatNegotiatorProvider implements ServiceProviderInterface
         $versions = $request->splitHttpAcceptHeader(
             $request->headers->get('Accept'),
             'version',
-            $this->version
+            $this->app['request.format.version']
         );
         foreach ($versions as $mimetype => $version) {
             if ($request->getFormat($mimetype) === $format) {

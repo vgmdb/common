@@ -36,13 +36,6 @@ use Symfony\Component\Security\Http\SecurityEvents;
  */
 class UserServiceProvider implements ServiceProviderInterface
 {
-    private $version;
-
-    public function __construct($version = '1.0')
-    {
-        $this->version = $version;
-    }
-
     public function register(Application $app)
     {
         $app['user_manager'] = $app->share(function ($app) {
@@ -140,11 +133,7 @@ class UserServiceProvider implements ServiceProviderInterface
             );
         });
 
-        $_version = $this->version;
-        $app['data.user'] = $app->protect(function ($username, $version = null) use ($app, $_version) {
-            if (!$version) {
-                $version = $_version;
-            }
+        $app['data.user'] = $app->protect(function ($username) use ($app) {
             if ($username === 'me') {
                 $token = $app['security']->getToken();
                 if (!($token instanceof TokenInterface)) {
@@ -178,7 +167,6 @@ class UserServiceProvider implements ServiceProviderInterface
                 'username' => $username,
                 'email' => $email,
                 'email_hash' => $email_hash,
-                'version' => $version,
                 'roles' => $roles,
                 'tokens' => array(
                     'logout' => $token
@@ -216,10 +204,9 @@ class UserServiceProvider implements ServiceProviderInterface
             8
         );
 
-        $_version = $this->version;
-        $app->get($app['user.path'] . '/{username}', function ($username) use ($app, $_version) {
+        $app->get($app['user.path'] . '/{username}', function ($username) use ($app) {
             try {
-                $data = $app['data.user']($username, $_version);
+                $data = $app['data.user']($username);
                 $data['is_authenticated'] = true;
             } catch (\Exception $e) {
                 /*if ($username === 'me' && $app['request']->getRequestFormat() !== 'html') {
