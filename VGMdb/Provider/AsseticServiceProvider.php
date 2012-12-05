@@ -33,14 +33,6 @@ class AsseticServiceProvider implements ServiceProviderInterface
          * Asset Factory configuration happens here
          */
         $app['assetic'] = $app->share(function () use ($app) {
-            $app['assetic.options'] = array_replace(
-                array(
-                    'debug' => false,
-                    'formulae_cache_dir' => null,
-                    'auto_dump_assets' => true,
-                ), $app['assetic.options']
-            );
-
             // initializing lazy asset manager
             if (isset($app['assetic.formulae']) &&
                !is_array($app['assetic.formulae']) &&
@@ -173,8 +165,13 @@ class AsseticServiceProvider implements ServiceProviderInterface
     public function boot(Application $app)
     {
         $app->after(function() use ($app) {
-            // Boot assetic
-            $assetic = $app['assetic'];
+            $app['assetic.options'] = array_replace(
+                array(
+                    'debug' => false,
+                    'formulae_cache_dir' => null,
+                    'auto_dump_assets' => true,
+                ), $app['assetic.options']
+            );
 
             if (!isset($app['assetic.options']) ||
                 !isset($app['assetic.options']['auto_dump_assets']) ||
@@ -182,6 +179,9 @@ class AsseticServiceProvider implements ServiceProviderInterface
             ) {
                 return;
             }
+
+            // Boot assetic
+            $assetic = $app['assetic'];
 
             $dumper = $app['assetic.dumper'];
             $dumper();
