@@ -41,4 +41,8 @@ class FormServiceProvider extends BaseFormServiceProvider
             return new ExpiringSessionCsrfProvider($app['session'], $app['form.secret']);
         });*/
     }
+
+    public function boot(Application $app)
+    {
+    }
 }

@@ -26,6 +26,7 @@ use Symfony\Component\Routing\RouteCollection;
  */
 class Application extends BaseApplication
 {
+    private $readonly;
     private $booting = false;
 
     /**
@@ -33,6 +34,8 @@ class Application extends BaseApplication
      */
     public function __construct()
     {
+        $this->readonly = array();
+
         parent::__construct();
 
         $app = $this;
@@ -118,6 +121,19 @@ class Application extends BaseApplication
     }
 
     /**
+     * Sets a readonly value.
+     *
+     * @param string $id    The unique identifier
+     * @param mixed  $value The value to protect
+     */
+    public function readonly($id, $value)
+    {
+        $this[$id] = $value;
+
+        $this->readonly[$id] = true;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function error($callback, $priority = -8)
@@ -173,5 +189,17 @@ class Application extends BaseApplication
     {
         $this->booting = true;
         parent::boot();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetSet($id, $value)
+    {
+        if (array_key_exists($id, $this->readonly) && parent::offsetExists($id)) {
+            throw new \RuntimeException(sprintf('Identifier "%s" is readonly.', $id));
+        }
+
+        parent::offsetSet($id, $value);
     }
 }

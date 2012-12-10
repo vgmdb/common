@@ -59,6 +59,6 @@ class DefaultUserProvider implements UserProviderInterface
 
     public function supportsClass($class)
     {
-        return $class === 'Symfony\Component\Security\Core\User\User';
+        return $class === 'Symfony\\Component\\Security\\Core\\User\\User';
     }
 }
