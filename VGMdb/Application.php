@@ -188,6 +188,7 @@ class Application extends BaseApplication
     public function boot()
     {
         $this->booting = true;
+
         parent::boot();
     }
 
