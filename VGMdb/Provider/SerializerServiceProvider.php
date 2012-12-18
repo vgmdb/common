@@ -4,7 +4,7 @@ namespace VGMdb\Provider;
 
 use VGMdb\Component\Serializer\ArraySerializationVisitor;
 use VGMdb\Component\Serializer\Construction\DoctrineObjectConstructor;
-use VGMdb\Component\Serializer\Handler\DateTimeHandler;
+use VGMdb\Component\Serializer\Handler\DateHandler;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use JMS\Serializer\SerializerBuilder;
@@ -17,7 +17,7 @@ use JMS\Serializer\YamlSerializationVisitor;
 use JMS\Serializer\Construction\UnserializeObjectConstructor;
 use JMS\Serializer\Handler\ArrayCollectionHandler;
 use JMS\Serializer\Handler\ConstraintViolationHandler;
-//use JMS\Serializer\Handler\DateTimeHandler; // overridden to add array format
+//use JMS\Serializer\Handler\DateHandler; // overridden to add array format
 use JMS\Serializer\Handler\FormErrorHandler;
 use JMS\Serializer\Naming\CamelCaseNamingStrategy;
 use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
@@ -51,7 +51,7 @@ class SerializerServiceProvider implements ServiceProviderInterface
             $format = $app['serializer.datetime_handler.default_format'];
             $defaultTimezone = $app['serializer.datetime_handler.default_timezone'];
 
-            return new DateTimeHandler($format, $defaultTimezone);
+            return new DateHandler($format, $defaultTimezone);
         });
 
         $app['serializer.array_collection_handler'] = $app->share(function () use ($app) {

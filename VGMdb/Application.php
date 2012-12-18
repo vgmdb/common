@@ -16,8 +16,15 @@ use VGMdb\ControllerResolver;
 use VGMdb\ExceptionListenerWrapper;
 use Silex\Application as BaseApplication;
 use Silex\ControllerProviderInterface;
+use Silex\LazyUrlMatcher;
+use Silex\EventListener\LocaleListener;
+use Silex\EventListener\MiddlewareListener;
+use Silex\EventListener\ConverterListener;
+use Silex\EventListener\StringToResponseListener;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\HttpKernel\EventListener\ResponseListener;
+use Symfony\Component\HttpKernel\EventListener\RouterListener;
 
 /**
  * The VGMdb application class. Extends the Silex framework with custom methods.
@@ -45,14 +52,41 @@ class Application extends BaseApplication
             return new ExceptionListener($app['debug']);
         });
 
-        $this['dispatcher'] = $this->share($this->extend('dispatcher', function ($dispatcher) use ($app) {
+        $this['dispatcher.proto'] = $this->share(function () use ($app) {
+            return new $app['dispatcher_class']();
+        });
+
+        $this['dispatcher'] = $this->share(function () use ($app) {
+            $dispatcher = $app['dispatcher.proto'];
+
+            $urlMatcher = new LazyUrlMatcher(function () use ($app) {
+                return $app['url_matcher'];
+            });
+            $dispatcher->addSubscriber(new RouterListener($urlMatcher, $app['request_context'], $app['logger']));
+            $dispatcher->addSubscriber(new LocaleListener($app, $urlMatcher));
+            if (isset($app['exception_handler'])) {
+                $dispatcher->addSubscriber($app['exception_handler']);
+            }
+            $dispatcher->addSubscriber(new ResponseListener($app['charset']));
+            $dispatcher->addSubscriber(new MiddlewareListener($app));
+            $dispatcher->addSubscriber(new ConverterListener($app['routes']));
+            $dispatcher->addSubscriber(new StringToResponseListener());
             // subdomain handler listens to onKernelRequest
             $dispatcher->addSubscriber(new SubdomainListener($app));
             // extension handler listens to onKernelRequest
             $dispatcher->addSubscriber(new ExtensionListener($app));
 
             return $dispatcher;
-        }));
+        });
+
+        /*$this['dispatcher'] = $this->share($this->extend('dispatcher', function ($dispatcher) use ($app) {
+            // subdomain handler listens to onKernelRequest
+            $dispatcher->addSubscriber(new SubdomainListener($app));
+            // extension handler listens to onKernelRequest
+            $dispatcher->addSubscriber(new ExtensionListener($app));
+
+            return $dispatcher;
+        }));*/
 
         $this['request.format.extensions'] = array('json', 'xml', 'gif');
 

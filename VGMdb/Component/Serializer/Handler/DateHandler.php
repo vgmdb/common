@@ -2,14 +2,16 @@
 
 namespace VGMdb\Component\Serializer\Handler;
 
-use JMS\Serializer\Handler\DateTimeHandler as BaseDateTimeHandler;
+use JMS\Serializer\Handler\DateHandler as BaseDateHandler;
 use JMS\Serializer\GraphNavigator;
 
-class DateTimeHandler extends BaseDateTimeHandler
+class DateHandler extends BaseDateHandler
 {
     public static function getSubscribingMethods()
     {
         $methods = array();
+        $types = array('DateTime', 'DateInterval');
+
         foreach (array('array', 'json', 'xml', 'yml') as $format) {
             $methods[] = array(
                 'type' => 'DateTime',
@@ -17,12 +19,14 @@ class DateTimeHandler extends BaseDateTimeHandler
                 'format' => $format,
             );
 
-            $methods[] = array(
-                'type' => 'DateTime',
-                'format' => $format,
-                'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
-                'method' => 'serializeDateTime',
-            );
+            foreach ($types as $type) {
+                $methods[] = array(
+                    'type' => $type,
+                    'format' => $format,
+                    'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
+                    'method' => 'serialize'.$type,
+                );
+            }
         }
 
         return $methods;
