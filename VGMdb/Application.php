@@ -35,6 +35,7 @@ class Application extends BaseApplication
 {
     private $readonly;
     private $booting = false;
+    protected $logger;
 
     /**
      * Constructor.
@@ -52,41 +53,14 @@ class Application extends BaseApplication
             return new ExceptionListener($app['debug']);
         });
 
-        $this['dispatcher.proto'] = $this->share(function () use ($app) {
-            return new $app['dispatcher_class']();
-        });
-
-        $this['dispatcher'] = $this->share(function () use ($app) {
-            $dispatcher = $app['dispatcher.proto'];
-
-            $urlMatcher = new LazyUrlMatcher(function () use ($app) {
-                return $app['url_matcher'];
-            });
-            $dispatcher->addSubscriber(new RouterListener($urlMatcher, $app['request_context'], $app['logger']));
-            $dispatcher->addSubscriber(new LocaleListener($app, $urlMatcher));
-            if (isset($app['exception_handler'])) {
-                $dispatcher->addSubscriber($app['exception_handler']);
-            }
-            $dispatcher->addSubscriber(new ResponseListener($app['charset']));
-            $dispatcher->addSubscriber(new MiddlewareListener($app));
-            $dispatcher->addSubscriber(new ConverterListener($app['routes']));
-            $dispatcher->addSubscriber(new StringToResponseListener());
+        $this['dispatcher'] = $this->share($this->extend('dispatcher', function ($dispatcher) use ($app) {
             // subdomain handler listens to onKernelRequest
             $dispatcher->addSubscriber(new SubdomainListener($app));
             // extension handler listens to onKernelRequest
             $dispatcher->addSubscriber(new ExtensionListener($app));
 
             return $dispatcher;
-        });
-
-        /*$this['dispatcher'] = $this->share($this->extend('dispatcher', function ($dispatcher) use ($app) {
-            // subdomain handler listens to onKernelRequest
-            $dispatcher->addSubscriber(new SubdomainListener($app));
-            // extension handler listens to onKernelRequest
-            $dispatcher->addSubscriber(new ExtensionListener($app));
-
-            return $dispatcher;
-        }));*/
+        }));
 
         $this['request.format.extensions'] = array('json', 'xml', 'gif');
 

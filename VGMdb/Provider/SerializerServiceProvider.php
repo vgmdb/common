@@ -4,7 +4,10 @@ namespace VGMdb\Provider;
 
 use VGMdb\Component\Serializer\ArraySerializationVisitor;
 use VGMdb\Component\Serializer\Construction\DoctrineObjectConstructor;
+use VGMdb\Component\Serializer\EventDispatcher\Subscriber\ThriftSubscriber;
+use VGMdb\Component\Serializer\Handler\ArrayCollectionHandler;
 use VGMdb\Component\Serializer\Handler\DateHandler;
+use VGMdb\Component\Serializer\Handler\ThriftHandler;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use JMS\Serializer\SerializerBuilder;
@@ -15,7 +18,8 @@ use JMS\Serializer\XmlDeserializationVisitor;
 use JMS\Serializer\YamlSerializationVisitor;
 //use JMS\Serializer\Construction\DoctrineObjectConstructor; // overridden to avoid ManagerRegistry
 use JMS\Serializer\Construction\UnserializeObjectConstructor;
-use JMS\Serializer\Handler\ArrayCollectionHandler;
+use JMS\Serializer\EventDispatcher\Subscriber\DoctrineProxySubscriber;
+//use JMS\Serializer\Handler\ArrayCollectionHandler; // overridden to add array format
 use JMS\Serializer\Handler\ConstraintViolationHandler;
 //use JMS\Serializer\Handler\DateHandler; // overridden to add array format
 use JMS\Serializer\Handler\FormErrorHandler;
@@ -46,6 +50,15 @@ class SerializerServiceProvider implements ServiceProviderInterface
         $app['serializer.xml_deserialization_visitor.doctype_whitelist'] = array();
         $app['serializer.version'] = '1.0';
 
+        // listeners
+        $app['serializer.doctrine_proxy_subscriber'] = $app->share(function () use ($app) {
+            return new DoctrineProxySubscriber();
+        });
+
+        $app['serializer.thrift_subscriber'] = $app->share(function () use ($app) {
+            return new ThriftSubscriber();
+        });
+
         // handlers
         $app['serializer.datetime_handler'] = $app->share(function () use ($app) {
             $format = $app['serializer.datetime_handler.default_format'];
@@ -67,6 +80,12 @@ class SerializerServiceProvider implements ServiceProviderInterface
         if (class_exists('Symfony\\Component\\Validator\\ConstraintViolation')) {
             $app['serializer.constraint_violation_handler'] = $app->share(function () use ($app) {
                 return new ConstraintViolationHandler();
+            });
+        }
+
+        if (class_exists('Thrift\\Base\\TBase')) {
+            $app['serializer.thrift_handler'] = $app->share(function () use ($app) {
+                return new ThriftHandler();
             });
         }
 
@@ -139,19 +158,32 @@ class SerializerServiceProvider implements ServiceProviderInterface
                 ->setSerializationVisitor('yml', $app['serializer.yaml_serialization_visitor'])
                 ->setDeserializationVisitor('json', $app['serializer.json_deserialization_visitor'])
                 ->setDeserializationVisitor('xml', $app['serializer.xml_deserialization_visitor'])
+                ->configureListeners(function ($eventDispatcher) use ($app) {
+                    $listeners = array(
+                        'serializer.doctrine_proxy_subscriber',
+                        'serializer.thrift_subscriber'
+                    );
+                    foreach ($listeners as $listener) {
+                        if (isset($app[$listener])) {
+                            $eventDispatcher->addSubscriber($app[$listener]);
+                        }
+                    }
+                })
                 ->configureHandlers(function ($handlerRegistry) use ($app) {
                     $handlers = array(
                         'serializer.datetime_handler',
                         'serializer.array_collection_handler',
                         'serializer.form_error_handler',
-                        'serializer.constraint_violation_handler'
+                        'serializer.constraint_violation_handler',
+                        'serializer.thrift_handler'
                     );
                     foreach ($handlers as $handler) {
                         if (isset($app[$handler])) {
                             $handlerRegistry->registerSubscribingHandler($app[$handler]);
                         }
                     }
-                })->build();
+                })
+                ->build();
 
             $serializer->setSerializeNull($app['serializer.serialize_null']);
             $serializer->setVersion($app['serializer.version']);

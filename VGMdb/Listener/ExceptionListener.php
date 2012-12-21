@@ -10,6 +10,7 @@ use VGMdb\Component\HttpFoundation\XmlResponse;
 use VGMdb\Component\HttpFoundation\BeaconResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
@@ -29,8 +30,21 @@ class ExceptionListener implements EventSubscriberInterface
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
         $app = $event->getKernel();
-        $handler = new ExceptionHandler($this->debug);
-        list($title, $html, $code, $headers) = $handler->createResponse($event->getException());
+        $exception = $event->getException();
+
+        if ($exception instanceof HttpExceptionInterface) {
+            $code = $exception->getStatusCode();
+            $headers = $exception->getHeaders();
+        } else {
+            $code = 500;
+            $headers = array();
+        }
+
+        if ($code === 404) {
+            $title = 'Sorry, the page you are looking for could not be found.';
+        } else {
+            $title = 'Whoops, looks like something went wrong.';
+        }
 
         switch ($format = $event->getRequest()->getRequestFormat()) {
             case 'json':
@@ -46,7 +60,8 @@ class ExceptionListener implements EventSubscriberInterface
                 $response = new BeaconResponse($format, $code, $headers);
                 break;
             default:
-                $response = new Response($html, $code, $headers);
+                $handler = new ExceptionHandler($this->debug);
+                $response = $handler->createResponse($event->getException());
                 break;
         }
 

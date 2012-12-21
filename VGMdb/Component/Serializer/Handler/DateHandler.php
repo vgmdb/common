@@ -2,8 +2,8 @@
 
 namespace VGMdb\Component\Serializer\Handler;
 
-use JMS\Serializer\Handler\DateHandler as BaseDateHandler;
 use JMS\Serializer\GraphNavigator;
+use JMS\Serializer\Handler\DateHandler as BaseDateHandler;
 
 class DateHandler extends BaseDateHandler
 {

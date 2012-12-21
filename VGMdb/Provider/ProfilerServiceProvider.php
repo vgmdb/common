@@ -4,7 +4,6 @@ namespace VGMdb\Provider;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
-use Symfony\Component\HttpKernel\Debug\Stopwatch;
 
 /**
  * Provides Symfony's profiling tools.
@@ -48,17 +47,38 @@ class ProfilerServiceProvider implements ServiceProviderInterface
             'events' => array(255, 'profiler/events'),
         );
 
-        // replace dispatcher class with traceable implementation
-        $app['dispatcher_class'] = 'VGMdb\\Component\\HttpKernel\\Debug\\TraceableEventDispatcher';
-        $app['dispatcher.proto'] = $app->share(function () use ($app) {
-            $dispatcher = new $app['dispatcher_class']($app['debug.stopwatch'], $app['logger']);
-            $dispatcher->setProfiler($app['profiler']);
+        // stopwatch
+        $app['debug.stopwatch.class'] = 'Symfony\\Component\\Stopwatch\\Stopwatch';
 
-            return $dispatcher;
-        });
         $app['debug.stopwatch'] = $app->share(function () use ($app) {
-            return new Stopwatch();
+            return new $app['debug.stopwatch.class']();
         });
+
+        // deprecation listener
+        $app['debug.deprecation_logger_listener.class'] = 'Symfony\\Component\\HttpKernel\\EventListener\\DeprecationLoggerListener';
+
+        $app['debug.deprecation_logger_listener'] = $app->share(function () use ($app) {
+            return new $app['debug.deprecation_logger_listener.class']($app['logger']);
+        });
+
+        // replace dispatcher class with traceable implementation
+        $app['debug.dispatcher.class'] = 'Symfony\\Component\\HttpKernel\\Debug\\TraceableEventDispatcher';
+
+        $app['dispatcher'] = $app->share($app->extend('dispatcher', function ($dispatcher) use ($app) {
+            $debugDispatcher = new $app['debug.dispatcher.class']($dispatcher, $app['debug.stopwatch'], $app['logger']);
+            $debugDispatcher->setProfiler($app['profiler']);
+
+            return $debugDispatcher;
+        }));
+
+        // replace controller resolver with traceable implementation
+        $app['debug.resolver.class'] = 'Symfony\\Component\\HttpKernel\\Controller\\TraceableControllerResolver';
+
+        $app['resolver'] = $app->share($app->extend('resolver', function ($resolver) use ($app) {
+            $debugResolver = new $app['debug.resolver.class']($resolver, $app['debug.stopwatch']);
+
+            return $debugResolver;
+        }));
 
         $app['profiler'] = $app->share(function () use ($app) {
             $profiler = new $app['profiler.class']($app['profiler.storage'], $app['logger']);
@@ -144,5 +164,6 @@ class ProfilerServiceProvider implements ServiceProviderInterface
     public function boot(Application $app)
     {
         $app['dispatcher']->addSubscriber($app['profiler_listener']);
+        $app['dispatcher']->addSubscriber($app['debug.deprecation_logger_listener']);
     }
 }

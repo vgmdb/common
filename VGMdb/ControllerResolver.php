@@ -6,7 +6,7 @@ use Silex\ControllerResolver as BaseControllerResolver;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Attaches the application context to controllers.
+ * Allows the controller resolver to recognize custom verbs and methods.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
@@ -48,7 +48,12 @@ class ControllerResolver extends BaseControllerResolver
         }
 
         throw new \InvalidArgumentException(
-            sprintf('Method "%s::%s" does not exist.', get_class($controller), $verbMethod)
+            sprintf('Could not resolve "%s::%s" or "%s::%s".',
+                get_class($controller),
+                $verbMethod,
+                get_class($controller),
+                $method
+            )
         );
     }
 
