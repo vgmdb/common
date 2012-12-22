@@ -2,10 +2,12 @@
 
 namespace VGMdb\Provider;
 
+use VGMdb\Component\HttpFoundation\Request;
 use VGMdb\Component\HttpFoundation\Response;
 use VGMdb\Component\HttpFoundation\JsonResponse;
 use VGMdb\Component\HttpFoundation\XmlResponse;
 use VGMdb\Component\HttpFoundation\BeaconResponse;
+use VGMdb\Component\HttpFoundation\Util\AcceptNegotiator;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -13,15 +15,13 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use FOS\Rest\Util\Codes;
-use FOS\Rest\Util\FormatNegotiator;
 
 /**
  * Handles Accept header format and version negotiation.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class FormatNegotiatorProvider implements ServiceProviderInterface
+class AcceptNegotiatorProvider implements ServiceProviderInterface
 {
     private $app;
 
@@ -30,10 +30,12 @@ class FormatNegotiatorProvider implements ServiceProviderInterface
         $this->app = $app;
 
         $app['request.format.negotiator'] = $app->share(function () use ($app) {
-            return new FormatNegotiator();
+            return new AcceptNegotiator();
         });
 
-        $app['request.format.version'] = '1.0';
+        $app['request.format.default_version'] = '1.0';
+
+        Request::addFormat('gif', array('image/gif'));
     }
 
     public function onKernelRequest(GetResponseEvent $event)
@@ -53,10 +55,7 @@ class FormatNegotiatorProvider implements ServiceProviderInterface
         }
         if ($format === null) {
             if (HttpKernelInterface::MASTER_REQUEST === $event->getRequestType()) {
-                throw new HttpException(
-                    Codes::HTTP_NOT_ACCEPTABLE,
-                    'No matching accepted Request format could be determined.'
-                );
+                throw new HttpException(406, 'No matching accepted Request format could be determined.');
             }
 
             return;
@@ -64,17 +63,13 @@ class FormatNegotiatorProvider implements ServiceProviderInterface
 
         $request->setRequestFormat($format);
 
-        $versions = $request->splitHttpAcceptHeader(
-            $request->headers->get('Accept'),
-            'version',
-            $this->app['request.format.version']
+        $version = $this->app['request.format.negotiator']->getVersionForFormat(
+            $request,
+            $format,
+            $this->app['request.format.default_version']
         );
-        foreach ($versions as $mimetype => $version) {
-            if ($request->getFormat($mimetype) === $format) {
-                $request->setRequestVersion($version);
-                break;
-            }
-        }
+
+        $request->setRequestVersion($version);
     }
 
     /**

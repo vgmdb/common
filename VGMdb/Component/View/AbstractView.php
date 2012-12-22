@@ -12,6 +12,7 @@ use Symfony\Component\HttpKernel\Log\LoggerInterface;
 abstract class AbstractView extends \ArrayObject implements ViewInterface
 {
     static protected $globals = array();
+    static public $exception;
     static private $engine; // must be redeclared in child classes
     protected $logger;
 
@@ -183,7 +184,10 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
         try {
             $content = $this->render();
         } catch (\Exception $e) {
-            $content = (isset($this['DEBUG']) && $this['DEBUG'] === true) ? $e->__toString() : '';
+            if (isset($this['DEBUG']) && $this['DEBUG'] === true) {
+                self::$exception = new \RuntimeException($e->getMessage(), $e->getCode(), self::$exception);
+            }
+            $content = '';
         }
 
         return $content;

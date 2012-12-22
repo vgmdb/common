@@ -24,9 +24,9 @@ class SmartyServiceProvider implements ServiceProviderInterface
             $smarty->cache_locking = true;
 
             if (isset($app['translate'])) {
-
-            } else {
-
+                /**
+                 * @todo Add translation plugin
+                 */
             }
 
             return $smarty;

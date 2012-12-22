@@ -8,8 +8,12 @@ use VGMdb\Component\HttpFoundation\Response;
 use VGMdb\Component\HttpFoundation\JsonResponse;
 use VGMdb\Component\HttpFoundation\XmlResponse;
 use VGMdb\Component\HttpFoundation\BeaconResponse;
+use VGMdb\Component\Thrift\ThriftResponse;
+use Thrift\Exception\TApplicationException;
+use Thrift\Type\TMessageType;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\FlattenException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -49,15 +53,24 @@ class ExceptionListener implements EventSubscriberInterface
         switch ($format = $event->getRequest()->getRequestFormat()) {
             case 'json':
             case 'js':
-                $response = new JsonResponse(array('error' => $code, 'message' => $title), $code, $headers);
+                $response = new JsonResponse($this->getResponseData($code, $title, $exception), $code, $headers);
                 break;
             case 'xml':
-                $response = new XmlResponse(array('error' => $code, 'message' => $title), $code, $headers);
+                $response = new XmlResponse($this->getResponseData($code, $title, $exception), $code, $headers);
                 break;
             case 'gif':
             case 'png':
             case 'jpg':
                 $response = new BeaconResponse($format, $code, $headers);
+                break;
+            case 'thrift':
+                $response = new ThriftResponse(function ($input, $output) use ($exception) {
+                    $ex = new TApplicationException($exception->getMessage(), TApplicationException::INTERNAL_ERROR);
+                    $output->writeMessageBegin(null, TMessageType::EXCEPTION, 0);
+                    $ex->write($output);
+                    $output->writeMessageEnd();
+                    $output->getTransport()->flush();
+                }, $code, $headers);
                 break;
             default:
                 $handler = new ExceptionHandler($this->debug);
@@ -66,6 +79,20 @@ class ExceptionListener implements EventSubscriberInterface
         }
 
         $event->setResponse($response);
+    }
+
+    protected function getResponseData($code, $title, \Exception $exception)
+    {
+        $data = array(
+            'error' => $code,
+            'message' => $title
+        );
+
+        if ($this->debug) {
+            $data['exception'] = $exception->getMessage();
+        }
+
+        return $data;
     }
 
     /**

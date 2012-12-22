@@ -50,7 +50,11 @@ class View extends AbstractView
      */
     public function getArrayCopy($globals = false)
     {
-        $data = array_merge(parent::getArrayCopy($globals), array('_template' => $this->template));
+        $data = parent::getArrayCopy($globals);
+
+        if (null !== $this->template) {
+            $data = array_merge($data, array('_template' => $this->template));
+        }
 
         return $data;
     }

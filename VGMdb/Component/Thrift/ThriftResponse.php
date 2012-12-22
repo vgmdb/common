@@ -24,7 +24,7 @@ class ThriftResponse extends Response
     /**
      * Constructor.
      *
-     * @param mixed   $processor A valid Thrift processor
+     * @param mixed   $processor A valid Thrift processor or callback
      * @param integer $status    The response status code
      * @param array   $headers   An array of response headers
      */
@@ -53,7 +53,7 @@ class ThriftResponse extends Response
      */
     public function setProcessor($processor)
     {
-        if (!method_exists($processor, 'process')) {
+        if (!$processor instanceof \Closure && !method_exists($processor, 'process')) {
             throw new \LogicException('Invalid Thrift processor.');
         }
         $this->processor = $processor;
@@ -96,7 +96,11 @@ class ThriftResponse extends Response
 
         $transport->open();
 
-        $this->processor->process($protocol, $protocol);
+        if (method_exists($this->processor, 'process')) {
+            $this->processor->process($protocol, $protocol);
+        } else {
+            call_user_func($this->processor, $protocol, $protocol);
+        }
 
         $transport->close();
     }

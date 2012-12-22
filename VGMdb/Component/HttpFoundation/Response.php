@@ -28,4 +28,26 @@ class Response extends BaseResponse
 
         return parent::setContent($content);
     }
+
+    /**
+     * Sends content for the current web response.
+     *
+     * @return Response
+     */
+    public function sendContent()
+    {
+        $view = $this->content;
+
+        if ($view instanceof ViewInterface) {
+            $content = (string) $view;
+            if ($view::$exception) {
+                throw $view::$exception;
+            }
+            echo $content;
+
+            return $this;
+        }
+
+        return parent::sendContent();
+    }
 }

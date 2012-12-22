@@ -27,6 +27,8 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
          * At this time, Symfony 2.1 has a bug on PHP 5.4 where a fatal error is thrown upon logout
          * This only occurs if the session is invalidated through SessionLogoutHandler
          * invalidate_session = false will prevent the handler from getting registered
+         *
+         * @todo Verify status of the bug on Symfony 2.2 or 2.3
          */
         $app['security.authentication_listener.logout._proto'] = $app->protect(function ($name, $options) use ($app, $that) {
             return $app->share(function () use ($app, $name, $options, $that) {
