@@ -1,41 +1,32 @@
 <?php
 
-namespace VGMdb\Provider;
+namespace VGMdb\Component\HttpFoundation\EventListener;
 
-use VGMdb\Component\HttpFoundation\Request;
+use VGMdb\Application;
 use VGMdb\Component\HttpFoundation\Response;
 use VGMdb\Component\HttpFoundation\JsonResponse;
 use VGMdb\Component\HttpFoundation\XmlResponse;
 use VGMdb\Component\HttpFoundation\BeaconResponse;
-use VGMdb\Component\HttpFoundation\Util\AcceptNegotiator;
-use Silex\Application;
-use Silex\ServiceProviderInterface;
+use VGMdb\Component\Validator\Constraints\JsonpCallback;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Handles Accept header format and version negotiation.
+ * Handles request body, response and callback for certain formats.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class AcceptNegotiatorProvider implements ServiceProviderInterface
+class RequestFormatListener implements EventSubscriberInterface
 {
     private $app;
 
-    public function register(Application $app)
+    public function __construct(Application $app)
     {
         $this->app = $app;
-
-        $app['request.format.negotiator'] = $app->share(function () use ($app) {
-            return new AcceptNegotiator();
-        });
-
-        $app['request.format.default_version'] = '1.0';
-
-        Request::addFormat('gif', array('image/gif'));
     }
 
     public function onKernelRequest(GetResponseEvent $event)
@@ -70,6 +61,18 @@ class AcceptNegotiatorProvider implements ServiceProviderInterface
         );
 
         $request->setRequestVersion($version);
+
+        // decode JSON request body
+        if (0 === strpos($request->headers->get('Content-Type'), 'application/json') && is_string($request->getContent())) {
+            $data = json_decode($request->getContent(), true);
+            $request->request->replace(is_array($data) ? $data : array());
+        }
+
+        if ($request->getRequestFormat() === 'gif') {
+            // Short circuits the controller
+            // All beacon handling code must be in after() or finish()
+            $event->setResponse(new BeaconResponse());
+        }
     }
 
     /**
@@ -105,10 +108,33 @@ class AcceptNegotiatorProvider implements ServiceProviderInterface
         $event->setResponse($response);
     }
 
-    public function boot(Application $app)
+    public function onKernelResponse(FilterResponseEvent $event)
     {
-        // priority must be lower than ExtensionListener or anything that modifies _format
-        $app['dispatcher']->addListener(KernelEvents::REQUEST, array($this, 'onKernelRequest'), 255);
-        $app['dispatcher']->addListener(KernelEvents::VIEW, array($this, 'onKernelView'), -5);
+        if (HttpKernelInterface::MASTER_REQUEST !== $event->getRequestType()) {
+            return;
+        }
+
+        $request = $event->getRequest();
+        $response = $event->getResponse();
+
+        if ($response instanceof JsonResponse) {
+            $callback = $request->query->get('callback');
+            if ($callback && isset($this->app['validator'])) {
+                $errors = $this->app['validator']->validateValue($callback, new JsonpCallback());
+                if (count($errors)) {
+                    $this->app->abort(400, 'Invalid JSONP callback.');
+                }
+                $response->setCallback($callback);
+            }
+        }
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return array(
+            KernelEvents::REQUEST  => array(array('onKernelRequest', 128)),
+            KernelEvents::VIEW     => array(array('onKernelView', -5)),
+            KernelEvents::RESPONSE => array(array('onKernelResponse', 0)),
+        );
     }
 }

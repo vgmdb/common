@@ -2,14 +2,12 @@
 
 namespace VGMdb\Provider;
 
-use VGMdb\Component\View\ViewInterface;
 use VGMdb\Component\View\ViewFactory;
-use VGMdb\Component\View\View;
+use VGMdb\Component\View\AbstractView;
 use VGMdb\Component\View\Widget;
+use VGMdb\Component\View\EventListener\LayoutListener;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * View service provides view and widget factories.
@@ -20,27 +18,29 @@ class ViewServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        // View factory
-        $app['view.proto'] = $app->protect(function ($template, $engine = null) use ($app) {
-            $view = ViewFactory::create($template, array(), $engine, ($app['debug'] ? $app['logger'] : null));
+        $app['view_factory'] = $app->share(function () use ($app) {
+            $view_factory = new ViewFactory();
 
-            $locale = $app['locale'] ?: $app['locale_fallback'];
-            $view::share(strtoupper($locale), true);
-            $view::share('DEBUG', $app['debug']);
+            if ($app['debug']) {
+                $view_factory->setLogger($app['logger']);
+            }
 
-            return $view;
+            $locale = $app['locale'] ? strtoupper($app['locale']) : strtoupper($app['locale_fallback']);
+            AbstractView::share($locale, true);
+            AbstractView::share('DEBUG', $app['debug']);
+
+            return $view_factory;
         });
 
         $app['view'] = $app->protect(function ($template, array $data = array(), $type = null) use ($app) {
             if (!$type) {
-                $type = $app['view.template.engine'];
+                $type = $app['view.default_engine'];
             }
-            $view = $app['view.proto']($template, $app[$type]);
+            $view = $app['view_factory']->create($template, $data, $app[$type]);
 
-            return $view->with($data);
+            return $view;
         });
 
-        // Widget factory
         $app['widget'] = $app->protect(function ($view, $callback = null) use ($app) {
             static $widgets = array();
             if (!array_key_exists($template, $widgets)) {
@@ -49,27 +49,18 @@ class ViewServiceProvider implements ServiceProviderInterface
 
             return $widgets[$template]->with($data);
         });
+
+        $app['view.layout_listener'] = $app->share(function () use ($app) {
+            return new LayoutListener($app);
+        });
     }
 
     public function boot(Application $app)
     {
-        $app['dispatcher']->addListener(KernelEvents::RESPONSE, function (FilterResponseEvent $event) use ($app) {
-            $attributes = $event->getRequest()->attributes;
+        foreach ($app['view.prefix_dirs'] as $prefix => $prefixDir) {
+            ViewFactory::addPrefix($prefix, $prefixDir);
+        }
 
-            if ($event->getRequest()->getRequestFormat() === 'html') {
-                $layout_name = $attributes->get('_layout');
-                if (!$layout_name && isset($app['view.default_layout'])) {
-                    $layout_name = $app['view.default_layout'];
-                }
-
-                if (isset($app['layouts'])) {
-                    $layout = $app['layouts']($layout_name);
-                    $content = $event->getResponse()->getContent();
-                    if ($content instanceof ViewInterface && $layout instanceof ViewInterface) {
-                        $event->getResponse()->setContent($content->wrap($layout));
-                    }
-                }
-            }
-        }, -255);
+        $app['dispatcher']->addSubscriber($app['view.layout_listener']); // -64
     }
 }

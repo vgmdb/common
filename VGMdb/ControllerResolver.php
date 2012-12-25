@@ -76,7 +76,9 @@ class ControllerResolver extends BaseControllerResolver
             $method .= 'Action';
         }
 
-        if (isset($this->app['namespace'])) {
+        if (isset($this->app[$class])) {
+            $class = $this->app[$class];
+        } elseif (isset($this->app['namespace'])) {
             $class = $this->app['namespace'] . '\\Controllers\\' . $class;
         }
 

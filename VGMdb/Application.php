@@ -2,14 +2,9 @@
 
 namespace VGMdb;
 
-use VGMdb\Listener\ExceptionListener;
-use VGMdb\Listener\SubdomainListener;
-use VGMdb\Listener\ExtensionListener;
-use VGMdb\Component\Validator\Constraints\JsonpCallback;
 use VGMdb\Component\HttpFoundation\Request;
 use VGMdb\Component\HttpFoundation\Response;
-use VGMdb\Component\HttpFoundation\JsonResponse;
-use VGMdb\Component\HttpFoundation\BeaconResponse;
+use VGMdb\Component\HttpKernel\EventListener\ExceptionListener;
 use VGMdb\Component\View\ViewInterface;
 use VGMdb\ControllerCollection;
 use VGMdb\ControllerResolver;
@@ -53,46 +48,11 @@ class Application extends BaseApplication
             return new ExceptionListener($app['debug']);
         });
 
-        $this['dispatcher'] = $this->share($this->extend('dispatcher', function ($dispatcher) use ($app) {
-            // subdomain handler listens to onKernelRequest
-            $dispatcher->addSubscriber(new SubdomainListener($app));
-            // extension handler listens to onKernelRequest
-            $dispatcher->addSubscriber(new ExtensionListener($app));
-
-            return $dispatcher;
-        }));
-
         $this['request.format.extensions'] = array('json', 'xml', 'gif');
 
         // replace the controller factory with our own implementation
         $this['controllers_factory'] = function () use ($app) {
-            $controllers = new ControllerCollection($app['route_factory']);
-
-            // Handle JSON request body or image beacon requests
-            $controllers->before(function (Request $request) {
-                if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
-                    $data = json_decode($request->getContent(), true);
-                    $request->request->replace(is_array($data) ? $data : array());
-                }
-                if ($request->getRequestFormat() === 'gif') {
-                    // Short circuits the controller
-                    // All beacon handling code must be put in the after() or finish() filter
-                    return new BeaconResponse();
-                }
-            });
-
-            $controllers->after(function (Request $request, $response) use ($app) {
-                if ($response instanceof JsonResponse) {
-                    $callback = $request->query->get('callback');
-                    if ($callback && isset($app['validator'])) {
-                        $errors = $app['validator']->validateValue($callback, new JsonpCallback());
-                        if (count($errors)) {
-                            $app->abort(400, 'Invalid JSONP callback.');
-                        }
-                        $response->setCallback($callback);
-                    }
-                }
-            });
+            $controllers = new ControllerCollection($app['route_factory'], $app['debug']);
 
             return $controllers;
         };

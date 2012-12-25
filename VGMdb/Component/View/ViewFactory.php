@@ -2,6 +2,9 @@
 
 namespace VGMdb\Component\View;
 
+use VGMdb\Component\View\Mustache\MustacheView;
+use VGMdb\Component\View\Mustache\Loader\PrefixLoader;
+use VGMdb\Component\View\Smarty\SmartyView;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 
 /**
@@ -11,29 +14,46 @@ use Symfony\Component\HttpKernel\Log\LoggerInterface;
  */
 class ViewFactory
 {
+    protected $logger;
+
+    public function setLogger(LoggerInterface $logger = null)
+    {
+        $this->logger = $logger;
+    }
+
     /**
      * View factory for creating new view instances based on renderer type.
      *
-     * @param mixed           $template
-     * @param array           $data
-     * @param mixed           $engine
-     * @param LoggerInterface $logger
+     * @param mixed $template
+     * @param array $data
+     * @param mixed $engine
      * @return ViewInterface
      */
-    static public function create($template, array $data = array(), $engine = null, LoggerInterface $logger = null)
+    public function create($template, array $data = array(), $engine = null)
     {
         if ($template instanceof ViewInterface) {
             return $template;
         }
 
         if ($engine instanceof \Mustache_Engine) {
-            return new MustacheView($template, $data, $engine, $logger);
+            return new MustacheView($template, $data, $engine, $this->logger);
         }
 
         if ($engine instanceof \Smarty) {
-            return new SmartyView($template, $data, $engine, $logger);
+            return new SmartyView($template, $data, $engine, $this->logger);
         }
 
-        return new View($template, $data, $engine, $logger);
+        return new View($template, $data, $engine, $this->logger);
+    }
+
+    /**
+     * Adds prefix notation to template loaders.
+     *
+     * @param string $prefix
+     * @param string $prefixDir
+     */
+    static public function addPrefix($prefix, $prefixDir)
+    {
+        PrefixLoader::addPrefix($prefix, $prefixDir);
     }
 }

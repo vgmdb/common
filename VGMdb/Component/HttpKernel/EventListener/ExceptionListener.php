@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Listener;
+namespace VGMdb\Component\HttpKernel\EventListener;
 
 use VGMdb\Application;
 use VGMdb\Component\HttpKernel\Debug\ExceptionHandler;
@@ -9,13 +9,12 @@ use VGMdb\Component\HttpFoundation\JsonResponse;
 use VGMdb\Component\HttpFoundation\XmlResponse;
 use VGMdb\Component\HttpFoundation\BeaconResponse;
 use VGMdb\Component\Thrift\ThriftResponse;
-use Thrift\Exception\TApplicationException;
-use Thrift\Type\TMessageType;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
-use Symfony\Component\HttpKernel\Exception\FlattenException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Thrift\Exception\TApplicationException;
+use Thrift\Type\TMessageType;
 
 /**
  * Custom exception listener.
@@ -100,6 +99,8 @@ class ExceptionListener implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(KernelEvents::EXCEPTION => array('onKernelException', Application::EARLY_EVENT));
+        return array(
+            KernelEvents::EXCEPTION => array(array('onKernelException', Application::EARLY_EVENT))
+        );
     }
 }

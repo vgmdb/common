@@ -25,26 +25,36 @@ class ProfilerServiceProvider implements ServiceProviderInterface
         $app['profiler.request_matcher.host'] = null;
         $app['profiler.request_matcher.methods'] = null;
         $app['profiler.request_matcher.ip'] = null;
+        $app['profiler.controller.profiler'] = 'VGMdb\\Component\\WebProfiler\\Controllers\\ProfilerController';
 
         // data collectors
+        //$app['data_collector.config.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\ConfigDataCollector';
+        $app['data_collector.request.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\RequestDataCollector';
+        //$app['data_collector.exception.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\ExceptionDataCollector';
+        $app['data_collector.events.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\EventDataCollector';
+        //$app['data_collector.logger.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\LoggerDataCollector';
         $app['data_collector.time.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\TimeDataCollector';
         $app['data_collector.memory.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\MemoryDataCollector';
-        $app['data_collector.events.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\EventDataCollector';
+        //$app['data_collector.router.class'] = '';
 
+        $app['data_collector.request'] = $app->share(function () use ($app) {
+            return new $app['data_collector.request.class']();
+        });
+        $app['data_collector.events'] = $app->share(function () use ($app) {
+            return new $app['data_collector.events.class']($app['dispatcher']);
+        });
         $app['data_collector.time'] = $app->share(function () use ($app) {
             return new $app['data_collector.time.class']();
         });
         $app['data_collector.memory'] = $app->share(function () use ($app) {
             return new $app['data_collector.memory.class']();
         });
-        $app['data_collector.events'] = $app->share(function () use ($app) {
-            return new $app['data_collector.events.class']($app['dispatcher']);
-        });
 
         $app['data_collector.config'] = array(
-            'time' => array(255, 'profiler/time'),
-            'memory' => array(255, 'profiler/memory'),
-            'events' => array(255, 'profiler/events'),
+            'request' => array(255, 'collector/request'),
+            'events'  => array(255, 'collector/events'),
+            'time'    => array(255, 'collector/time'),
+            'memory'  => array(255, 'collector/memory'),
         );
 
         // stopwatch
@@ -100,7 +110,7 @@ class ProfilerServiceProvider implements ServiceProviderInterface
             foreach ($collectors as $collector) {
                 $data_collector = $app['data_collector.' . $collector[0]];
                 $profiler->add($data_collector);
-                $templates[$collector[0]] = $collector[1];
+                $templates[$collector[0]] = $collector[1][1];
             }
 
             $app['data_collector.templates'] = $templates;

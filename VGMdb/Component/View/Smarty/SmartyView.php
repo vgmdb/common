@@ -1,7 +1,8 @@
 <?php
 
-namespace VGMdb\Component\View;
+namespace VGMdb\Component\View\Smarty;
 
+use VGMdb\Component\View\AbstractView;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 
 /**

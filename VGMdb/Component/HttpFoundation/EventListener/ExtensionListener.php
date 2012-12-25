@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Listener;
+namespace VGMdb\Component\HttpFoundation\EventListener;
 
 use VGMdb\Application;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
