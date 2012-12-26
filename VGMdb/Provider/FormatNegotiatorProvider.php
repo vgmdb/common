@@ -27,6 +27,8 @@ class FormatNegotiatorProvider implements ServiceProviderInterface
             return new AcceptNegotiator();
         });
 
+        $app['request.format.extensions'] = array('json', 'xml', 'gif');
+
         $app['request.format.default_version'] = '1.0';
 
         Request::addFormat('gif', array('image/gif'));

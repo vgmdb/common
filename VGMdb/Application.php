@@ -48,8 +48,6 @@ class Application extends BaseApplication
             return new ExceptionListener($app['debug']);
         });
 
-        $this['request.format.extensions'] = array('json', 'xml', 'gif');
-
         // replace the controller factory with our own implementation
         $this['controllers_factory'] = function () use ($app) {
             $controllers = new ControllerCollection($app['route_factory'], $app['debug']);

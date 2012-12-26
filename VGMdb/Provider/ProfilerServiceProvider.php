@@ -28,20 +28,29 @@ class ProfilerServiceProvider implements ServiceProviderInterface
         $app['profiler.controller.profiler'] = 'VGMdb\\Component\\WebProfiler\\Controllers\\ProfilerController';
 
         // data collectors
-        //$app['data_collector.config.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\ConfigDataCollector';
+        $app['data_collector.config.class'] = 'VGMdb\\Component\\HttpKernel\\DataCollector\\ConfigDataCollector';
         $app['data_collector.request.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\RequestDataCollector';
-        //$app['data_collector.exception.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\ExceptionDataCollector';
+        $app['data_collector.exception.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\ExceptionDataCollector';
         $app['data_collector.events.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\EventDataCollector';
-        //$app['data_collector.logger.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\LoggerDataCollector';
+        $app['data_collector.logger.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\LoggerDataCollector';
         $app['data_collector.time.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\TimeDataCollector';
         $app['data_collector.memory.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\MemoryDataCollector';
         //$app['data_collector.router.class'] = '';
 
+        $app['data_collector.config'] = $app->share(function () use ($app) {
+            return new $app['data_collector.config.class']($app);
+        });
         $app['data_collector.request'] = $app->share(function () use ($app) {
             return new $app['data_collector.request.class']();
         });
+        $app['data_collector.exception'] = $app->share(function () use ($app) {
+            return new $app['data_collector.exception.class']();
+        });
         $app['data_collector.events'] = $app->share(function () use ($app) {
             return new $app['data_collector.events.class']($app['dispatcher']);
+        });
+        $app['data_collector.logger'] = $app->share(function () use ($app) {
+            return new $app['data_collector.logger.class']($app['logger']);
         });
         $app['data_collector.time'] = $app->share(function () use ($app) {
             return new $app['data_collector.time.class']();
@@ -50,11 +59,12 @@ class ProfilerServiceProvider implements ServiceProviderInterface
             return new $app['data_collector.memory.class']();
         });
 
-        $app['data_collector.config'] = array(
+        $app['data_collector.registry'] = array(
+            'config'  => array(255, 'collector/config'),
             'request' => array(255, 'collector/request'),
             'events'  => array(255, 'collector/events'),
             'time'    => array(255, 'collector/time'),
-            'memory'  => array(255, 'collector/memory'),
+            //'memory'  => array(255, 'collector/memory'),
         );
 
         // stopwatch
@@ -95,7 +105,7 @@ class ProfilerServiceProvider implements ServiceProviderInterface
 
             $collectors = new \SplPriorityQueue();
             $order = PHP_INT_MAX;
-            foreach ($app['data_collector.config'] as $id => $attributes) {
+            foreach ($app['data_collector.registry'] as $id => $attributes) {
                 $priority = isset($attributes[0]) ? $attributes[0] : 0;
                 $template = null;
 

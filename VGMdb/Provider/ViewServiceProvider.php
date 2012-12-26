@@ -49,10 +49,6 @@ class ViewServiceProvider implements ServiceProviderInterface
 
             return $widgets[$template]->with($data);
         });
-
-        $app['view.layout_listener'] = $app->share(function () use ($app) {
-            return new LayoutListener($app);
-        });
     }
 
     public function boot(Application $app)
@@ -61,6 +57,6 @@ class ViewServiceProvider implements ServiceProviderInterface
             ViewFactory::addPrefix($prefix, $prefixDir);
         }
 
-        $app['dispatcher']->addSubscriber($app['view.layout_listener']); // -64
+        $app['dispatcher']->addSubscriber(new LayoutListener($app)); // -64
     }
 }

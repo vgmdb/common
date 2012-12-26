@@ -31,8 +31,12 @@ class ViewCollection extends AbstractView
     /**
      * {@inheritDoc}
      */
-    public function with($data = array())
+    public function with($data, $value = null)
     {
+        if (!is_array($data) && !($data instanceof \ArrayAccess)) {
+            $data = array($data => $value);
+        }
+
         foreach ($data as $key => $value) {
             foreach ($this as $view) {
                 $view[$key] = $value;

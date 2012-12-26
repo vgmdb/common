@@ -2,7 +2,8 @@
 
 namespace VGMdb\Component\HttpFoundation;
 
-use VGMdb\Component\View\ViewFactory;
+use VGMdb\Component\View\ViewInterface;
+use VGMdb\Component\View\View;
 use JMS\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\Request as BaseRequest;
 
@@ -76,8 +77,8 @@ class XmlResponse extends Response
      */
     public function setData($data = array())
     {
-        if (is_array($data)) {
-            $data = ViewFactory::create(null, $data);
+        if (!$data instanceof ViewInterface) {
+            $data = new View(null, $data);
         }
 
         $this->data = $data;
