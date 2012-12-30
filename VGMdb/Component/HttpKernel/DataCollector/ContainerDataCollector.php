@@ -36,6 +36,8 @@ class ContainerDataCollector extends DataCollector
         sort($keys);
         $bootlog = $this->app->getBootlog();
 
+        $this->app->stopTrace();
+
         foreach ($keys as $key) {
             $booted = isset($bootlog[$key]);
             $services[] = array(

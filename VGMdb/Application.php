@@ -133,6 +133,14 @@ class Application extends BaseApplication
     }
 
     /**
+     * Stop tracing service access.
+     */
+    public function stopTrace()
+    {
+        $this->stopwatch = null;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function error($callback, $priority = -8)
