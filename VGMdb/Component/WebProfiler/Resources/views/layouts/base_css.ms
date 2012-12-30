@@ -140,13 +140,16 @@ abbr {
     display: block;
 }
 #content {
-    padding: 0 50px;
+    padding: 50px 50px;
     margin: 0 auto 20px;
     font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
     min-width: 970px;
 }
 #header {
-    padding: 20px 30px 20px;
+    position: absolute;
+    top: 10px;
+    right: 60px;
+    z-index: 100;
 }
 #header h1 {
     float: left;
@@ -156,6 +159,22 @@ abbr {
 }
 #menu-profiler {
     border-right: 1px solid #dfdfdf;
+    opacity: 0;
+    -webkit-transition-property: opacity;
+    -webkit-transition-duration: .1s;
+    -webkit-transition-timing-function: ease-in-out;
+    -moz-transition-property: opacity;
+    -moz-transition-duration: .1s;
+    -moz-transition-timing-function: ease-in-out;
+    -o-transition-property: opacity;
+    -o-transition-duration: .1s;
+    -o-transition-timing-function: ease-in-out;
+    -ms-transition-property: opacity;
+    -ms-transition-duration: .1s;
+    -ms-transition-timing-function: ease-in-out;
+    transition-property: opacity;
+    transition-duration: .1s;
+    transition-timing-function: ease-in-out;
 }
 #menu-profiler li {
     border-bottom: 1px solid #dfdfdf;
@@ -203,7 +222,7 @@ abbr {
     padding: 0;
     position: absolute;
     right: 10px;
-    top: 20px;
+    top: 18px;
 }
 #collector-wrapper {
     float: left;
@@ -212,6 +231,22 @@ abbr {
 #collector-content {
     margin-left: 250px;
     padding: 30px 40px 40px;
+    opacity: 0;
+    -webkit-transition-property: opacity;
+    -webkit-transition-duration: .1s;
+    -webkit-transition-timing-function: ease-in-out;
+    -moz-transition-property: opacity;
+    -moz-transition-duration: .1s;
+    -moz-transition-timing-function: ease-in-out;
+    -o-transition-property: opacity;
+    -o-transition-duration: .1s;
+    -o-transition-timing-function: ease-in-out;
+    -ms-transition-property: opacity;
+    -ms-transition-duration: .1s;
+    -ms-transition-timing-function: ease-in-out;
+    transition-property: opacity;
+    transition-duration: .1s;
+    transition-timing-function: ease-in-out;
 }
 #navigation {
     float: left;
@@ -228,6 +263,9 @@ h1 {
 h2, h3 {
     font-weight: bold;
     margin-bottom: 20px;
+}
+h2 small {
+    font-size: 14px;
 }
 li {
     padding-bottom: 10px;
@@ -260,6 +298,22 @@ li {
     -moz-border-radius-topright: 16px;
     -webkit-border-top-right-radius: 16px;
     border-top-right-radius: 16px;
+    opacity: 0;
+    -webkit-transition-property: opacity;
+    -webkit-transition-duration: .1s;
+    -webkit-transition-timing-function: ease-in-out;
+    -moz-transition-property: opacity;
+    -moz-transition-duration: .1s;
+    -moz-transition-timing-function: ease-in-out;
+    -o-transition-property: opacity;
+    -o-transition-duration: .1s;
+    -o-transition-timing-function: ease-in-out;
+    -ms-transition-property: opacity;
+    -ms-transition-duration: .1s;
+    -ms-transition-timing-function: ease-in-out;
+    transition-property: opacity;
+    transition-duration: .1s;
+    transition-timing-function: ease-in-out;
 }
 a#resume-view-all {
     display: inline-block;
@@ -424,6 +478,15 @@ td.main, td.menu {
     border-left-width: 10px;
     border-left-style: solid;
     padding: 0 10px 0 5px;
+}
+.sf-profiler-timeline .legends span a {
+    text-decoration: none;
+}
+.sf-profiler-timeline .legends span.disabled {
+    border-left-color: #eee !important;
+}
+.sf-profiler-timeline .legends span.disabled a {
+    color: #eee !important;
 }
 .sf-profiler-timeline canvas {
     border: 1px solid #999;
@@ -683,6 +746,146 @@ td.main, td.menu {
 }
 .sf-toolbar-block:hover .sf-toolbar-info {
     display: block;
+}
+
+.SQLKeyword {
+    color: blue;
+    white-space: nowrap;
+}
+.SQLName {
+    color: #464646;
+    white-space: nowrap;
+}
+.SQLInfo, .SQLComment {
+    color: gray;
+    display: block;
+    font-size: 0.9em;
+    margin: 3px 0;
+}
+.SQLExplain {
+   margin: 5px;
+}
+.SQLExplain .error {
+    background-color: #F2DEDE;
+    border-color: #EED3D7;
+    color: #B94A48;
+    padding: 8px 35px 8px 14px;
+    font-weight: bold;
+}
+#content .SQLExplain h2 {
+    font-size: 17px;
+    margin-bottom: 0;
+}
+.hidden {
+    display: none;
+}
+
+
+.sf-reset .traces {
+    padding-bottom: 14px;
+}
+.sf-reset .traces li {
+    font-size: 12px;
+    color: #868686;
+    padding: 5px 4px;
+    list-style-type: decimal;
+    margin-left: 20px;
+    white-space: break-word;
+}
+.sf-reset #logs .traces li.error {
+    font-style: normal;
+    color: #AA3333;
+    background: #f9ecec;
+}
+.sf-reset #logs .traces li.warning {
+    font-style: normal;
+    background: #ffcc00;
+}
+/* fix for Opera not liking empty <li> */
+.sf-reset .traces li:after {
+    content: "\00A0";
+}
+.sf-reset .trace {
+    border: 1px solid #D3D3D3;
+    padding: 10px;
+    overflow: auto;
+    margin: 10px 0 20px;
+}
+.sf-reset .block-exception {
+    -moz-border-radius: 16px;
+    -webkit-border-radius: 16px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+    background-color: #f6f6f6;
+    border: 1px solid #dfdfdf;
+    padding: 30px 28px;
+}
+.sf-reset .block-exception div {
+    color: #313131;
+    font-size: 10px;
+}
+.sf-reset .block-exception-detected .illustration-exception,
+.sf-reset .block-exception-detected .text-exception {
+    float: left;
+}
+.sf-reset .block-exception-detected .illustration-exception {
+    width: 152px;
+}
+.sf-reset .block-exception-detected .text-exception {
+    width: 670px;
+    padding: 30px 44px 24px 46px;
+    position: relative;
+}
+.sf-reset .text-exception .open-quote,
+.sf-reset .text-exception .close-quote {
+    position: absolute;
+}
+.sf-reset .open-quote {
+    top: 0;
+    left: 0;
+}
+.sf-reset .close-quote {
+    bottom: 0;
+    right: 50px;
+}
+.sf-reset .block-exception p {
+    font-family: Arial, Helvetica, sans-serif;
+}
+.sf-reset .block-exception p a,
+.sf-reset .block-exception p a:hover {
+    color: #565656;
+}
+.sf-reset .logs h2 {
+    float: left;
+    width: 654px;
+}
+.sf-reset .error-count {
+    float: right;
+    width: 170px;
+    text-align: right;
+}
+.sf-reset .error-count span {
+    display: inline-block;
+    background-color: #aacd4e;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    padding: 4px;
+    color: white;
+    margin-right: 2px;
+    font-size: 11px;
+    font-weight: bold;
+}
+.sf-reset .toggle {
+    vertical-align: middle;
+}
+.sf-reset .linked ul,
+.sf-reset .linked li {
+    display: inline;
+}
+.sf-reset #output-content {
+    color: #000;
+    font-size: 12px;
 }
 
 /***** Media query *****/

@@ -203,21 +203,5 @@ class UserServiceProvider implements ServiceProviderInterface
             array($app['user.security.interactive_login_listener'], 'onSecurityInteractiveLogin'),
             8
         );
-
-        $app->get($app['user.path'] . '/{username}', function ($username) use ($app) {
-            try {
-                $data = $app['data.user']($username);
-                $data['is_authenticated'] = true;
-            } catch (\Exception $e) {
-                /*if ($username === 'me' && $app['request']->getRequestFormat() !== 'html') {
-                    throw new HttpException(401, 'Unauthorised: Authentication credentials were missing or incorrect.');
-                }
-                throw $e;*/
-                $data = $app['data.login'];
-                $data['is_authenticated'] = false;
-            }
-
-            return $app['view']('userbox', $data);
-        })->bind('user');
     }
 }

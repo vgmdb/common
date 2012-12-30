@@ -3,7 +3,7 @@
 namespace VGMdb\Component\View\Mustache;
 
 use VGMdb\Component\View\AbstractView;
-use Symfony\Component\HttpKernel\Log\LoggerInterface;
+use VGMdb\Component\View\Logging\ViewLoggerInterface;
 
 /**
  * View with Mustache rendering engine.
@@ -12,18 +12,17 @@ use Symfony\Component\HttpKernel\Log\LoggerInterface;
  */
 class MustacheView extends AbstractView
 {
-    public $template;
     static protected $engine;
 
     /**
      * Create a new Mustache view instance.
      *
-     * @param string           $template
-     * @param array            $data
-     * @param \Mustache_Engine $mustache
-     * @param LoggerInterface  $logger
+     * @param string              $template
+     * @param array               $data
+     * @param \Mustache_Engine    $mustache
+     * @param ViewLoggerInterface $logger
      */
-    public function __construct($template, array $data = array(), $mustache = null, LoggerInterface $logger = null)
+    public function __construct($template, array $data = array(), $mustache = null, ViewLoggerInterface $logger = null)
     {
         if (!is_string($template)) {
             throw new \InvalidArgumentException('Template name must be a string.');
@@ -68,5 +67,13 @@ class MustacheView extends AbstractView
         $data = array_merge(parent::getArrayCopy($globals), array('_template' => $this->template));
 
         return $data;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getEngineType()
+    {
+        return 'Mustache';
     }
 }

@@ -38,6 +38,6 @@ class FormatNegotiatorProvider implements ServiceProviderInterface
     {
         $app['dispatcher']->addSubscriber(new SubdomainListener($app));     // 512
         $app['dispatcher']->addSubscriber(new ExtensionListener($app));     // 256
-        $app['dispatcher']->addSubscriber(new RequestFormatListener($app)); // 128
+        $app['dispatcher']->addSubscriber(new RequestFormatListener($app)); // 128, -5, -16
     }
 }

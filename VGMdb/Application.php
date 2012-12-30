@@ -9,6 +9,7 @@ use VGMdb\Component\View\ViewInterface;
 use VGMdb\ControllerCollection;
 use VGMdb\ControllerResolver;
 use VGMdb\ExceptionListenerWrapper;
+use VGMdb\RedirectableUrlMatcher;
 use Silex\Application as BaseApplication;
 use Silex\ControllerProviderInterface;
 use Silex\LazyUrlMatcher;
@@ -28,16 +29,23 @@ use Symfony\Component\HttpKernel\EventListener\RouterListener;
  */
 class Application extends BaseApplication
 {
+    private $booting;
+    private $booted;
     private $readonly;
-    private $booting = false;
-    protected $logger;
+    private $bootlog;
+    private $stopwatch;
+    private $startTime;
 
     /**
      * Constructor.
      */
     public function __construct()
     {
+        $this->booting = false;
+        $this->booted = false;
         $this->readonly = array();
+        $this->bootlog = array();
+        $this->startTime = microtime(true);
 
         parent::__construct();
 
@@ -58,6 +66,11 @@ class Application extends BaseApplication
         // replace the controller resolver
         $this['resolver'] = $this->share(function () use ($app) {
             return new ControllerResolver($app, $app['logger']);
+        });
+
+        // replace the redirectable url matcher
+        $this['url_matcher'] = $this->share(function () use ($app) {
+            return new RedirectableUrlMatcher($app['routes'], $app['request_context']);
         });
     }
 
@@ -100,6 +113,26 @@ class Application extends BaseApplication
     }
 
     /**
+     * Returns the request start time.
+     *
+     * @return integer
+     */
+    public function getStartTime()
+    {
+        return $this->startTime;
+    }
+
+    /**
+     * Returns the service boot log.
+     *
+     * @return array
+     */
+    public function getBootlog()
+    {
+        return $this->bootlog;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function error($callback, $priority = -8)
@@ -110,21 +143,21 @@ class Application extends BaseApplication
     /**
      * {@inheritdoc}
      */
-    public function mount($prefix, $app)
+    public function mount($prefix, $controllers)
     {
-        if ($app instanceof ControllerProviderInterface) {
-            $app = $app->connect($this);
+        if ($controllers instanceof ControllerProviderInterface) {
+            $controllers = $controllers->connect($this);
         }
 
-        if ($app instanceof ControllerCollection) {
-            $app = $app->flush($prefix);
+        if ($controllers instanceof ControllerCollection) {
+            $controllers = $controllers->flush($prefix);
         }
 
-        if (!$app instanceof RouteCollection) {
+        if (!$controllers instanceof RouteCollection) {
             throw new \LogicException('The "mount" method takes either a RouteCollection, ControllerCollection or ControllerProviderInterface instance.');
         }
 
-        $this['routes']->addCollection($app, $prefix);
+        $this['routes']->addCollection($controllers, $prefix);
     }
 
     /**
@@ -155,7 +188,16 @@ class Application extends BaseApplication
     {
         $this->booting = true;
 
+        if ($this['debug'] && isset($this['debug.stopwatch'])) {
+            $start = microtime(true) * 1000;
+            $this->stopwatch = $this['debug.stopwatch'];
+            $end = microtime(true) * 1000;
+            $this->bootlog['debug.stopwatch'] = sprintf('%.0f', $end - $start);
+        }
+
         parent::boot();
+
+        $this->booted = true;
     }
 
     /**
@@ -168,5 +210,28 @@ class Application extends BaseApplication
         }
 
         parent::offsetSet($id, $value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetGet($id)
+    {
+        $event = null;
+
+        if (null !== $this->stopwatch) {
+            $event = $this->stopwatch->start($id, 'boot');
+        }
+
+        $value = parent::offsetGet($id);
+
+        if (null !== $event) {
+            $event->stop($id);
+            if (!isset($this->bootlog[$id])) {
+                $this->bootlog[$id] = $event->getDuration();
+            }
+        }
+
+        return $value;
     }
 }

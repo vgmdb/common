@@ -100,7 +100,7 @@ class ExceptionListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            KernelEvents::EXCEPTION => array(array('onKernelException', Application::EARLY_EVENT))
+            KernelEvents::EXCEPTION => array(array('onKernelException', Application::LATE_EVENT))
         );
     }
 }

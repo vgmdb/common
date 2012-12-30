@@ -2,10 +2,10 @@
 
 namespace VGMdb\Component\View;
 
+use VGMdb\Component\View\Logging\ViewLoggerInterface;
 use VGMdb\Component\View\Mustache\MustacheView;
 use VGMdb\Component\View\Mustache\Loader\PrefixLoader;
 use VGMdb\Component\View\Smarty\SmartyView;
-use Symfony\Component\HttpKernel\Log\LoggerInterface;
 
 /**
  * View factory for creating views based on renderer type.
@@ -16,7 +16,12 @@ class ViewFactory
 {
     protected $logger;
 
-    public function setLogger(LoggerInterface $logger = null)
+    /**
+     * Sets the default logger.
+     *
+     * @param ViewLoggerInterface $logger
+     */
+    public function setLogger(ViewLoggerInterface $logger = null)
     {
         $this->logger = $logger;
     }

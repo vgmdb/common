@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\View;
 
-use Symfony\Component\HttpKernel\Log\LoggerInterface;
+use VGMdb\Component\View\Logging\ViewLoggerInterface;
 
 /**
  * Abstract view object.
@@ -11,19 +11,20 @@ use Symfony\Component\HttpKernel\Log\LoggerInterface;
  */
 abstract class AbstractView extends \ArrayObject implements ViewInterface
 {
-    static protected $globals = array();
-    static public $exception;
-    static private $engine; // must be redeclared in child classes
+    public $template;
     protected $logger;
+    static private $engine; // must be redeclared in child classes
+    static protected $globals = array();
+    static protected $exception;
 
     /**
      * Create a new view instance.
      *
-     * @param array           $data
-     * @param mixed           $engine
-     * @param LoggerInterface $logger
+     * @param array               $data
+     * @param mixed               $engine
+     * @param ViewLoggerInterface $logger
      */
-    public function __construct(array $data = array(), $engine = null, LoggerInterface $logger = null)
+    public function __construct(array $data = array(), $engine = null, ViewLoggerInterface $logger = null)
     {
         if (!$engine) {
             $engine = function ($view) {
@@ -70,11 +71,31 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
     }
 
     /**
+     * Check if the render has thrown exceptions.
+     *
+     * @return Boolean
+     */
+    public function hasException()
+    {
+        return isset(static::$exception);
+    }
+
+    /**
+     * Return recorded exceptions.
+     *
+     * @return \Exception
+     */
+    public function getException()
+    {
+        return static::$exception;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function with($data, $value = null)
     {
-        if (!is_array($data) && !($data instanceof \ArrayAccess)) {
+        if (!is_array($data) && !($data instanceof \Traversable)) {
             $data = array($data => $value);
         }
 
@@ -90,7 +111,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
      */
     static public function share($data, $value = null)
     {
-        if (!(is_array($data) || $data instanceof \ArrayAccess)) {
+        if (!(is_array($data) || $data instanceof \Traversable)) {
             $data = array($data => $value);
         }
 
@@ -133,15 +154,18 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
      */
     public function render($data = array())
     {
-        $start = microtime(true);
+        $this->with($data);
+
+        //$start = microtime(true);
+
+        if (null !== $this->logger) {
+            $this->logger->startRender($this);
+        }
 
         $output = $this->renderInternal($data);
 
         if (null !== $this->logger) {
-            $time = number_format((microtime(true) - $start) * 1000, 2);
-            $this->logger->info(
-                sprintf('Template "%s" rendered with %s in %sms', $this->template, get_called_class(), $time)
-            );
+            $this->logger->stopRender($this);
         }
 
         return $output;
@@ -154,6 +178,14 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
      * @return string
      */
     abstract protected function renderInternal($data = array());
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getEngineType()
+    {
+        return 'Closure';
+    }
 
     /**
      * {@inheritDoc}

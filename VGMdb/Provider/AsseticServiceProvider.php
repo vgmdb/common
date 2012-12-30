@@ -2,6 +2,7 @@
 
 namespace VGMdb\Provider;
 
+use VGMdb\Component\Assetic\EventListener\AsseticDumperListener;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Assetic\AssetManager;
@@ -132,59 +133,13 @@ class AsseticServiceProvider implements ServiceProviderInterface
             return $lazy;
         });
 
-        /**
-         * Writes down all lazy asset manager and asset managers assets
-         */
-        $app['assetic.dumper'] = $app->protect(function () use ($app) {
-            foreach ($app['assetic.asset_manager']->getNames() as $name) {
-                $asset = $app['assetic.asset_manager']->get($name);
-                $app['assetic.asset_writer']->writeAsset($asset);
-            }
-
-            foreach ($app['assetic.lazy_asset_manager']->getNames() as $name) {
-                $asset = $app['assetic.lazy_asset_manager']->get($name);
-                $formula = $app['assetic.lazy_asset_manager']->getFormula($name);
-                $app['assetic.asset_writer']->writeAsset($asset);
-
-                if (!isset($formula[2])) {
-                    continue;
-                }
-
-                $debug   = isset($formula[2]['debug'])   ? $formula[2]['debug']   : $app['assetic.lazy_asset_manager']->isDebug();
-                $combine = isset($formula[2]['combine']) ? $formula[2]['combine'] : null;
-
-                if (null !== $combine ? !$combine : $debug) {
-                    foreach ($asset as $leaf) {
-                        $app['assetic.asset_writer']->writeAsset($leaf);
-                    }
-                }
-            }
+        $app['assetic.dumper_listener'] = $app->share(function () use ($app) {
+            return new AsseticDumperListener($app);
         });
     }
 
     public function boot(Application $app)
     {
-        $app->after(function() use ($app) {
-            $app['assetic.options'] = array_replace(
-                array(
-                    'debug' => false,
-                    'formulae_cache_dir' => null,
-                    'auto_dump_assets' => true,
-                ), $app['assetic.options']
-            );
-
-            if (!isset($app['assetic.options']) ||
-                !isset($app['assetic.options']['auto_dump_assets']) ||
-                !$app['assetic.options']['auto_dump_assets']
-            ) {
-                return;
-            }
-
-            // Boot assetic
-            $assetic = $app['assetic'];
-
-            $dumper = $app['assetic.dumper'];
-            $dumper();
-        });
+        $app['dispatcher']->addSubscriber($app['assetic.dumper_listener']); // -96
     }
 }

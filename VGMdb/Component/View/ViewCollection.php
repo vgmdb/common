@@ -12,7 +12,7 @@ class ViewCollection extends AbstractView
     /**
      * Create a new view collection.
      *
-     * @param string   $template
+     * @param mixed    $template
      * @param array    $data
      * @param \Closure $callback
      * @return void
@@ -23,7 +23,7 @@ class ViewCollection extends AbstractView
             if ($template instanceof ViewInterface) {
                 $this[] = $template->with($data);
             } else {
-                $this[] = ViewFactory::create($template, $data, $callback);
+                $this[] = new View($template, $data, $callback);
             }
         }
     }
@@ -86,5 +86,13 @@ class ViewCollection extends AbstractView
         }
 
         return $array;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getEngineType()
+    {
+        return 'Collection';
     }
 }

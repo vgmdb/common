@@ -3,6 +3,7 @@
 namespace VGMdb\Component\WebProfiler\Controllers;
 
 use VGMdb\AbstractController;
+use Symfony\Component\Routing\Matcher\TraceableUrlMatcher;
 
 /**
  * Controller for showing application profiling information.
@@ -27,73 +28,78 @@ class ProfilerController extends AbstractController
             throw new \ErrorException(sprintf('Panel "%s" is not available for token "%s".', $panel, $token));
         }
 
+        if (!isset($this->app['data_collector.templates'][$panel])) {
+            throw new \ErrorException(sprintf('Template not available for panel "%s".', $panel));
+        }
+
         $collector = $profile->getCollector($panel);
+
+        if ($panel === 'exception' && !$collector->hasException()) {
+            throw new \ErrorException(sprintf('Panel "%s" is not available for token "%s".', $panel, $token));
+        }
+
+        $profileData = $this->app['serializer']->serialize($profile, 'array');
 
         $templates = array();
         $toolbar = $this->app['view']('@WebProfiler/profiler/toolbar');
+
         foreach ($this->app['data_collector.templates'] as $name => $template) {
+            if (null === $template) {
+                continue;
+            }
             if (!$this->app['profiler']->has($name) || !$profile->hasCollector($name)) {
                 continue;
             }
+            if ($name === 'exception' && !$profile->getCollector('exception')->hasException()) {
+                continue;
+            }
+
             $toolbar->nest($this->app['view']('@WebProfiler/profiler/menu', array(
                 'name'     => $name,
                 'selected' => ($name === $panel) ? true : false,
                 'url'      => $this->app['url']('profiler', array('token' => $token, 'panel' => $name))
             ))->nest($this->app['view']('@WebProfiler/' . $template, array(
-                'toolbar'  => true
+                'token'     => $token,
+                'toolbar'   => true
             ))));
-            $templates[$name] = $template;
-        }
 
-        if (!isset($templates[$panel])) {
-            throw new \ErrorException(sprintf('Template not available for panel "%s".', $panel));
+            $templates[$name] = $template;
         }
 
         $layoutData = array(
             'token'     => $token,
-            'profile'   => $this->app['serializer']->serialize($profile, 'array'),
+            'profile'   => $profileData,
             'panel'     => $panel,
             'page'      => $page,
-            'request'   => $this->app['serializer']->serialize($request, 'array'),
+            //'request'   => $this->app['serializer']->serialize($request, 'array'),
             'templates' => $templates,
             'is_ajax'   => $request->isXmlHttpRequest()
         );
 
-        $layoutData['profile']['time_pretty'] = date('r', $layoutData['profile']['time']);
-
         $panelData = array(
             'token'     => $token,
-            'collector' => $this->app['serializer']->serialize($collector, 'array'),
+            'collector' => $profileData['collectors'][$panel],
             'panel'     => true
         );
 
         if ($panel === 'time') {
-            $panelData['collector']['data']['duration'] = sprintf('%.0f', $collector->getDuration());
-            $panelData['collector']['data']['inittime'] = sprintf('%.0f', $collector->getInitTime());
-            $events = array();
-            foreach ($collector->getEvents() as $name => $event) {
-                $panelData['collector']['data']['events'][$name]['name'] = $name;
-                $panelData['collector']['data']['events'][$name]['starttime'] = $event->getStartTime();
-                $panelData['collector']['data']['events'][$name]['endtime'] = $event->getEndTime();
-                $panelData['collector']['data']['events'][$name]['duration'] = $event->getDuration();
-                $panelData['collector']['data']['events'][$name]['memory'] = sprintf('%.1F', $event->getMemory() / 1024 / 1024);
-                if ($name !== '__section__') {
-                    $events[] = $panelData['collector']['data']['events'][$name];
-                }
+            $events = $panelData['collector']['data']['events'];
+            unset($events['__section__']);
+            $panelData['events_json'] = json_encode(array_values($events));
+        } elseif ($panel === 'router') {
+            if (isset($profileData['collectors']['request'])) {
+                $request = $profile->getCollector('request');
+                $context = $this->app['url_matcher']->getContext();
+                $context->setMethod($profile->getMethod());
+                $matcher = new TraceableUrlMatcher($this->app['routes'], $context);
+                $panelData['request'] = $profileData['collectors']['request'];
+                $panelData['request']['data']['route_params'] = $request->getRouteParams();
+                $panelData['traces'] = $matcher->getTraces($request->getPathInfo());
             }
-            $panelData['events_json'] = json_encode($events);
-            $panelData['colors'] = array(
-                'default'                => '#aacd4e',
-                'section'                => '#666',
-                'event_listener'         => '#3dd',
-                'event_listener_loading' => '#add',
-                'template'               => '#dd3',
-                'doctrine'               => '#d3d',
-                'propel'                 => '#f4d',
-                'child_sections'         => '#eed',
-            );
-            $panelData['colors_json'] = json_encode($panelData['colors']);
         }
+
+        $layoutData['profile']['time_pretty'] = date('r', $layoutData['profile']['time']);
+        unset($layoutData['profile']['collectors']);
 
         return $this->app['view']('@WebProfiler/profiler/layout', $layoutData)
                     ->nest($toolbar, 'toolbar')

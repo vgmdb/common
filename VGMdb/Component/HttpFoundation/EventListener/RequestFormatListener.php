@@ -134,7 +134,7 @@ class RequestFormatListener implements EventSubscriberInterface
         return array(
             KernelEvents::REQUEST  => array(array('onKernelRequest', 128)),
             KernelEvents::VIEW     => array(array('onKernelView', -5)),
-            KernelEvents::RESPONSE => array(array('onKernelResponse', 0)),
+            KernelEvents::RESPONSE => array(array('onKernelResponse', -16)),
         );
     }
 }

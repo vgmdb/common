@@ -40,8 +40,8 @@ class Response extends BaseResponse
 
         if ($view instanceof ViewInterface) {
             $content = (string) $view;
-            if ($view::$exception) {
-                throw $view::$exception;
+            if ($view->hasException()) {
+                throw $view->getException();
             }
             echo $content;
 

@@ -29,9 +29,10 @@ class LayoutListener implements EventSubscriberInterface
             return;
         }
 
-        $attributes = $event->getRequest()->attributes;
-        $template = $attributes->get('_layout');
-        $route = $attributes->get('_route');
+        $response = $event->getResponse();
+        $request = $event->getRequest();
+        $template = $request->attributes->get('_layout');
+        $route = $request->attributes->get('_route');
 
         if ($event->getRequest()->getRequestFormat() === 'html') {
             if (!$template && isset($this->app['view.default_layout'])) {
@@ -56,9 +57,9 @@ class LayoutListener implements EventSubscriberInterface
                 call_user_func($filter, $this->app, $layout);
             }
 
-            $content = $event->getResponse()->getContent();
+            $content = $response->getContent();
             if ($content instanceof ViewInterface && $layout instanceof ViewInterface) {
-                $event->getResponse()->setContent($content->wrap($layout));
+                $response->setContent($content->wrap($layout));
             }
         }
     }
@@ -66,7 +67,7 @@ class LayoutListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            KernelEvents::RESPONSE => array(array('onKernelResponse', -64)),
+            KernelEvents::RESPONSE => array(array('onKernelResponse', -32)),
         );
     }
 }

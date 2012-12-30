@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\View;
 
-use Symfony\Component\HttpKernel\Log\LoggerInterface;
+use VGMdb\Component\View\Logging\ViewLoggerInterface;
 
 /**
  * Nestable view container with rendering callback.
@@ -17,12 +17,12 @@ class View extends AbstractView
     /**
      * Create a new view instance.
      *
-     * @param string          $template
-     * @param array           $data
-     * @param mixed           $callback
-     * @param LoggerInterface $logger
+     * @param string              $template
+     * @param array               $data
+     * @param mixed               $callback
+     * @param ViewLoggerInterface $logger
      */
-    public function __construct($template, array $data = array(), $callback = null, LoggerInterface $logger = null)
+    public function __construct($template, array $data = array(), $callback = null, ViewLoggerInterface $logger = null)
     {
         $this->template = $template;
 
@@ -40,7 +40,7 @@ class View extends AbstractView
     {
         $render = self::$engine;
 
-        $output = $render($this->with($data));
+        $output = $render($this);
 
         return $output;
     }
@@ -57,5 +57,13 @@ class View extends AbstractView
         }
 
         return $data;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getEngineType()
+    {
+        return 'Closure';
     }
 }

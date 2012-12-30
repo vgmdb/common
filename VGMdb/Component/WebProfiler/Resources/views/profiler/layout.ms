@@ -77,6 +77,9 @@
                 }
             }
         }
+        document.getElementById('menu-profiler').style.opacity = '1';
+        document.getElementById('collector-content').style.opacity = '1';
+        document.getElementById('resume').style.opacity = '1';
     }, 25);
 
 //]]></script>

@@ -18,9 +18,7 @@ abstract class AbstractController
      */
     public function __construct(Application $app = null)
     {
-        if ($app) {
-            $this->setContainer($app);
-        }
+        $this->setContainer($app);
     }
 
     /**
@@ -28,7 +26,7 @@ abstract class AbstractController
      *
      * @param Application $app
      */
-    public function setContainer(Application $app)
+    public function setContainer(Application $app = null)
     {
         $this->app = $app;
     }

@@ -4,6 +4,8 @@ namespace VGMdb\Provider;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
+use Guzzle\Log\MonologLogAdapter;
+use Guzzle\Plugin\Log\LogPlugin;
 use Guzzle\Service\Builder\ServiceBuilder;
 use Guzzle\Service\Client;
 
@@ -45,7 +47,19 @@ class GuzzleServiceProvider implements ServiceProviderInterface
 
         // Register a simple Guzzle Client object
         $app['guzzle.client'] = $app->share(function() use ($app) {
-            return new Client($app['guzzle.base_url']);
+            $guzzle = new Client($app['guzzle.base_url']);
+            $guzzle->setEventDispatcher($app['dispatcher']);
+            $guzzle->addSubscriber($app['guzzle.logger']);
+
+            return $guzzle;
+        });
+
+        $app['guzzle.logger'] = $app->share(function() use ($app) {
+            return new LogPlugin($app['guzzle.logger.adapter']);
+        });
+
+        $app['guzzle.logger.adapter'] = $app->share(function() use ($app) {
+            return new MonologLogAdapter($app['monolog']);
         });
     }
 

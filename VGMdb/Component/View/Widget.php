@@ -68,4 +68,12 @@ class Widget extends AbstractView
 
         return $data;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getEngineType()
+    {
+        return 'Widget';
+    }
 }

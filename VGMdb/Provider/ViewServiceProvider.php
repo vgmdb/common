@@ -6,6 +6,8 @@ use VGMdb\Component\View\ViewFactory;
 use VGMdb\Component\View\AbstractView;
 use VGMdb\Component\View\Widget;
 use VGMdb\Component\View\EventListener\LayoutListener;
+use VGMdb\Component\View\EventListener\RenderListener;
+use VGMdb\Component\View\Logging\ViewLogger;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
@@ -22,7 +24,7 @@ class ViewServiceProvider implements ServiceProviderInterface
             $view_factory = new ViewFactory();
 
             if ($app['debug']) {
-                $view_factory->setLogger($app['logger']);
+                $view_factory->setLogger($app['view.logger']);
             }
 
             $locale = $app['locale'] ? strtoupper($app['locale']) : strtoupper($app['locale_fallback']);
@@ -30,6 +32,10 @@ class ViewServiceProvider implements ServiceProviderInterface
             AbstractView::share('DEBUG', $app['debug']);
 
             return $view_factory;
+        });
+
+        $app['view.logger'] = $app->share(function () use ($app) {
+            return new ViewLogger($app['logger']);
         });
 
         $app['view'] = $app->protect(function ($template, array $data = array(), $type = null) use ($app) {
@@ -57,6 +63,7 @@ class ViewServiceProvider implements ServiceProviderInterface
             ViewFactory::addPrefix($prefix, $prefixDir);
         }
 
-        $app['dispatcher']->addSubscriber(new LayoutListener($app)); // -64
+        $app['dispatcher']->addSubscriber(new LayoutListener($app)); // -32
+        $app['dispatcher']->addSubscriber(new RenderListener($app)); // -64
     }
 }

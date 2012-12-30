@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\DBAL\Logging;
+namespace VGMdb\Component\Doctrine\DBAL\Logging;
 
 use Doctrine\DBAL\Logging\SQLLogger;
 

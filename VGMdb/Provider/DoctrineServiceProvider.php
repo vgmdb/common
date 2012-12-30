@@ -2,9 +2,10 @@
 
 namespace VGMdb\Provider;
 
-use VGMdb\Component\DBAL\Logging\SQLDebugLogger;
+use VGMdb\Component\Doctrine\DBAL\Logging\SQLDebugLogger;
 use Silex\Application;
 use Silex\Provider\DoctrineServiceProvider as BaseDoctrineServiceProvider;
+use Doctrine\DBAL\Logging\LoggerChain;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
@@ -63,6 +64,14 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
 
             return $em;
         });
+
+        $app['db.logger'] = $app->share(function () use ($app) {
+            return new LoggerChain();
+        });
+
+        $app['db.debug_logger'] = $app->share(function () use ($app) {
+            return new SQLDebugLogger($app['monolog']);
+        });
     }
 
     public function boot(Application $app)
@@ -70,7 +79,7 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
         // force Doctrine annotations to be loaded
         // should be removed when a better solution is found in Doctrine
         if (isset($app['orm.entity_dir'])) {
-            class_exists('Doctrine\ORM\Mapping\Driver\AnnotationDriver');
+            class_exists('Doctrine\\ORM\\Mapping\\Driver\\AnnotationDriver');
         }
 
         if (isset($app['orm.proxy_dir'])) {
@@ -89,18 +98,10 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
 
         if ($app['debug'] && isset($app['monolog'])) {
             //$logger = new SQLErrorLogger($app['db.logfile']);
-            $logger = new SQLDebugLogger($app['monolog']);
-            $app['db.config']->setSQLLogger($logger);
-            /*$app->finish(function ($request, $response) use ($app, $logger) {
-                if (isset($logger->queries) && count($logger->queries)) {
-                    foreach ($logger->queries as $query) {
-                        $app['monolog']->debug('[' . $query['executionMS'] . '] ' . $query['sql'], array(
-                            'params' => $query['params'],
-                            'types' => $query['types']
-                        ));
-                    }
-                }
-            });*/
+            $debugLogger = $app['db.debug_logger'];
+            $app['db.logger']->addLogger($debugLogger);
         }
+
+        $app['db.config']->setSQLLogger($app['db.logger']);
     }
 }

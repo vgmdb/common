@@ -59,6 +59,13 @@ interface ViewInterface
     public function getArrayCopy($globals = false);
 
     /**
+     * Returns the engine type.
+     *
+     * @return string
+     */
+    public function getEngineType();
+
+    /**
      * Renders the object output, magically.
      *
      * @return string

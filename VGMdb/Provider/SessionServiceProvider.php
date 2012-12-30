@@ -32,8 +32,8 @@ class SessionServiceProvider extends BaseSessionServiceProvider
     {
         parent::boot($app);
 
-        $app->before(function ($request) use ($app) {
-            $app['session']->start();
-        });
+        //$app->before(function ($request) use ($app) {
+        //    $app['session']->start();
+        //});
     }
 }

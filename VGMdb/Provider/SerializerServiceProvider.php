@@ -5,6 +5,7 @@ namespace VGMdb\Provider;
 use VGMdb\Component\Serializer\ArraySerializationVisitor;
 use VGMdb\Component\Serializer\Construction\DoctrineObjectConstructor;
 use VGMdb\Component\Serializer\EventDispatcher\Subscriber\ThriftSubscriber;
+use VGMdb\Component\Serializer\EventDispatcher\Subscriber\DataCollectorSubscriber;
 use VGMdb\Component\Serializer\Handler\ArrayCollectionHandler;
 use VGMdb\Component\Serializer\Handler\DateHandler;
 use VGMdb\Component\Serializer\Handler\ThriftHandler;
@@ -57,6 +58,10 @@ class SerializerServiceProvider implements ServiceProviderInterface
 
         $app['serializer.thrift_subscriber'] = $app->share(function () use ($app) {
             return new ThriftSubscriber();
+        });
+
+        $app['serializer.data_collector_subscriber'] = $app->share(function () use ($app) {
+            return new DataCollectorSubscriber();
         });
 
         // handlers
@@ -159,13 +164,14 @@ class SerializerServiceProvider implements ServiceProviderInterface
                 ->setDeserializationVisitor('json', $app['serializer.json_deserialization_visitor'])
                 ->setDeserializationVisitor('xml', $app['serializer.xml_deserialization_visitor'])
                 ->configureListeners(function ($eventDispatcher) use ($app) {
-                    $listeners = array(
+                    $subscribers = array(
                         'serializer.doctrine_proxy_subscriber',
-                        'serializer.thrift_subscriber'
+                        'serializer.thrift_subscriber',
+                        'serializer.data_collector_subscriber'
                     );
-                    foreach ($listeners as $listener) {
-                        if (isset($app[$listener])) {
-                            $eventDispatcher->addSubscriber($app[$listener]);
+                    foreach ($subscribers as $subscriber) {
+                        if (isset($app[$subscriber])) {
+                            $eventDispatcher->addSubscriber($app[$subscriber]);
                         }
                     }
                 })

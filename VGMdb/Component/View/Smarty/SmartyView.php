@@ -3,7 +3,7 @@
 namespace VGMdb\Component\View\Smarty;
 
 use VGMdb\Component\View\AbstractView;
-use Symfony\Component\HttpKernel\Log\LoggerInterface;
+use VGMdb\Component\View\Logging\ViewLoggerInterface;
 
 /**
  * View with Smarty rendering engine.
@@ -12,18 +12,17 @@ use Symfony\Component\HttpKernel\Log\LoggerInterface;
  */
 class SmartyView extends AbstractView
 {
-    public $template;
     static protected $engine;
 
     /**
      * Create a new Smarty view instance.
      *
-     * @param string          $template
-     * @param array           $data
-     * @param \Smarty         $smarty
-     * @param LoggerInterface $logger
+     * @param string              $template
+     * @param array               $data
+     * @param \Smarty             $smarty
+     * @param ViewLoggerInterface $logger
      */
-    public function __construct($template, array $data = array(), $smarty = null, LoggerInterface $logger = null)
+    public function __construct($template, array $data = array(), $smarty = null, ViewLoggerInterface $logger = null)
     {
         if (!is_string($template)) {
             throw new \InvalidArgumentException('Template name must be a string.');
@@ -62,5 +61,13 @@ class SmartyView extends AbstractView
         $data = array_merge(parent::getArrayCopy($globals), array('_template' => $this->template));
 
         return $data;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getEngineType()
+    {
+        return 'Smarty';
     }
 }
