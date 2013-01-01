@@ -5,6 +5,7 @@
   </div>
   <div id="navigation">
     {{{toolbar}}}
+    {{{searchbar}}}
   </div>
 </div>
 <script type="text/javascript">//<![CDATA[
@@ -25,7 +26,7 @@
             doSave = true;
         }
 
-        //document.getElementById('searchBar').style.display = displayState;
+        document.getElementById('searchBar').style.display = displayState;
         //document.getElementById('adminBar').style.display = displayState;
 
         if (displayState == 'block') {

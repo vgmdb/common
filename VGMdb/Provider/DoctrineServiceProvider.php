@@ -68,10 +68,6 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
         $app['db.logger'] = $app->share(function () use ($app) {
             return new LoggerChain();
         });
-
-        $app['db.debug_logger'] = $app->share(function () use ($app) {
-            return new SQLDebugLogger($app['monolog']);
-        });
     }
 
     public function boot(Application $app)
@@ -94,12 +90,6 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
                     }
                 }
             });
-        }
-
-        if ($app['debug'] && isset($app['monolog'])) {
-            //$logger = new SQLErrorLogger($app['db.logfile']);
-            $debugLogger = $app['db.debug_logger'];
-            $app['db.logger']->addLogger($debugLogger);
         }
 
         $app['db.config']->setSQLLogger($app['db.logger']);

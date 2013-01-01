@@ -1,6 +1,6 @@
 <?php
 
-namespace Guru\Component\Domain;
+namespace VGMdb\Component\Domain;
 
 /**
  * Interface definition for domain objects.

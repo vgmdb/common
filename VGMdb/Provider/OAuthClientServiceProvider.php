@@ -15,7 +15,7 @@ use Symfony\Component\Security\Http\EntryPoint\FormAuthenticationEntryPoint;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class OpauthServiceProvider implements ServiceProviderInterface
+class OAuthClientServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {

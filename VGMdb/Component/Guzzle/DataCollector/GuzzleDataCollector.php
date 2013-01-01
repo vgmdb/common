@@ -7,6 +7,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 
+/**
+ * Collects data from Guzzle requests.
+ *
+ * @author Gigablah <gigablah@vgmdb.net>
+ */
 class GuzzleDataCollector extends DataCollector
 {
     protected $logAdapter;

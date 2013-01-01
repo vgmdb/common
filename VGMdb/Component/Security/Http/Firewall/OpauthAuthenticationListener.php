@@ -3,7 +3,6 @@
 namespace VGMdb\Component\Security\Http\Firewall;
 
 use VGMdb\Component\User\Util\UserManipulator;
-use VGMdb\Component\Security\Core\Authentication\Provider\OpauthAuthenticationProvider;
 use VGMdb\Component\Security\Core\Authentication\Token\OpauthToken;
 use Symfony\Component\Form\Extension\Csrf\CsrfProvider\CsrfProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,7 +14,6 @@ use Symfony\Component\Security\Http\Session\SessionAuthenticationStrategyInterfa
 use Symfony\Component\Security\Http\HttpUtils;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Authentication\AuthenticationTrustResolverInterface;
-use Symfony\Component\Security\Core\Exception\AccountStatusException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
@@ -23,7 +21,7 @@ use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Authentication listener handling OAuth Authentication requests.
+ * Authentication listener handling OAuth Authentication responses.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */

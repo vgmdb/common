@@ -5,7 +5,7 @@ namespace VGMdb\Component\Security\Core\Authentication\Token;
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 
 /**
- * Token for OAuth Authentication requests.
+ * Token for OAuth Authentication responses.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */

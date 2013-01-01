@@ -45,7 +45,7 @@ class ExtensionListener implements EventSubscriberInterface
 
         if (in_array($format, $formats)) {
             $uri = implode('.', $segments) . $querystring;
-            $request->query->set('_format', $format);
+            $request->attributes->set('_format', $format);
             $request->setRequestUri($uri);
         }
     }

@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProvid
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 /**
- * Authentication provider handling OAuth Authentication requests.
+ * Authentication provider handling OAuth Authentication responses.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */

@@ -6,6 +6,7 @@ use VGMdb\Component\Security\Http\Authentication\AuthenticationSuccessHandler;
 use VGMdb\Component\Security\Http\Authentication\AuthenticationFailureHandler;
 use Silex\Application;
 use Silex\Provider\SecurityServiceProvider as BaseSecurityServiceProvider;
+use Symfony\Component\Security\Http\Firewall\ExceptionListener;
 use Symfony\Component\Security\Http\Firewall\LogoutListener;
 use Symfony\Component\Security\Http\Logout\SessionLogoutHandler;
 
@@ -56,6 +57,26 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
 
                 return $listener;
             });
+        });
+
+        /**
+         * Special handling for authentication exceptions thrown by the /api route.
+         * Normally the exception listener redirects to an entry point, however in this case
+         * we just return an exception to the client (usually 401 Unauthorized)
+         *
+         * @todo Create an AccessDeniedHandler that converts exceptions to appropriate responses
+         */
+        $app['security.exception_listener.api'] = $app->share(function () use ($app) {
+            return new ExceptionListener(
+                $app['security'],
+                $app['security.trust_resolver'],
+                $app['security.http_utils'],
+                'api',
+                null,
+                null, // errorPage
+                null, // AccessDeniedHandlerInterface
+                $app['logger']
+            );
         });
 
         $app['security.authentication.success_handler._proto'] = $app->protect(function ($name, $options) use ($app) {

@@ -2,6 +2,7 @@
 
 namespace VGMdb\Component\Doctrine\DataCollector;
 
+use Silex\Application;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\Types\Type;
@@ -16,14 +17,23 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class DoctrineDataCollector extends DataCollector
 {
+    private $app;
     private $registry;
     private $connections;
     private $managers;
     private $loggers = array();
 
-    public function __construct(ManagerRegistry $registry = null)
+    /*public function __construct(ManagerRegistry $registry = null)
     {
         $this->registry = $registry;
+        $this->connections = (null !== $registry) ? $registry->getConnectionNames() : null;
+        $this->managers = (null !== $registry) ? $registry->getManagerNames() : null;
+    }*/
+
+    public function __construct(Application $app)
+    {
+        $this->app = $app;
+        $this->registry = $registry = isset($app['db.registry']) ? $app['db.registry'] : null;
         $this->connections = (null !== $registry) ? $registry->getConnectionNames() : null;
         $this->managers = (null !== $registry) ? $registry->getManagerNames() : null;
     }
@@ -119,7 +129,14 @@ class DoctrineDataCollector extends DataCollector
                 }
                 if ($type instanceof Type) {
                     $query['types'][$j] = $type->getBindingType();
-                    $param = $type->convertToDatabaseValue($param, $this->registry->getConnection($connectionName)->getDatabasePlatform());
+                    $param = get_class($type);
+                    if (null !== $this->registry) {
+                        $platform = $this->registry->getConnection($connectionName)->getDatabasePlatform();
+                    } else {
+                        $dbs = $this->app['dbs'];
+                        $platform = $dbs[$connectionName]->getDatabasePlatform();
+                    }
+                    $param = $type->convertToDatabaseValue($param, $platform);
                 }
             }
 

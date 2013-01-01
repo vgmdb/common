@@ -1,6 +1,6 @@
 <?php
 
-namespace Guru\Component\Domain;
+namespace VGMdb\Component\Domain;
 
 use Aura\Marshal\Manager as Marshal;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
