@@ -95,7 +95,6 @@ EOF
             </header>
             <div id="container" class="container">
                 <p>$content</p>
-                <p><iframe class="center" width="240" height="180" src="http://www.youtube-nocookie.com/embed/OGp9P6QvMjY?autoplay=1" frameborder="0"></iframe></p>
             </div>
 EOF;
     }
