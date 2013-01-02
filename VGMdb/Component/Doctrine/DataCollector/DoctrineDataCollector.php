@@ -129,7 +129,6 @@ class DoctrineDataCollector extends DataCollector
                 }
                 if ($type instanceof Type) {
                     $query['types'][$j] = $type->getBindingType();
-                    $param = get_class($type);
                     if (null !== $this->registry) {
                         $platform = $this->registry->getConnection($connectionName)->getDatabasePlatform();
                     } else {

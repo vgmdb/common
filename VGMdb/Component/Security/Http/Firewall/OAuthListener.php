@@ -90,11 +90,10 @@ class OAuthListener implements ListenerInterface
 
             if (null === $returnValue) {
                 if (null !== $this->logger) {
-                    $this->logger->info('Authentication request failed.');
+                    $this->logger->info('Authentication request failed: Bad request');
                 }
 
                 return;
-                //throw new AuthenticationException('Your request could not be authorized.', null, 401);
             }
 
             if ($returnValue instanceof TokenInterface) {
@@ -177,9 +176,9 @@ class OAuthListener implements ListenerInterface
         if (!$request->headers->has('authorization')) {
             if (function_exists('apache_request_headers')) {
                 $headers = apache_request_headers();
-                $headers = array_combine(array_map('ucwords', array_keys($headers)), array_values($headers));
-                if (isset($headers['Authorization'])) {
-                    $authorizationHeader = $headers['Authorization'];
+                $headers = array_combine(array_map('strtolower', array_keys($headers)), array_values($headers));
+                if (isset($headers['authorization'])) {
+                    $authorizationHeader = $headers['authorization'];
                 }
             }
         } else {
