@@ -214,7 +214,7 @@ class ProfilerServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
-        if ($app['env'] === 'production') {
+        if (!$this->enabled) {
             return;
         }
 

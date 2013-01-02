@@ -112,7 +112,7 @@ class DebuggerServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
-        if ($app['env'] === 'production') {
+        if (!$this->enabled) {
             return;
         }
 
