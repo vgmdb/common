@@ -2,7 +2,6 @@
 
 namespace VGMdb\Component\Security\Http\Firewall;
 
-use VGMdb\Component\Security\Core\Authentication\Provider\OAuthAuthenticationProvider;
 use VGMdb\Component\Security\Core\Authentication\Token\OAuthToken;
 use VGMdb\Component\Guzzle\Plugin\Signature\SignatureInterface;
 use VGMdb\Component\HttpFoundation\JsonResponse;
@@ -24,14 +23,11 @@ use OAuth2\OAuth2ServerException;
 use Guzzle\Http\Message\Request as GuzzleRequest;
 
 /**
- * Authentication listener handling OAuth Authentication requests.
+ * Stateless authentication listener handling HMAC signed requests.
  *
- * We do not extend AbstractAuthenticationListener because this method is not session based.
- *
- * @author Arnaud Le Blanc <arnaud.lb@gmail.com>
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class OAuthListener implements ListenerInterface
+class HmacAuthenticationListener implements ListenerInterface
 {
     private $options;
     private $logger;
@@ -56,8 +52,9 @@ class OAuthListener implements ListenerInterface
      * @param HttpUtils                              $httpUtils             An HttpUtilsInterface instance
      * @param string                                 $providerKey
      * @param OAuth2                                 $oauthService          OAuth2 Server
-     * @param array                                  $options               An array of options for the processing of a
-     *                                                                      successful, or failed authentication attempt
+     * @param array                                  $options               An array of options
+     * @param SignatureInterface                     $signatureService
+     * @param ClientManagerInterface                 $clientManager
      * @param LoggerInterface                        $logger                A LoggerInterface instance
      * @param EventDispatcherInterface               $dispatcher            An EventDispatcherInterface instance
      *
@@ -116,25 +113,12 @@ class OAuthListener implements ListenerInterface
 
     protected function attemptAuthentication(Request $request)
     {
-        $tokenType = 'mac';
         $oauthToken = null;
 
-        /**
-         * Step 1: Check for MAC-type token with custom headers
-         *
-         * @todo: move this to a more suitable class
-         */
         $returnValue = $this->getMacToken($request);
+
         if (is_array($returnValue)) {
             list($oauthToken, $attributes, $dateHeader) = $returnValue;
-        }
-
-        /**
-         * Step 2: Check for Bearer-type token
-         */
-        if (null === $oauthToken) {
-            $oauthToken = $this->oauthService->getBearerToken($request, true);
-            $tokenType = 'bearer';
         }
 
         if (null === $oauthToken) {
@@ -146,8 +130,7 @@ class OAuthListener implements ListenerInterface
 
         $returnValue = $this->authenticationManager->authenticate($token);
 
-        // Step 3: Valid credentials found, now verify HMAC if applicable
-        if ($returnValue instanceof TokenInterface && $tokenType === 'mac') {
+        if ($returnValue instanceof TokenInterface) {
             if (!$this->verifySignature($request, $attributes, $dateHeader)) {
                 return null;
             }
@@ -208,13 +191,7 @@ class OAuthListener implements ListenerInterface
             $headers[$header] = $request->headers->get($header);
         }
 
-        $params = $request->query->all();
-        foreach ($params as $key => $value) {
-            $params[$key] = $key . '=' . $value;
-        }
-        $queryString = implode('&', $params);
-
-        $guzzleRequest = new GuzzleRequest($request->getMethod(), $request->getRequestUri() . '?' . $queryString, $headers);
+        $guzzleRequest = new GuzzleRequest($request->getMethod(), $request->getRequestUri(), $headers);
 
         $credentials = explode('/', $attributes[1]);
         $publicId = array_shift($credentials);

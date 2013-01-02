@@ -9,7 +9,8 @@ use VGMdb\Component\OAuthServer\Model\Entity\ClientManager;
 use VGMdb\Component\OAuthServer\Model\Entity\AccessTokenManager;
 use VGMdb\Component\OAuthServer\Model\Entity\RefreshTokenManager;
 use VGMdb\Component\OAuthServer\Model\Entity\AuthCodeManager;
-use VGMdb\Component\Security\Http\Firewall\OAuthListener;
+use VGMdb\Component\Security\Http\Firewall\HmacAuthenticationListener;
+use VGMdb\Component\Security\Http\Firewall\OAuthAuthenticationListener;
 use VGMdb\Component\Security\Core\Authentication\Provider\OAuthAuthenticationProvider;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -90,6 +91,7 @@ class OAuthServerServiceProvider implements ServiceProviderInterface
             if (!isset($app['security.authentication_provider.'.$name.'.oauth'])) {
                 $app['security.authentication_provider.'.$name.'.oauth'] = $app['security.authentication_provider.oauth._proto']($name);
             }
+
             return array(
                 'security.authentication_provider.'.$name.'.oauth',
                 'security.authentication_listener.'.$name.'.oauth',
@@ -98,9 +100,43 @@ class OAuthServerServiceProvider implements ServiceProviderInterface
             );
         });
 
+        // 2-legged oauth variant
+        $app['security.authentication_listener.factory.hmac'] = $app->protect(function($name, $options) use ($app) {
+            if (!isset($app['security.authentication_listener.'.$name.'.hmac'])) {
+                $app['security.authentication_listener.'.$name.'.hmac'] = $app['security.authentication_listener.hmac._proto']($name, $options);
+            }
+
+            // note: hmac uses the oauth provider
+            if (!isset($app['security.authentication_provider.'.$name.'.hmac'])) {
+                $app['security.authentication_provider.'.$name.'.hmac'] = $app['security.authentication_provider.oauth._proto']($name);
+            }
+
+            return array(
+                'security.authentication_provider.'.$name.'.hmac',
+                'security.authentication_listener.'.$name.'.hmac',
+                null,
+                'pre_auth'
+            );
+        });
+
         $app['security.authentication_listener.oauth._proto'] = $app->protect(function ($providerKey, $options) use ($app) {
             return $app->share(function () use ($app, $providerKey, $options) {
-                return new OAuthListener(
+                return new OAuthAuthenticationListener(
+                    $app['security'],
+                    $app['security.authentication_manager'],
+                    $app['security.http_utils'],
+                    $providerKey,
+                    $app['oauth_server'],
+                    $options,
+                    $app['logger'],
+                    $app['dispatcher']
+                );
+            });
+        });
+
+        $app['security.authentication_listener.hmac._proto'] = $app->protect(function ($providerKey, $options) use ($app) {
+            return $app->share(function () use ($app, $providerKey, $options) {
+                return new HmacAuthenticationListener(
                     $app['security'],
                     $app['security.authentication_manager'],
                     $app['security.http_utils'],

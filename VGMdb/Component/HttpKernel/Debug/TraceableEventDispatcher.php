@@ -3,6 +3,7 @@
 namespace VGMdb\Component\HttpKernel\Debug;
 
 use Symfony\Component\Stopwatch\Stopwatch;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Profiler\Profile;
 use Symfony\Component\HttpKernel\Profiler\Profiler;
@@ -365,18 +366,18 @@ class TraceableEventDispatcher implements EventDispatcherInterface, TraceableEve
         }
 
         switch ($eventName) {
-            case 'kernel.request':
+            case KernelEvents::REQUEST:
                 $this->stopwatch->openSection();
                 break;
-            case 'kernel.view':
-            case 'kernel.response':
+            case KernelEvents::VIEW:
+            case KernelEvents::RESPONSE:
                 // stop only if a controller has been executed
                 try {
                     $this->stopwatch->stop('controller');
                 } catch (\LogicException $e) {
                 }
                 break;
-            case 'kernel.terminate':
+            case KernelEvents::TERMINATE:
                 $token = $event->getResponse()->headers->get('X-Debug-Token');
                 $this->stopwatch->openSection($token);
                 break;
@@ -386,10 +387,10 @@ class TraceableEventDispatcher implements EventDispatcherInterface, TraceableEve
     private function postDispatch($eventName, Event $event)
     {
         switch ($eventName) {
-            case 'kernel.controller':
+            case KernelEvents::CONTROLLER:
                 $this->stopwatch->start('controller', 'section');
                 break;
-            case 'kernel.response':
+            case KernelEvents::RESPONSE:
                 $token = $event->getResponse()->headers->get('X-Debug-Token');
                 $this->stopwatch->stopSection($token);
                 if (HttpKernelInterface::MASTER_REQUEST === $event->getRequestType()) {
@@ -398,7 +399,7 @@ class TraceableEventDispatcher implements EventDispatcherInterface, TraceableEve
                     $this->updateProfiles($token, true);
                 }
                 break;
-            case 'kernel.terminate':
+            case KernelEvents::TERMINATE:
                 $token = $event->getResponse()->headers->get('X-Debug-Token');
                 $this->stopwatch->stopSection($token);
                 // The children profiles have been updated by the previous 'kernel.response'
