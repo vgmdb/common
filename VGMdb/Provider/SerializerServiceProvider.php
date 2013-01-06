@@ -6,8 +6,9 @@ use VGMdb\Component\Serializer\ArraySerializationVisitor;
 use VGMdb\Component\Serializer\Construction\DoctrineObjectConstructor;
 use VGMdb\Component\Serializer\EventDispatcher\Subscriber\ThriftSubscriber;
 use VGMdb\Component\Serializer\EventDispatcher\Subscriber\DataCollectorSubscriber;
-use VGMdb\Component\Serializer\Handler\ArrayCollectionHandler;
 use VGMdb\Component\Serializer\Handler\DateHandler;
+use VGMdb\Component\Serializer\Handler\PhpCollectionHandler;
+use VGMdb\Component\Serializer\Handler\ArrayCollectionHandler;
 use VGMdb\Component\Serializer\Handler\ThriftHandler;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -20,9 +21,10 @@ use JMS\Serializer\YamlSerializationVisitor;
 //use JMS\Serializer\Construction\DoctrineObjectConstructor; // overridden to avoid ManagerRegistry
 use JMS\Serializer\Construction\UnserializeObjectConstructor;
 use JMS\Serializer\EventDispatcher\Subscriber\DoctrineProxySubscriber;
+//use JMS\Serializer\Handler\DateHandler; // overridden to add array format
+//use JMS\Serializer\Handler\PhpCollectionHandler; // overridden to add array format
 //use JMS\Serializer\Handler\ArrayCollectionHandler; // overridden to add array format
 use JMS\Serializer\Handler\ConstraintViolationHandler;
-//use JMS\Serializer\Handler\DateHandler; // overridden to add array format
 use JMS\Serializer\Handler\FormErrorHandler;
 use JMS\Serializer\Naming\CamelCaseNamingStrategy;
 use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
@@ -70,6 +72,10 @@ class SerializerServiceProvider implements ServiceProviderInterface
             $defaultTimezone = $app['serializer.datetime_handler.default_timezone'];
 
             return new DateHandler($format, $defaultTimezone);
+        });
+
+        $app['serializer.php_collection_handler'] = $app->share(function () use ($app) {
+            return new PhpCollectionHandler();
         });
 
         $app['serializer.array_collection_handler'] = $app->share(function () use ($app) {
@@ -178,6 +184,7 @@ class SerializerServiceProvider implements ServiceProviderInterface
                 ->configureHandlers(function ($handlerRegistry) use ($app) {
                     $handlers = array(
                         'serializer.datetime_handler',
+                        'serializer.php_collection_handler',
                         'serializer.array_collection_handler',
                         'serializer.form_error_handler',
                         'serializer.constraint_violation_handler',
