@@ -26,7 +26,7 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
     {
         parent::register($app);
 
-        $app['entity_manager'] = $app->share(function () use ($app) {
+        $app['entity_manager'] = $app->share(function ($app) {
             if (!isset($app['orm.cache_dir'])) {
                 throw new \RuntimeException('The orm.cache_dir path is not set.');
             }
@@ -65,7 +65,7 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
             return $em;
         });
 
-        $app['db.logger'] = $app->share(function () use ($app) {
+        $app['db.logger'] = $app->share(function ($app) {
             return new LoggerChain();
         });
     }

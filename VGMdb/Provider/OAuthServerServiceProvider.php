@@ -38,11 +38,11 @@ class OAuthServerServiceProvider implements ServiceProviderInterface
         $app['oauth_server.refresh_token.class'] = '';
         $app['oauth_server.auth_code.class'] = '';
 
-        $app['oauth_server'] = $app->share(function () use ($app) {
+        $app['oauth_server'] = $app->share(function ($app) {
             return new OAuth2($app['oauth_server.storage'], $app['oauth_server.config']);
         });
 
-        $app['oauth_server.storage'] = $app->share(function () use ($app) {
+        $app['oauth_server.storage'] = $app->share(function ($app) {
             return new OAuthStorage(
                 $app['oauth_server.client_manager'],
                 $app['oauth_server.access_token_manager'],
@@ -53,19 +53,19 @@ class OAuthServerServiceProvider implements ServiceProviderInterface
             );
         });
 
-        $app['oauth_server.client_manager'] = $app->share(function () use ($app) {
+        $app['oauth_server.client_manager'] = $app->share(function ($app) {
             return new ClientManager($app['entity_manager'], $app['oauth_server.client.class']);
         });
 
-        $app['oauth_server.access_token_manager'] = $app->share(function () use ($app) {
+        $app['oauth_server.access_token_manager'] = $app->share(function ($app) {
             return new AccessTokenManager($app['entity_manager'], $app['oauth_server.access_token.class']);
         });
 
-        $app['oauth_server.refresh_token_manager'] = $app->share(function () use ($app) {
+        $app['oauth_server.refresh_token_manager'] = $app->share(function ($app) {
             return new RefreshTokenManager($app['entity_manager'], $app['oauth_server.refresh_token.class']);
         });
 
-        $app['oauth_server.auth_code_manager'] = $app->share(function () use ($app) {
+        $app['oauth_server.auth_code_manager'] = $app->share(function ($app) {
             return new AuthCodeManager($app['entity_manager'], $app['oauth_server.auth_code.class']);
         });
 

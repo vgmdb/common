@@ -25,11 +25,11 @@ class PropelServiceProvider implements ServiceProviderInterface
             return \Propel::getConnection($name, $mode);
         });
 
-        $app['propel.logger'] = $app->share(function () use ($app) {
+        $app['propel.logger'] = $app->share(function ($app) {
             return new PropelLogger($app['logger']);
         });
 
-        $app['propel.configuration'] = $app->share(function () use ($app) {
+        $app['propel.configuration'] = $app->share(function ($app) {
             \Propel::setConfiguration($app['propel.options']);
             $config = \Propel::getConfiguration(\PropelConfiguration::TYPE_OBJECT);
 

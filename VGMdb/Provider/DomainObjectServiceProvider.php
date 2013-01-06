@@ -17,13 +17,13 @@ class DomainObjectServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['object_manager'] = $app->share(function () use ($app) {
+        $app['object_manager'] = $app->share(function ($app) {
             // the object manager is a factory that gives you domain objects
             // it contains a data object marshal that aggregates multiple entities from different sources
             // a dispatcher propagates events to listeners
         });
 
-        $app['object_marshal'] = $app->share(function () use ($app) {
+        $app['object_marshal'] = $app->share(function ($app) {
             $manager = new Manager(new TypeBuilder, new RelationBuilder, array(
                 'users' => array(
                     'identity_field' => 'id',

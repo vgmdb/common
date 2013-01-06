@@ -28,14 +28,14 @@ class DebuggerServiceProvider implements ServiceProviderInterface
         // stopwatch
         $app['debug.stopwatch.class'] = 'Symfony\\Component\\Stopwatch\\Stopwatch';
 
-        $app['debug.stopwatch'] = $app->share(function () use ($app) {
+        $app['debug.stopwatch'] = $app->share(function ($app) {
             return new $app['debug.stopwatch.class']();
         });
 
         // deprecation listener
         $app['debug.deprecation_logger_listener.class'] = 'Symfony\\Component\\HttpKernel\\EventListener\\DeprecationLoggerListener';
 
-        $app['debug.deprecation_logger_listener'] = $app->share(function () use ($app) {
+        $app['debug.deprecation_logger_listener'] = $app->share(function ($app) {
             return new $app['debug.deprecation_logger_listener.class']($app['logger']);
         });
 
@@ -58,14 +58,14 @@ class DebuggerServiceProvider implements ServiceProviderInterface
         // replace view logger with traceable implementation
         $app['debug.view_logger.class'] = 'VGMdb\\Component\\View\\Logging\\ViewLogger';
 
-        $app['view.logger'] = $app->share(function () use ($app) {
+        $app['view.logger'] = $app->share(function ($app) {
             return new $app['debug.view_logger.class']($app['logger'], $app['debug.stopwatch']);
         });
 
         // replace Doctrine logger with traceable implementation
         $app['debug.db_logger.class'] = 'VGMdb\\Component\\Doctrine\\DBAL\\Logging\\SQLDebugLogger';
 
-        $app['db.debug_logger'] = $app->share(function () use ($app) {
+        $app['db.debug_logger'] = $app->share(function ($app) {
             return new $app['debug.db_logger.class']($app['logger'], $app['debug.stopwatch']);
         });
 
@@ -78,7 +78,7 @@ class DebuggerServiceProvider implements ServiceProviderInterface
         // replace Propel logger with traceable implementation
         $app['debug.propel_logger.class'] = 'VGMdb\\Component\\Propel\\Logger\\PropelLogger';
 
-        $app['propel.logger'] = $app->share(function () use ($app) {
+        $app['propel.logger'] = $app->share(function ($app) {
             return new $app['debug.propel_logger.class']($app['logger'], $app['debug.stopwatch']);
         });
 

@@ -25,7 +25,7 @@ class ThriftServiceProvider implements ServiceProviderInterface
         $app['thrift.uri']  = null;
         $app['thrift.gen_dirs'] = array();
 
-        $app['thrift.transport'] = $app->share(function () use ($app) {
+        $app['thrift.transport'] = $app->share(function ($app) {
             if (!isset($app['thrift.uri']) || !strlen($app['thrift.uri'])) {
                 $socket = new TSocket($app['thrift.host'], $app['thrift.port']);
             } else {
@@ -36,7 +36,7 @@ class ThriftServiceProvider implements ServiceProviderInterface
             return $transport;
         });
 
-        $app['thrift.protocol'] = $app->share(function () use ($app) {
+        $app['thrift.protocol'] = $app->share(function ($app) {
             return new TBinaryProtocol($app['thrift.transport']);
         });
 

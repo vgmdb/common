@@ -19,7 +19,7 @@ class OAuthClientServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['opauth'] = $app->share(function () use ($app) {
+        $app['opauth'] = $app->share(function ($app) {
             $config = $app['opauth.config'];
             $config['path'] = $app['opauth.path'] . '/';
             return new \Opauth($config, false);

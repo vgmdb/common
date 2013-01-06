@@ -54,43 +54,43 @@ class ProfilerServiceProvider implements ServiceProviderInterface
         $app['data_collector.guzzle.class'] = 'VGMdb\\Component\\Guzzle\\DataCollector\\GuzzleDataCollector';
 
         // data collectors. remember to guard against nonexistent providers by returning -1
-        $app['data_collector.config'] = $app->share(function () use ($app) {
+        $app['data_collector.config'] = $app->share(function ($app) {
             return new $app['data_collector.config.class']($app);
         });
-        $app['data_collector.request'] = $app->share(function () use ($app) {
+        $app['data_collector.request'] = $app->share(function ($app) {
             return new $app['data_collector.request.class']();
         });
-        $app['data_collector.exception'] = $app->share(function () use ($app) {
+        $app['data_collector.exception'] = $app->share(function ($app) {
             return new $app['data_collector.exception.class']();
         });
-        $app['data_collector.events'] = $app->share(function () use ($app) {
+        $app['data_collector.events'] = $app->share(function ($app) {
             return new $app['data_collector.events.class']($app['dispatcher']);
         });
-        $app['data_collector.logger'] = $app->share(function () use ($app) {
+        $app['data_collector.logger'] = $app->share(function ($app) {
             if (!isset($app['logger'])) {
                 return -1;
             }
             return new $app['data_collector.logger.class']($app['logger']);
         });
-        $app['data_collector.time'] = $app->share(function () use ($app) {
+        $app['data_collector.time'] = $app->share(function ($app) {
             return new $app['data_collector.time.class']($app);
         });
-        $app['data_collector.memory'] = $app->share(function () use ($app) {
+        $app['data_collector.memory'] = $app->share(function ($app) {
             return new $app['data_collector.memory.class']();
         });
-        $app['data_collector.router'] = $app->share(function () use ($app) {
+        $app['data_collector.router'] = $app->share(function ($app) {
             return new $app['data_collector.router.class']();
         });
-        $app['data_collector.security'] = $app->share(function () use ($app) {
+        $app['data_collector.security'] = $app->share(function ($app) {
             return new $app['data_collector.security.class']($app['security']);
         });
-        $app['data_collector.container'] = $app->share(function () use ($app) {
+        $app['data_collector.container'] = $app->share(function ($app) {
             return new $app['data_collector.container.class']($app);
         });
-        $app['data_collector.view'] = $app->share(function () use ($app) {
+        $app['data_collector.view'] = $app->share(function ($app) {
             return new $app['data_collector.view.class']($app['view.logger']);
         });
-        $app['data_collector.db'] = $app->share(function () use ($app) {
+        $app['data_collector.db'] = $app->share(function ($app) {
             if (!isset($app['db'])) {
                 return -1;
             }
@@ -99,13 +99,13 @@ class ProfilerServiceProvider implements ServiceProviderInterface
 
             return $collector;
         });
-        $app['data_collector.propel'] = $app->share(function () use ($app) {
+        $app['data_collector.propel'] = $app->share(function ($app) {
             if (!isset($app['propel.configuration'])) {
                 return -1;
             }
             return new $app['data_collector.propel.class']($app['propel.logger'], $app['propel.configuration']);
         });
-        $app['data_collector.guzzle'] = $app->share(function () use ($app) {
+        $app['data_collector.guzzle'] = $app->share(function ($app) {
             if (!isset($app['guzzle'])) {
                 return -1;
             }
@@ -130,7 +130,7 @@ class ProfilerServiceProvider implements ServiceProviderInterface
             'guzzle'    => array($priorities['guzzle'],    'collector/guzzle'),
         );
 
-        $app['profiler'] = $app->share(function () use ($app) {
+        $app['profiler'] = $app->share(function ($app) {
             $profiler = new $app['profiler.class']($app['profiler.storage'], $app['logger']);
 
             $collectors = new \SplPriorityQueue();
@@ -163,7 +163,7 @@ class ProfilerServiceProvider implements ServiceProviderInterface
             return $profiler;
         });
 
-        $app['profiler.storage'] = $app->share(function () use ($app) {
+        $app['profiler.storage'] = $app->share(function ($app) {
             $supported = array(
                 'sqlite'    => 'Symfony\\Component\\HttpKernel\\Profiler\\SqliteProfilerStorage',
                 'mysql'     => 'Symfony\\Component\\HttpKernel\\Profiler\\MysqlProfilerStorage',
@@ -186,7 +186,7 @@ class ProfilerServiceProvider implements ServiceProviderInterface
             );
         });
 
-        $app['profiler_listener'] = $app->share(function () use ($app) {
+        $app['profiler_listener'] = $app->share(function ($app) {
             return new $app['profiler_listener.class'](
                 $app['profiler'],
                 $app['profiler.request_matcher'],
@@ -195,7 +195,7 @@ class ProfilerServiceProvider implements ServiceProviderInterface
             );
         });
 
-        $app['profiler.request_matcher'] = $app->share(function () use ($app) {
+        $app['profiler.request_matcher'] = $app->share(function ($app) {
             if (!$app['profiler.request_matcher.path'] &&
                 !$app['profiler.request_matcher.host'] &&
                 !$app['profiler.request_matcher.methods'] &&

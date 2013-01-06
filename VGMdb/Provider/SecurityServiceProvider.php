@@ -66,7 +66,7 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
          *
          * @todo Create an AccessDeniedHandler that converts exceptions to appropriate responses
          */
-        $app['security.exception_listener.api'] = $app->share(function () use ($app) {
+        $app['security.exception_listener.api'] = $app->share(function ($app) {
             return new ExceptionListener(
                 $app['security'],
                 $app['security.trust_resolver'],

@@ -16,7 +16,7 @@ class MustacheServiceProvider implements ServiceProviderInterface
     {
         $app['mustache.loader_class'] = 'VGMdb\\Component\\View\\Mustache\\Loader\\PrefixLoader';
 
-        $app['mustache'] = $app->share(function () use ($app) {
+        $app['mustache'] = $app->share(function ($app) {
             $loader = new $app['mustache.loader_class'](
                 $app['mustache.template_dir'],
                 array('extension' => $app['mustache.extension'])

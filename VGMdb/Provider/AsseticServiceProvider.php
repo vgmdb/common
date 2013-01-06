@@ -33,7 +33,7 @@ class AsseticServiceProvider implements ServiceProviderInterface
         /**
          * Asset Factory configuration happens here
          */
-        $app['assetic'] = $app->share(function () use ($app) {
+        $app['assetic'] = $app->share(function ($app) {
             // initializing lazy asset manager
             if (isset($app['assetic.formulae']) &&
                !is_array($app['assetic.formulae']) &&
@@ -60,7 +60,7 @@ class AsseticServiceProvider implements ServiceProviderInterface
         /**
          * Asset writer, writes to the 'assetic.web_path' folder
          */
-        $app['assetic.asset_writer'] = $app->share(function () use ($app) {
+        $app['assetic.asset_writer'] = $app->share(function ($app) {
             return new AssetWriter($app['assetic.web_path']);
         });
 
@@ -70,7 +70,7 @@ class AsseticServiceProvider implements ServiceProviderInterface
          * protected callback $app->protect(function($am) { }) and add
          * your assets inside the function to asset manager ($am->set())
          */
-        $app['assetic.asset_manager'] = $app->share(function () use ($app) {
+        $app['assetic.asset_manager'] = $app->share(function ($app) {
             $manager = new AssetManager();
 
             call_user_func_array($app['assetic.assets'], array($manager, $app['assetic.filter_manager']));
@@ -82,7 +82,7 @@ class AsseticServiceProvider implements ServiceProviderInterface
          * Filter manager, can be accessed via $app['assetic.filter_manager']
          * and can be configured via $app['assetic.filters']
          */
-        $app['assetic.filter_manager'] = $app->share(function () use ($app) {
+        $app['assetic.filter_manager'] = $app->share(function ($app) {
             $filters = $app['assetic.filters'];
             $filter_manager = new FilterManager();
 
@@ -108,7 +108,7 @@ class AsseticServiceProvider implements ServiceProviderInterface
         /**
          * Lazy asset manager for loading assets from $app['assetic.formulae']
          */
-        $app['assetic.lazy_asset_manager'] = $app->share(function () use ($app) {
+        $app['assetic.lazy_asset_manager'] = $app->share(function ($app) {
             $formulae = isset($app['assetic.formulae']) ? $app['assetic.formulae'] : array();
             $options  = $app['assetic.options'];
             $lazy     = new LazyAssetmanager($app['assetic.factory']);
@@ -133,7 +133,7 @@ class AsseticServiceProvider implements ServiceProviderInterface
             return $lazy;
         });
 
-        $app['assetic.dumper_listener'] = $app->share(function () use ($app) {
+        $app['assetic.dumper_listener'] = $app->share(function ($app) {
             return new AsseticDumperListener($app);
         });
     }

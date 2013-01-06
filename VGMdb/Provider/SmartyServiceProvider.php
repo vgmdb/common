@@ -14,7 +14,7 @@ class SmartyServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['smarty'] = $app->share(function () use ($app) {
+        $app['smarty'] = $app->share(function ($app) {
             $smarty = new \Smarty();
             $smarty->setTemplateDir($app['smarty.template_dir']);
             $smarty->setCompileDir($app['smarty.compile_dir']);

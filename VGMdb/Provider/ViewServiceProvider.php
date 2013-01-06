@@ -20,7 +20,7 @@ class ViewServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['view_factory'] = $app->share(function () use ($app) {
+        $app['view_factory'] = $app->share(function ($app) {
             $view_factory = new ViewFactory();
 
             if ($app['debug']) {
@@ -34,7 +34,7 @@ class ViewServiceProvider implements ServiceProviderInterface
             return $view_factory;
         });
 
-        $app['view.logger'] = $app->share(function () use ($app) {
+        $app['view.logger'] = $app->share(function ($app) {
             return new ViewLogger($app['logger']);
         });
 

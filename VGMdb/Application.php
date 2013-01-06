@@ -52,7 +52,7 @@ class Application extends BaseApplication
         $app = $this;
 
         // replace the default exception handler
-        $this['exception_handler'] = $this->share(function () use ($app) {
+        $this['exception_handler'] = $this->share(function ($app) {
             return new ExceptionListener($app['debug']);
         });
 
@@ -64,12 +64,12 @@ class Application extends BaseApplication
         };
 
         // replace the controller resolver
-        $this['resolver'] = $this->share(function () use ($app) {
+        $this['resolver'] = $this->share(function ($app) {
             return new ControllerResolver($app, $app['logger']);
         });
 
         // replace the redirectable url matcher
-        $this['url_matcher'] = $this->share(function () use ($app) {
+        $this['url_matcher'] = $this->share(function ($app) {
             return new RedirectableUrlMatcher($app['routes'], $app['request_context']);
         });
     }

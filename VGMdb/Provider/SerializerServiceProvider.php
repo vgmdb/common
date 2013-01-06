@@ -54,94 +54,94 @@ class SerializerServiceProvider implements ServiceProviderInterface
         $app['serializer.version'] = '1.0';
 
         // listeners
-        $app['serializer.doctrine_proxy_subscriber'] = $app->share(function () use ($app) {
+        $app['serializer.doctrine_proxy_subscriber'] = $app->share(function ($app) {
             return new DoctrineProxySubscriber();
         });
 
-        $app['serializer.thrift_subscriber'] = $app->share(function () use ($app) {
+        $app['serializer.thrift_subscriber'] = $app->share(function ($app) {
             return new ThriftSubscriber();
         });
 
-        $app['serializer.data_collector_subscriber'] = $app->share(function () use ($app) {
+        $app['serializer.data_collector_subscriber'] = $app->share(function ($app) {
             return new DataCollectorSubscriber();
         });
 
         // handlers
-        $app['serializer.datetime_handler'] = $app->share(function () use ($app) {
+        $app['serializer.datetime_handler'] = $app->share(function ($app) {
             $format = $app['serializer.datetime_handler.default_format'];
             $defaultTimezone = $app['serializer.datetime_handler.default_timezone'];
 
             return new DateHandler($format, $defaultTimezone);
         });
 
-        $app['serializer.php_collection_handler'] = $app->share(function () use ($app) {
+        $app['serializer.php_collection_handler'] = $app->share(function ($app) {
             return new PhpCollectionHandler();
         });
 
-        $app['serializer.array_collection_handler'] = $app->share(function () use ($app) {
+        $app['serializer.array_collection_handler'] = $app->share(function ($app) {
             return new ArrayCollectionHandler();
         });
 
         if (isset($app['translator'])) {
-            $app['serializer.form_error_handler'] = $app->share(function () use ($app) {
+            $app['serializer.form_error_handler'] = $app->share(function ($app) {
                 return new FormErrorHandler($app['translator']);
             });
         }
 
         if (class_exists('Symfony\\Component\\Validator\\ConstraintViolation')) {
-            $app['serializer.constraint_violation_handler'] = $app->share(function () use ($app) {
+            $app['serializer.constraint_violation_handler'] = $app->share(function ($app) {
                 return new ConstraintViolationHandler();
             });
         }
 
         if (class_exists('Thrift\\Base\\TBase')) {
-            $app['serializer.thrift_handler'] = $app->share(function () use ($app) {
+            $app['serializer.thrift_handler'] = $app->share(function ($app) {
                 return new ThriftHandler();
             });
         }
 
         // naming strategies
-        $app['serializer.camel_case_naming_strategy'] = $app->share(function () use ($app) {
+        $app['serializer.camel_case_naming_strategy'] = $app->share(function ($app) {
             $separator = $app['serializer.naming_strategy.separator'];
             $lowerCase = $app['serializer.naming_strategy.lower_case'];
 
             return new CamelCaseNamingStrategy($separator, $lowerCase);
         });
 
-        $app['serializer.naming_strategy'] = $app->share(function () use ($app) {
+        $app['serializer.naming_strategy'] = $app->share(function ($app) {
             return new SerializedNameAnnotationStrategy($app['serializer.camel_case_naming_strategy']);
         });
 
         // object constructors
-        $app['serializer.object_constructor'] = $app->share(function () use ($app) {
+        $app['serializer.object_constructor'] = $app->share(function ($app) {
             return new UnserializeObjectConstructor();
         });
 
-        $app['serializer.doctrine_object_constructor'] = $app->share(function () use ($app) {
+        $app['serializer.doctrine_object_constructor'] = $app->share(function ($app) {
             return new DoctrineObjectConstructor($app['entity_manager'], $app['serializer.object_constructor']);
         });
 
         // visitors
-        $app['serializer.array_serialization_visitor'] = $app->share(function () use ($app) {
+        $app['serializer.array_serialization_visitor'] = $app->share(function ($app) {
             return new ArraySerializationVisitor($app['serializer.naming_strategy']);
         });
 
-        $app['serializer.json_serialization_visitor'] = $app->share(function () use ($app) {
+        $app['serializer.json_serialization_visitor'] = $app->share(function ($app) {
             $jsonSerializationVisitor = new JsonSerializationVisitor($app['serializer.naming_strategy']);
             $jsonSerializationVisitor->setOptions($app['serializer.json_serialization_visitor.options']);
 
             return $jsonSerializationVisitor;
         });
 
-        $app['serializer.json_deserialization_visitor'] = $app->share(function () use ($app) {
+        $app['serializer.json_deserialization_visitor'] = $app->share(function ($app) {
             return new JsonDeserializationVisitor($app['serializer.naming_strategy']);
         });
 
-        $app['serializer.xml_serialization_visitor'] = $app->share(function () use ($app) {
+        $app['serializer.xml_serialization_visitor'] = $app->share(function ($app) {
             return new XmlSerializationVisitor($app['serializer.naming_strategy']);
         });
 
-        $app['serializer.xml_deserialization_visitor'] = $app->share(function () use ($app) {
+        $app['serializer.xml_deserialization_visitor'] = $app->share(function ($app) {
             $xmlDeserializationVisitor = new XmlDeserializationVisitor($app['serializer.naming_strategy']);
             $xmlDeserializationVisitor->setDoctypeWhitelist($app['serializer.xml_deserialization_visitor.doctype_whitelist']);
             if (false === $app['serializer.disable_external_entities']) {
@@ -151,12 +151,12 @@ class SerializerServiceProvider implements ServiceProviderInterface
             return $xmlDeserializationVisitor;
         });
 
-        $app['serializer.yaml_serialization_visitor'] = $app->share(function () use ($app) {
+        $app['serializer.yaml_serialization_visitor'] = $app->share(function ($app) {
             return new YamlSerializationVisitor($app['serializer.naming_strategy']);
         });
 
         // serializer
-        $app['serializer'] = $app->share(function () use ($app) {
+        $app['serializer'] = $app->share(function ($app) {
             $serializer = SerializerBuilder::create()
                 ->setDebug($app['debug'])
                 ->setCacheDir($app['serializer.base_cache_dir'])

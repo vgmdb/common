@@ -14,7 +14,7 @@ class ElasticServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['elastic'] = $app->share(function () use ($app) {
+        $app['elastic'] = $app->share(function ($app) {
             $elastic = new \Elastica_Client($app['elastic.options']);
 
             return $elastic;

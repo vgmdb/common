@@ -23,7 +23,7 @@ class FormatNegotiatorProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['request.format.negotiator'] = $app->share(function () use ($app) {
+        $app['request.format.negotiator'] = $app->share(function ($app) {
             return new AcceptNegotiator();
         });
 

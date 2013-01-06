@@ -21,7 +21,7 @@ class RoutingServiceProvider implements ServiceProviderInterface
     public function register(Application $app)
     {
         // replace the default url matcher with one that supports caching
-        /*$app['url_matcher'] = $app->share(function () use ($app) {
+        /*$app['url_matcher'] = $app->share(function ($app) {
             if (!isset($app['config.cache_dir']) || !isset($app['routing.matcher_cache_class'])) {
                 return new RedirectableUrlMatcher($app['routes'], $app['request_context']);
             }

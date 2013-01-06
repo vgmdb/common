@@ -17,7 +17,7 @@ class SphinxServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['sphinx'] = $app->share(function () use ($app) {
+        $app['sphinx'] = $app->share(function ($app) {
             $sphinx = new FSphinxClient();
             $sphinx->setServer($app['sphinx.host'], $app['sphinx.port']);
             return $sphinx;

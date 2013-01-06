@@ -18,7 +18,7 @@ class MonologServiceProvider extends BaseMonologServiceProvider
     {
         parent::register($app);
 
-        $app['monolog.handler'] = $app->share(function () use ($app) {
+        $app['monolog.handler'] = $app->share(function ($app) {
             return new FirePHPHandler();
         });
     }

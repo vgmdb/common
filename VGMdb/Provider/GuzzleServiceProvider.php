@@ -35,7 +35,7 @@ class GuzzleServiceProvider implements ServiceProviderInterface
         $app['guzzle.builder_format'] = null;
 
         // Register a Guzzle ServiceBuilder
-        $app['guzzle'] = $app->share(function () use ($app) {
+        $app['guzzle'] = $app->share(function ($app) {
             if (!isset($app['guzzle.services'])) {
                 $builder = new ServiceBuilder(array());
             } else {
