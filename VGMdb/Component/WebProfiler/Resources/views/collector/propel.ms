@@ -2,26 +2,25 @@
 <div id="collector-content">
 {{#collector.data}}
 <h2>Propel Queries</h2>
-<table summary="Show logged queries">
+{{#queries}}
+<table>
   <thead>
     <tr>
-      <th>SQL queries</th>
+      <th>Connection: {{connection}} - Time: {{time}} - Memory: {{memory}}</th>
     </tr>
   </thead>
   <tbody>
-  {{#queries}}
     <tr>
       <td>
-        <code>{{sql}}</code>
-        <div class="SQLInfo">Time: {{time}} - Memory: {{memory}} - Connection: {{connection}}</div>
+        {{{sql_pretty}}}
       </td>
     </tr>
-  {{/queries}}
-  {{^queries}}
-    <tr><td>No queries.</td></tr>
-  {{/queries}}
   </tbody>
 </table>
+{{/queries}}
+{{^queries}}
+<p><em>No queries.</em></p>
+{{/queries}}
 {{/collector.data}}
 </div>
 {{/panel}}

@@ -56,7 +56,7 @@ class DoctrineDataCollector extends DataCollector
     {
         $queries = array();
         foreach ($this->loggers as $name => $logger) {
-            $queries[$name] = $this->sanitizeQueries($name, $logger->queries);
+            $queries += $this->sanitizeQueries($name, $logger->queries);
         }
 
         $this->data = array(
@@ -89,10 +89,8 @@ class DoctrineDataCollector extends DataCollector
     public function getTime()
     {
         $time = 0;
-        foreach ($this->data['queries'] as $queries) {
-            foreach ($queries as $query) {
-                $time += $query['executionMS'];
-            }
+        foreach ($this->data['queries'] as $query) {
+            $time += $query['time'];
         }
 
         return $time;
@@ -108,18 +106,21 @@ class DoctrineDataCollector extends DataCollector
 
     private function sanitizeQueries($connectionName, $queries)
     {
-        foreach ($queries as $i => $query) {
-            $queries[$i] = $this->sanitizeQuery($connectionName, $query);
+        $sanitized = array();
+        foreach ($queries as $query) {
+            $sanitized[] = $this->sanitizeQuery($connectionName, $query);
         }
 
-        return $queries;
+        return $sanitized;
     }
 
     private function sanitizeQuery($connectionName, $query)
     {
         $query['explainable'] = true;
         $query['params'] = (array) $query['params'];
-        $query['executionMS'] = sprintf('%.3f', $query['executionMS']);
+        $query['time'] = sprintf('%.3f', $query['executionMS']);
+        unset($query['executionMS']);
+        $query['connection'] = $connectionName;
         foreach ($query['params'] as $j => &$param) {
             if (isset($query['types'][$j])) {
                 // Transform the param according to the type

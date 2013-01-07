@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Matcher\TraceableUrlMatcher;
+use SqlFormatter;
 
 /**
  * Controller for showing application profiling information.
@@ -18,7 +19,7 @@ class ProfilerController extends AbstractController
     /**
      * Renders a profiler panel for the given token.
      *
-     * @param string  $token   The profiler token
+     * @param string $token The profiler token
      *
      * @return ViewInterface A view instance
      *
@@ -110,6 +111,10 @@ class ProfilerController extends AbstractController
                 $panelData['request'] = $profileData['collectors']['request'];
                 $panelData['request']['data']['route_params'] = $request->getRouteParams();
                 $panelData['traces'] = $matcher->getTraces($request->getPathInfo());
+            }
+        } elseif ($panel === 'db' || $panel === 'propel') {
+            foreach ($panelData['collector']['data']['queries'] as $index => $query) {
+                $panelData['collector']['data']['queries'][$index]['sql_pretty'] = SqlFormatter::format($query['sql']);
             }
         }
 

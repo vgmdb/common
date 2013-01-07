@@ -2,30 +2,25 @@
 <div id="collector-content">
 {{#collector.data}}
 <h2>Doctrine Queries</h2>
-<table summary="Show logged queries">
+{{#queries}}
+<table>
   <thead>
     <tr>
-      <th>SQL queries</th>
+      <th>Connection: {{connection}} - Time: {{time}} sec</th>
     </tr>
   </thead>
   <tbody>
-  {{#collector.querycount}}
-  {{:queries}}
-  {{:.}}
     <tr>
       <td>
-        <code>{{sql}}</code>
-        <div class="SQLInfo">Time: {{executionMS}} sec - Connection: {{:queries}}{{..}}{{/queries}}</div>
+        {{{sql_pretty}}}
       </td>
     </tr>
-  {{/.}}
-  {{/queries}}
-  {{/collector.querycount}}
-  {{^collector.querycount}}
-    <tr><td>No queries.</td></tr>
-  {{/collector.querycount}}
   </tbody>
 </table>
+{{/queries}}
+{{^queries}}
+<p><em>No queries.</em></p>
+{{/queries}}
 {{/collector.data}}
 </div>
 {{/panel}}
