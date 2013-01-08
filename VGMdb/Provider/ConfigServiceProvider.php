@@ -6,6 +6,8 @@ use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Resource\FileResource;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -77,7 +79,14 @@ class ConfigServiceProvider implements ServiceProviderInterface
 
         if (!$this->cache->isFresh()) {
             if (!file_exists($this->filename)) {
-                throw new \InvalidArgumentException(sprintf("The config file '%s' does not exist.", $this->filename));
+                if (!file_exists($this->filename . '.dist')) {
+                    throw new FileNotFoundException($this->filename . '.dist');
+                }
+
+                if (!@rename($this->filename . '.dist', $this->filename)) {
+                    $error = error_get_last();
+                    throw new FileException(sprintf('Could not move the file "%s" to "%s" (%s)', $this->filename . '.dist', $this->filename, str_replace(',', ', ', strip_tags($error['message']))));
+                }
             }
 
             if ('yaml' === $format) {
