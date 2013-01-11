@@ -12,7 +12,7 @@ namespace VGMdb\Component\View\Mustache\Loader;
  */
 class PrefixLoader extends \Mustache_Loader_FilesystemLoader
 {
-    static private $prefixDirs = array();
+    private static $prefixDirs = array();
 
     /**
      * Add a directory prefix.
@@ -20,7 +20,7 @@ class PrefixLoader extends \Mustache_Loader_FilesystemLoader
      * @param string $prefix
      * @param string $prefixDir
      */
-    static public function addPrefix($prefix, $prefixDir)
+    public static function addPrefix($prefix, $prefixDir)
     {
         $prefixDir = rtrim(realpath($prefixDir), '/');
 

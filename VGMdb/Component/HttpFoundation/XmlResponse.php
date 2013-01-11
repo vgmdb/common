@@ -118,7 +118,7 @@ class XmlResponse extends Response
      *
      * @return string
      */
-    static public function xmlEncode($data, $domElement = null, $domDocument = null, $indexOverride = null)
+    public static function xmlEncode($data, $domElement = null, $domDocument = null, $indexOverride = null)
     {
         if (is_null($domDocument)) {
             $domDocument = new \DOMDocument();

@@ -13,9 +13,9 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
 {
     public $template;
     protected $logger;
-    static private $engine; // must be redeclared in child classes
-    static protected $globals = array();
-    static protected $exception;
+    private static $engine; // must be redeclared in child classes
+    protected static $globals = array();
+    protected static $exception;
 
     /**
      * Create a new view instance.
@@ -47,7 +47,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
      * @param LoggerInterface $logger
      * @return ViewInterface
      */
-    static public function create($template, array $data = array(), $engine = null, $logger = null)
+    public static function create($template, array $data = array(), $engine = null, $logger = null)
     {
         if (!$engine) {
             $engine = static::$engine;
@@ -109,7 +109,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
     /**
      * {@inheritDoc}
      */
-    static public function share($data, $value = null)
+    public static function share($data, $value = null)
     {
         if (!(is_array($data) || $data instanceof \Traversable)) {
             $data = array($data => $value);
@@ -126,7 +126,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
     /**
      * {@inheritDoc}
      */
-    static public function globals()
+    public static function globals()
     {
         return static::$globals;
     }

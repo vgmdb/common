@@ -18,7 +18,7 @@ class JsRouteCompiler implements RouteCompilerInterface
      *
      * @throws \LogicException If a variable is referenced more than once
      */
-    public function compile(Route $route)
+    public static function compile(Route $route)
     {
         $pattern = $route->getPattern();
         $tag = '#\{(\w+)\}#';

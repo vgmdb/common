@@ -57,7 +57,7 @@ class ViewFactory
      * @param string $prefix
      * @param string $prefixDir
      */
-    static public function addPrefix($prefix, $prefixDir)
+    public static function addPrefix($prefix, $prefixDir)
     {
         PrefixLoader::addPrefix($prefix, $prefixDir);
     }

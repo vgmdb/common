@@ -5,6 +5,7 @@ namespace VGMdb;
 use VGMdb\Component\HttpFoundation\Request;
 use VGMdb\Component\HttpFoundation\Response;
 use VGMdb\Component\HttpKernel\EventListener\ExceptionListener;
+use VGMdb\Component\Routing\RequestContext;
 use VGMdb\Component\View\ViewInterface;
 use VGMdb\ControllerCollection;
 use VGMdb\ControllerResolver;
@@ -56,16 +57,19 @@ class Application extends BaseApplication
             return new ExceptionListener($app['debug']);
         });
 
-        // replace the controller factory with our own implementation
+        // replace the controller factory
         $this['controllers_factory'] = function () use ($app) {
-            $controllers = new ControllerCollection($app['route_factory'], $app['debug']);
-
-            return $controllers;
+            return new ControllerCollection($app['route_factory'], $app['debug']);
         };
 
         // replace the controller resolver
         $this['resolver'] = $this->share(function ($app) {
             return new ControllerResolver($app, $app['logger']);
+        });
+
+        // replace the request context
+        $this['request_context'] = $this->share(function () use ($app) {
+            return new RequestContext(null, null, null, null, $app['request.http_port'], $app['request.https_port']);
         });
 
         // replace the redirectable url matcher
@@ -178,7 +182,7 @@ class Application extends BaseApplication
             static $object;
 
             if (!$booting) {
-                throw new \ErrorException('Cannot instantiate service before application is booted.');
+                throw new \RuntimeException('Cannot instantiate service before application is booted.');
             }
 
             if (is_null($object)) {

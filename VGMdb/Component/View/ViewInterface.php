@@ -32,14 +32,14 @@ interface ViewInterface
      * @param mixed $data
      * @param mixed $value
      */
-    static public function share($data, $value = null);
+    public static function share($data, $value = null);
 
     /**
      * Dump all global values.
      *
      * @return array
      */
-    static public function globals();
+    public static function globals();
 
     /**
      * Insert another view as a data element.

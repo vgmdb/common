@@ -12,7 +12,7 @@ use VGMdb\Component\View\Logging\ViewLoggerInterface;
 class View extends AbstractView
 {
     public $template;
-    static protected $engine;
+    protected static $engine;
 
     /**
      * Create a new view instance.

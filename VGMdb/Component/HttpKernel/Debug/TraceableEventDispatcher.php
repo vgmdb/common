@@ -20,7 +20,7 @@ use Symfony\Component\EventDispatcher\Debug\TraceableEventDispatcherInterface;
  */
 class TraceableEventDispatcher implements EventDispatcherInterface, TraceableEventDispatcherInterface
 {
-    static private $called = array();
+    private static $called = array();
     private $logger;
     private $stopwatch;
     private $profiler;

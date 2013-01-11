@@ -12,7 +12,7 @@ use VGMdb\Component\View\Logging\ViewLoggerInterface;
  */
 class SmartyView extends AbstractView
 {
-    static protected $engine;
+    protected static $engine;
 
     /**
      * Create a new Smarty view instance.

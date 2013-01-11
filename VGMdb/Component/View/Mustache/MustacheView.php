@@ -12,7 +12,7 @@ use VGMdb\Component\View\Logging\ViewLoggerInterface;
  */
 class MustacheView extends AbstractView
 {
-    static protected $engine;
+    protected static $engine;
 
     /**
      * Create a new Mustache view instance.
