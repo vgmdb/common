@@ -217,7 +217,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
             $content = $this->render();
         } catch (\Exception $e) {
             if (isset($this['DEBUG']) && $this['DEBUG'] === true) {
-                self::$exception = new \RuntimeException($e->getMessage(), $e->getCode(), self::$exception);
+                self::$exception = new \RuntimeException($e->getMessage(), $e->getCode(), self::$exception ?: $e);
             }
             $content = '';
         }

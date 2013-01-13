@@ -83,9 +83,12 @@ class ConfigServiceProvider implements ServiceProviderInterface
                     throw new FileNotFoundException($this->filename . '.dist');
                 }
 
-                if (!@rename($this->filename . '.dist', $this->filename)) {
-                    $error = error_get_last();
-                    throw new FileException(sprintf('Could not move the file "%s" to "%s" (%s)', $this->filename . '.dist', $this->filename, str_replace(',', ', ', strip_tags($error['message']))));
+                try {
+                    if (false === @copy($this->filename . '.dist', $this->filename)) {
+                        throw new \ErrorException('Copy operation failed.');
+                    }
+                } catch (\Exception $error) {
+                    throw new FileException(sprintf('Could not copy the file "%s" to "%s".', $this->filename . '.dist', $this->filename), 0, $error);
                 }
             }
 

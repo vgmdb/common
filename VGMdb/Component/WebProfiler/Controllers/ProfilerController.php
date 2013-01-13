@@ -145,12 +145,12 @@ class ProfilerController extends AbstractController
         $request = $this->app['request'];
 
         if (null === $session = $request->getSession()) {
-            $ip     =
-            $method =
-            $url    =
-            $start  =
-            $end    =
-            $limit  =
+            $ip     = null;
+            $method = null;
+            $url    = null;
+            $start  = null;
+            $end    = null;
+            $limit  = null;
             $token  = null;
         } else {
             $ip     = $session->get('_profiler_search_ip');
@@ -248,16 +248,16 @@ class ProfilerController extends AbstractController
         }
 
         return $this->app['view']('@WebProfiler/profiler/layout')->nest($this->app['view']('@WebProfiler/profiler/results', array(
-            'token'     => $token,
-            'profile'   => $profile,
-            'tokens'    => $tokens,
-            'ip'        => $ip,
-            'method'    => $method,
-            'url'       => $url,
-            'start'     => $start,
-            'end'       => $end,
-            'limit'     => $limit,
-            'panel'     => null,
+            'token'   => $token,
+            'profile' => $profile,
+            'tokens'  => $tokens,
+            'ip'      => $ip,
+            'method'  => $method,
+            'url'     => $url,
+            'start'   => $start,
+            'end'     => $end,
+            'limit'   => $limit,
+            'panel'   => null,
         )));
     }
 

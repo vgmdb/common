@@ -43,7 +43,7 @@ class ExceptionHandler extends BaseExceptionHandler
                 $title = 'Whoops, looks like something went wrong.';
         }
 
-        $content = '';
+        $content = $this->getDebugHelp($exception);
         try {
             $count = count($exception->getAllPrevious());
             $total = $count + 1;
@@ -145,6 +145,44 @@ EOF;
             margin-left: auto;
             width: 940px;
           }
+          pre {
+            display: block;
+            padding: 9.5px;
+            margin: 10px 0;
+            font-size: 13px;
+            line-height: 20px;
+            white-space: pre;
+            white-space: pre-wrap;
+            background-color: whiteSmoke;
+            border: 1px solid #CCC;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            -webkit-border-radius: 4px;
+            -moz-border-radius: 4px;
+            border-radius: 4px;
+          }
+          code {
+            padding: 2px 4px;
+            color: #D14;
+            white-space: nowrap;
+            background-color: #F7F7F9;
+            border: 1px solid #E1E1E8;
+            font-size: 15px;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            border-radius: 3px;
+          }
+          blockquote {
+            padding: 0 0 0 15px;
+            margin: 0 0 20px;
+            border-left: 5px solid #EEE;
+            font-size: 16px;
+            font-weight: 300;
+            line-height: 22px;
+          }
+          blockquote.alert {
+            border-left: 5px solid #B94A48;
+            color: #B94A48;
+          }
           .header {
             padding: 20px 0;
             margin-bottom: 20px;
@@ -231,5 +269,55 @@ EOF;
         }
 
         return implode(', ', $result);
+    }
+
+    /**
+     * Tries to generate solutions or instructions based on the exception raised.
+     */
+    protected function getDebugHelp(FlattenException $exception)
+    {
+        static $help = array(
+            'ConfigServiceProvider' => array(
+                'FileException' => "The application tried to create a local configuration file, but was unsuccessful. You can either make the Config directory writable or copy the file yourself. All personalized settings should go to the .yml file, not the original .yml.dist files. <pre>chmod 0777 app/Guru/Resources/Config</pre> Alternatively, run the workspace setup command: <pre>app/cli guru:setup</pre>"
+            ),
+            'ConfigCache' => array(
+                'RuntimeException' => "The configuration cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>app/cli guru:setup</pre>"
+            ),
+            'FileCacheReader' => array(
+                'InvalidArgumentException' => "The annotation cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>app/cli guru:setup</pre>"
+            ),
+            'SessionHandlerProxy' => array(
+                'ErrorException' => "The session handler failed. If you're storing sessions on disk, please ensure that the directory is writable: <pre>mkdir data/sessions\nchmod -R 0777 data/sessions</pre> Alternatively, run the workspace setup command: <pre>app/cli guru:setup</pre>"
+            ),
+            'FilesystemCache' => array(
+                'RuntimeException' => "The asset cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>app/cli guru:setup</pre>"
+            ),
+            'AssetWriter' => array(
+                'RuntimeException' => "The minified assets could not be written. Please ensure that /css/lib.css is writable: <pre>touch public/css/lib.css\nchmod 0777 public/css/lib.css</pre> Alternatively, run the workspace setup command: <pre>app/cli guru:setup</pre>"
+            ),
+            'SqliteProfilerStorage' => array(
+                'Exception' => "The profiler cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>app/cli guru:setup</pre>"
+            ),
+            'AbstractView' => array(
+                'RuntimeException' => "The template files could not be generated. Either there is an error in your template, or the template cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>app/cli guru:setup</pre>"
+            ),
+            'SerializerBuilder' => array(
+                'InvalidArgumentException' => "The metadata cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>app/cli guru:setup</pre>"
+            )
+        );
+
+        if (!$exception->getFile()) {
+            return '';
+        }
+
+        $file = basename($exception->getFile(), '.php');
+        $class = explode('\\', $exception->getClass());
+        $class = end($class);
+
+        if (isset($help[$file][$class])) {
+            return '<blockquote class="alert">' . $help[$file][$class] . '</blockquote>';
+        }
+
+        return '';
     }
 }

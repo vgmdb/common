@@ -33,12 +33,18 @@ class RenderListener implements EventSubscriberInterface
             return;
         }
 
-        $content = $event->getResponse()->getContent();
-        if (!$content instanceof ViewInterface) {
+        $view = $event->getResponse()->getContent();
+        if (!$view instanceof ViewInterface) {
             return;
         }
 
-        $event->getResponse()->setContent((string) $content);
+        $content = (string) $view;
+
+        if ($view->hasException()) {
+            throw $view->getException();
+        }
+
+        $event->getResponse()->setContent($content);
     }
 
     public static function getSubscribedEvents()

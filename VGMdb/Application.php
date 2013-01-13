@@ -40,7 +40,7 @@ class Application extends BaseApplication
     /**
      * Constructor.
      */
-    public function __construct()
+    public function __construct(array $values = array())
     {
         $this->booting = false;
         $this->booted = false;
@@ -48,6 +48,7 @@ class Application extends BaseApplication
         $this->bootlog = array();
         $this->startTime = microtime(true);
 
+        // we don't pass $values into the parent constructor; we'll handle it ourselves
         parent::__construct();
 
         $app = $this;
@@ -76,6 +77,10 @@ class Application extends BaseApplication
         $this['url_matcher'] = $this->share(function ($app) {
             return new RedirectableUrlMatcher($app['routes'], $app['request_context']);
         });
+
+        foreach ($values as $key => $value) {
+            $this[$key] = $value;
+        }
     }
 
     /**
