@@ -173,7 +173,8 @@ class UserServiceProvider implements ServiceProviderInterface
                 ),
                 'urls' => array(
                     'logout' => $app['security.firewalls'][$app['user.firewall_name']]['logout']['logout_path']
-                )
+                ),
+                'is_authenticated' => true
             );
         });
 
