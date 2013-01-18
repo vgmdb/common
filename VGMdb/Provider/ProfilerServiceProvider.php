@@ -12,7 +12,7 @@ use Silex\ServiceProviderInterface;
  */
 class ProfilerServiceProvider implements ServiceProviderInterface
 {
-    private $enabled;
+    protected $enabled;
 
     public function __construct($enabled = true)
     {

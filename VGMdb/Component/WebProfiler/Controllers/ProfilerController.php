@@ -17,6 +17,27 @@ use SqlFormatter;
 class ProfilerController extends AbstractController
 {
     /**
+     * Profiler landing page, redirects to the latest token.
+     *
+     * @return Response A Response instance
+     *
+     * @throws NotFoundHttpException
+     */
+    public function indexAction()
+    {
+        $this->app['profiler']->disable();
+        $tokens = $this->app['profiler']->find('', '', 1, '', '', '');
+
+        if (!is_array($tokens) || !count($tokens)) {
+            throw new NotFoundHttpException('No tokens found.');
+        }
+
+        $token = $tokens[0]['token'];
+
+        return new RedirectResponse($this->app['url_generator']->generate('profiler', array('token' => $token)));
+    }
+
+    /**
      * Renders a profiler panel for the given token.
      *
      * @param string $token The profiler token
@@ -297,5 +318,13 @@ class ProfilerController extends AbstractController
         return $this->app['view']('@WebProfiler/profiler/layout', array(
             'content' => '<div style="padding: 40px"><h2>The profiler database was purged successfully</h2></div>'
         ));
+    }
+
+    /**
+     * Dumps phpinfo()
+     */
+    public function phpinfoAction()
+    {
+        die(phpinfo());
     }
 }
