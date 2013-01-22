@@ -31,6 +31,7 @@ class RequestDataCollector extends BaseRequestDataCollector
         parent::collect($request, $response, $exception);
 
         $this->data['request_context'] = array(
+            'app_name'   => $this->context->getAppName(),
             'base_url'   => $this->context->getBaseUrl(),
             'path_info'  => $this->context->getPathInfo(),
             'method'     => $this->context->getMethod(),

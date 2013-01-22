@@ -74,6 +74,7 @@ class Application extends BaseApplication
             if (class_exists('Mobile_Detect')) {
                 $context->setMobileDetector(new \Mobile_Detect());
             }
+            $context->setAppName($app['name']);
 
             return $context;
         });

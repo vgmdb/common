@@ -17,19 +17,24 @@ use Symfony\Component\Yaml\Yaml;
  */
 class ConfigServiceProvider implements ServiceProviderInterface
 {
-    private $filename;
+    private $filenames;
     private $cache;
     private $replacements = array();
 
     public function register(Application $app)
     {
-        $cacheFile = $app['config.cache_dir'] . '/' . basename($this->filename) . '.php';
-        $this->cache = new ConfigCache($cacheFile, $app['debug']);
+        foreach ($this->filenames as $filename) {
+            if (!$filename) {
+                continue;
+            }
 
-        $config = $this->readConfig();
+            $id = hash('md4', $filename);
+            $cacheFile = $app['config.cache_dir'] . '/' . $id . '.php';
+            $this->cache[$id] = new ConfigCache($cacheFile, $app['debug']);
 
-        foreach ($config as $name => $value) {
-            $app[$name] = $this->doReplacements($value);
+            $config = $this->readConfig($filename);
+
+            $this->replaceConfig($app, $config);
         }
     }
 
@@ -37,9 +42,13 @@ class ConfigServiceProvider implements ServiceProviderInterface
     {
     }
 
-    public function __construct($filename, array $replacements = array())
+    public function __construct($filenames, array $replacements = array())
     {
-        $this->filename = $filename;
+        if (!is_array($filenames)) {
+            $filenames = array($filenames);
+        }
+
+        $this->filenames = $filenames;
 
         if ($replacements) {
             foreach ($replacements as $key => $value) {
@@ -69,26 +78,27 @@ class ConfigServiceProvider implements ServiceProviderInterface
         return $value;
     }
 
-    private function readConfig()
+    private function readConfig($filename)
     {
-        $format = $this->getFileFormat();
+        $format = $this->getFileFormat($filename);
+        $id = hash('md4', $filename);
 
-        if (!$this->filename || !$format) {
+        if (!$filename || !$format) {
             throw new \RuntimeException('A valid configuration file must be passed before reading the config.');
         }
 
-        if (!$this->cache->isFresh()) {
-            if (!file_exists($this->filename)) {
-                if (!file_exists($this->filename . '.dist')) {
-                    throw new FileNotFoundException($this->filename . '.dist');
+        if (!$this->cache[$id]->isFresh()) {
+            if (!file_exists($filename)) {
+                if (!file_exists($filename . '.dist')) {
+                    throw new FileNotFoundException($filename . '.dist');
                 }
 
                 try {
-                    if (false === @copy($this->filename . '.dist', $this->filename)) {
+                    if (false === @copy($filename . '.dist', $filename)) {
                         throw new \ErrorException('Copy operation failed.');
                     }
                 } catch (\Exception $error) {
-                    throw new FileException(sprintf('Could not copy the file "%s" to "%s".', $this->filename . '.dist', $this->filename), 0, $error);
+                    throw new FileException(sprintf('Could not copy the file "%s" to "%s".', $filename . '.dist', $filename), 0, $error);
                 }
             }
 
@@ -96,12 +106,12 @@ class ConfigServiceProvider implements ServiceProviderInterface
                 if (!class_exists('Symfony\\Component\\Yaml\\Yaml')) {
                     throw new \RuntimeException('Unable to read yaml as the Symfony Yaml Component is not installed.');
                 }
-                $config = Yaml::parse(file_get_contents($this->filename));
+                $config = Yaml::parse(file_get_contents($filename));
             } elseif ('json' === $format) {
-                $config = json_decode(file_get_contents($this->filename), true);
+                $config = json_decode(file_get_contents($filename), true);
             } else {
                 throw new \InvalidArgumentException(
-                    sprintf("The config file '%s' appears has invalid format '%s'.", $this->filename, $format)
+                    sprintf("The config file '%s' appears has invalid format '%s'.", $filename, $format)
                 );
             }
 
@@ -109,21 +119,34 @@ class ConfigServiceProvider implements ServiceProviderInterface
                 $config = array();
             }
 
-            $this->cache->write(
+            $this->cache[$id]->write(
                 '<?php' . PHP_EOL . '$config = ' . var_export($config, true) . ';',
-                array(new FileResource($this->filename))
+                array(new FileResource($filename))
             );
         }
 
-        require_once $this->cache;
+        require_once $this->cache[$id];
 
         return $config;
     }
 
-    public function getFileFormat()
+    private function replaceConfig($app, array $config = array())
     {
-        $filename = $this->filename;
+        foreach ($config as $name => $value) {
+            if (!isset($app[$name])) {
+                $app[$name] = $this->doReplacements($value);
+            } elseif (is_array($value)) {
+                $app[$name] = $this->replaceConfig($app[$name], $config[$name]);
+            } else {
+                $app[$name] = $this->doReplacements($value);
+            }
+        }
 
+        return $app;
+    }
+
+    public function getFileFormat($filename)
+    {
         if (preg_match('#.ya?ml(.dist)?$#i', $filename)) {
             return 'yaml';
         }

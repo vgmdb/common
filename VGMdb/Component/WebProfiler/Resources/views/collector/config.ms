@@ -23,6 +23,10 @@
     <td>{{name}}</td>
   </tr>
   <tr>
+    <th>Namespace</th>
+    <td>{{namespace}}</td>
+  </tr>
+  <tr>
     <th>Environment</th>
     <td>{{env}}</td>
   </tr>

@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class RequestContext extends BaseRequestContext
 {
+    private $appName;
     private $format;
     private $version;
     private $locale;
@@ -48,6 +49,26 @@ class RequestContext extends BaseRequestContext
     }
 
     /**
+     * Gets the application name.
+     *
+     * @return string Application name.
+     */
+    public function getAppName()
+    {
+        return $this->appName;
+    }
+
+    /**
+     * Sets the application name.
+     *
+     * @param string $appName Application name.
+     */
+    public function setAppName($appName)
+    {
+        $this->appName = $appName;
+    }
+
+    /**
      * Gets the requested response format.
      *
      * @return string The response format.
@@ -60,7 +81,7 @@ class RequestContext extends BaseRequestContext
     /**
      * Sets the response format.
      *
-     * @param string The response format.
+     * @param string $format The response format.
      */
     public function setFormat($format)
     {
@@ -80,7 +101,7 @@ class RequestContext extends BaseRequestContext
     /**
      * Sets the API version.
      *
-     * @param string The API version.
+     * @param string $version The API version.
      */
     public function setVersion($version)
     {
@@ -102,7 +123,7 @@ class RequestContext extends BaseRequestContext
      *
      * Also sets the language and region at the same time.
      *
-     * @param string The locale string.
+     * @param string $locale The locale string.
      */
     public function setLocale($locale)
     {
@@ -132,7 +153,7 @@ class RequestContext extends BaseRequestContext
     /**
      * Sets the language code.
      *
-     * @param string The language code.
+     * @param string $language The language code.
      */
     public function setLanguage($language)
     {
@@ -152,7 +173,7 @@ class RequestContext extends BaseRequestContext
     /**
      * Sets the region code.
      *
-     * @param string The region code.
+     * @param string $region The region code.
      */
     public function setRegion($region)
     {
@@ -172,7 +193,7 @@ class RequestContext extends BaseRequestContext
     /**
      * Sets the user agent.
      *
-     * @param string The user agent.
+     * @param string $userAgent The user agent.
      */
     public function setUserAgent($userAgent)
     {
@@ -198,7 +219,7 @@ class RequestContext extends BaseRequestContext
     /**
      * Gets the HTTP referer.
      *
-     * @param string The HTTP referer
+     * @param string $referer The HTTP referer
      */
     public function setReferer($referer)
     {
@@ -295,6 +316,8 @@ class RequestContext extends BaseRequestContext
 
     /**
      * Sets the mobile useragent detection library.
+     *
+     * @param mixed $mobileDetector
      */
     public function setMobileDetector($mobileDetector)
     {

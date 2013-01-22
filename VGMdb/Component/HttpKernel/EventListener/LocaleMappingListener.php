@@ -3,32 +3,29 @@
 namespace VGMdb\Component\HttpKernel\EventListener;
 
 use VGMdb\Component\Routing\RequestContext;
-use Silex\Application;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Maps the locale to complete language and region code.
+ * Maps the locale to complete language and region code, and loads additional configuration if found.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
 class LocaleMappingListener implements EventSubscriberInterface
 {
-    protected $app;
     protected $context;
     protected $localeMap;
 
-    public function __construct(Application $app, RequestContext $context, array $localeMap = array())
+    public function __construct(RequestContext $context, array $localeMap = array())
     {
-        $this->app = $app;
-        $this->localeMap = $localeMap;
         $this->context = $context;
+        $this->localeMap = $localeMap;
     }
 
     public function onKernelRequest(GetResponseEvent $event)
     {
-        $locale = $this->app['locale'];
+        $locale = $event->getRequest()->getLocale();
         if (array_key_exists($locale, $this->localeMap)) {
             $locale = $this->localeMap[$locale];
         }

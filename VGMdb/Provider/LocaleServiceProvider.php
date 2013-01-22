@@ -19,7 +19,7 @@ class LocaleServiceProvider implements ServiceProviderInterface
         $app['locale.mapping'] = array();
 
         $app['locale.mapping_listener'] = $app->share(function ($app) {
-            return new LocaleMappingListener($app, $app['request_context'], $app['locale.mapping']);
+            return new LocaleMappingListener($app['request_context'], $app['locale.mapping']);
         });
     }
 
