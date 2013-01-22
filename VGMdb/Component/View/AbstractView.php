@@ -243,7 +243,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
             $value = parent::offsetGet($id);
         }
 
-        return $value instanceof \Closure ? $value($this) : $value;
+        return $value;
     }
 
     /**
