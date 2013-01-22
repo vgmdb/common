@@ -53,6 +53,8 @@ class Application extends BaseApplication
 
         $app = $this;
 
+        $this['name'] = '';
+
         // replace the default exception handler
         $this['exception_handler'] = $this->share(function ($app) {
             return new ExceptionListener($app['debug']);

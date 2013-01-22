@@ -48,7 +48,7 @@ class RequestDataCollector extends BaseRequestDataCollector
             'user_agent' => $this->context->getUserAgent(),
             'referer'    => $this->context->getReferer(),
             'is_mobile'  => $this->context->isMobile() ? 'true' : 'false',
-            'is_table'   => $this->context->isTablet() ? 'true' : 'false',
+            'is_tablet'  => $this->context->isTablet() ? 'true' : 'false',
             'is_web'     => $this->context->isWeb() ? 'true' : 'false',
         );
     }

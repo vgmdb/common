@@ -6,6 +6,7 @@ use VGMdb\Component\Security\Http\Authentication\AuthenticationSuccessHandler;
 use VGMdb\Component\Security\Http\Authentication\AuthenticationFailureHandler;
 use Silex\Application;
 use Silex\Provider\SecurityServiceProvider as BaseSecurityServiceProvider;
+use Symfony\Component\Security\Core\Util\SecureRandom;
 use Symfony\Component\Security\Http\Firewall\ExceptionListener;
 use Symfony\Component\Security\Http\Firewall\LogoutListener;
 use Symfony\Component\Security\Http\Logout\SessionLogoutHandler;
@@ -22,6 +23,10 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
         parent::register($app);
 
         $that = $this;
+
+        $app['security.secure_random'] = $app->share(function ($app) {
+            return new SecureRandom($app['security.secure_random.seed'], $app['logger']);
+        });
 
         /**
          * This adds support for invalidate_session option in /logout

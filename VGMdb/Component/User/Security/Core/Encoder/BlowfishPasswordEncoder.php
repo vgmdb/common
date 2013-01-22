@@ -3,6 +3,7 @@
 namespace VGMdb\Component\User\Security\Core\Encoder;
 
 use Symfony\Component\Security\Core\Encoder\BasePasswordEncoder;
+use Symfony\Component\Security\Core\Util\SecureRandomInterface;
 
 /**
  * Uses the bcrypt algorithm to encode passwords. Parts referenced from Zend\Crypt\Password\Bcrypt
@@ -16,6 +17,7 @@ use Symfony\Component\Security\Core\Encoder\BasePasswordEncoder;
  */
 class BlowfishPasswordEncoder extends BasePasswordEncoder
 {
+    private $secureRandom;
     private $work_factor;
 
     /**
@@ -23,14 +25,13 @@ class BlowfishPasswordEncoder extends BasePasswordEncoder
      *
      * @param integer $work_factor Work factor. Each increment doubles the time needed for encoding.
      */
-    public function __construct($work_factor = 15)
+    public function __construct(SecureRandomInterface $secureRandom, $work_factor = 15)
     {
         if (version_compare(PHP_VERSION, '5.3') < 0) {
             throw new \RuntimeException('Bcrypt requires PHP 5.3 or above.');
         }
-        if (!function_exists('openssl_random_pseudo_bytes')) {
-            throw new \RuntimeException('Bcrypt requires the openssl PHP extension.');
-        }
+
+        $this->secureRandom = $secureRandom;
 
         $work_factor = intval($work_factor);
 
@@ -87,13 +88,8 @@ class BlowfishPasswordEncoder extends BasePasswordEncoder
             }
         }
 
-        // use mt_rand as a last resort fallback
-        if ($randomBytes == '') {
-            $chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/+';
-            $charLength = strlen($chars) - 1;
-            for ($i = 0; $i < $length; $i++) {
-                $randomBytes .= $chars[mt_rand(0, $charLength)];
-            }
+        if (!$randomBytes) {
+            $randomBytes = $this->secureRandom->nextBytes($length);
         }
 
         return $randomBytes;

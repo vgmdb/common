@@ -62,7 +62,7 @@ class UserServiceProvider implements ServiceProviderInterface
         });
 
         $app['security.encoder.bcrypt'] = $app->share(function ($app) {
-            return new BlowfishPasswordEncoder($app['user.security.bcrypt.work_factor']);
+            return new BlowfishPasswordEncoder($app['security.secure_random'], $app['user.security.bcrypt.work_factor']);
         });
 
         $app['user.util.username_canonicalizer'] = $app->share(function ($app) {
