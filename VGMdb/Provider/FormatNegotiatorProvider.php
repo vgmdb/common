@@ -9,10 +9,6 @@ use VGMdb\Component\HttpFoundation\EventListener\ExtensionListener;
 use VGMdb\Component\HttpFoundation\EventListener\RequestFormatListener;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Handles subdomain, extension, accept header format and version negotiation.
@@ -38,6 +34,6 @@ class FormatNegotiatorProvider implements ServiceProviderInterface
     {
         $app['dispatcher']->addSubscriber(new SubdomainListener($app));     // 512
         $app['dispatcher']->addSubscriber(new ExtensionListener($app));     // 256
-        $app['dispatcher']->addSubscriber(new RequestFormatListener($app)); // 128, -5, -16
+        $app['dispatcher']->addSubscriber(new RequestFormatListener($app, $app['request_context'])); // 128, -5, -16
     }
 }

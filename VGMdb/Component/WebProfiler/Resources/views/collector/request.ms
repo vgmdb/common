@@ -94,6 +94,26 @@
 <p><em>No cookies</em></p>
 {{/request_cookies}}
 
+<h3>Request Context</h3>
+{{?request_context}}
+<table>
+  <thead>
+    <tr>
+      <th scope="col">Key</th>
+      <th scope="col">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{:request_context}}
+    <tr>
+      <th>{{..}}</th>
+      <td>{{#.}}{{.}}{{/.}}</td>
+    </tr>
+    {{/request_context}}
+</tbody>
+</table>
+{{/request_context}}
+
 <h3>Request Headers</h3>
 {{?request_headers}}
 <table>
@@ -116,7 +136,7 @@
 
 <h3>Request Content</h3>
 {{?content}}
-<pre>{{content}}</pre>
+<table><tr><td><pre class="code">{{content}}</pre></td></tr></table>
 {{/content}}
 {{^content}}
 <p><em>No content</em></p>

@@ -7,13 +7,14 @@ use VGMdb\Component\HttpFoundation\Response;
 use VGMdb\Component\HttpFoundation\JsonResponse;
 use VGMdb\Component\HttpFoundation\XmlResponse;
 use VGMdb\Component\HttpFoundation\BeaconResponse;
+use VGMdb\Component\Routing\RequestContext;
 use VGMdb\Component\Validator\Constraints\JsonpCallback;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Handles request body, response and callback for certain formats.
@@ -23,10 +24,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class RequestFormatListener implements EventSubscriberInterface
 {
     private $app;
+    private $context;
 
-    public function __construct(Application $app)
+    public function __construct(Application $app, RequestContext $context)
     {
         $this->app = $app;
+        $this->context = $context;
     }
 
     public function onKernelRequest(GetResponseEvent $event)
@@ -53,6 +56,7 @@ class RequestFormatListener implements EventSubscriberInterface
         }
 
         $request->setRequestFormat($format);
+        $this->context->setFormat($format);
 
         $version = $this->app['request.format.negotiator']->getVersionForFormat(
             $request,
@@ -61,6 +65,7 @@ class RequestFormatListener implements EventSubscriberInterface
         );
 
         $request->setRequestVersion($version);
+        $this->context->setVersion($version);
 
         // decode JSON request body
         if (0 === strpos($request->headers->get('Content-Type'), 'application/json') && is_string($request->getContent())) {

@@ -210,10 +210,18 @@ EOF;
             font-weight: bold;
             margin: 20px 0;
           }
+          ul {
+            list-style-type: square;
+            margin: 16px 0;
+          }
+          ul li {
+            list-style-type: square;
+            list-style-position:inside;
+          }
           ol {
             list-style-type: decimal;
           }
-          li {
+          ol li {
             display: list-item;
             text-align: -webkit-match-parent;
             list-style-type: decimal;
@@ -299,7 +307,7 @@ EOF;
                 'Exception' => "The profiler cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>sudo app/cli guru:setup</pre>"
             ),
             'AbstractView' => array(
-                'RuntimeException' => "The template files could not be generated. Either there is an error in your template, or the template cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>sudo app/cli guru:setup</pre>"
+                'RuntimeException' => "The template could not be rendered. Either: <ul><li>There is an error in your template.</li><li>The template filename is wrong or hasn't been created yet.</li><li>The template cache could not be created.</li></ul> Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>sudo app/cli guru:setup</pre>"
             ),
             'SerializerBuilder' => array(
                 'InvalidArgumentException' => "The metadata cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>sudo app/cli guru:setup</pre>"

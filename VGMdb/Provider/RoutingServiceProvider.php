@@ -46,6 +46,7 @@ class RoutingServiceProvider implements ServiceProviderInterface
 
         $app['routing.matcher_cache_class'] = 'ProjectUrlMatcher';
         $app['routing.loader_cache_class'] = 'ProjectRouteLoader';
+        $app['routing.parameters'] = array();
 
         $app['routes'] = $app->share($app->extend('routes', function ($routes, $app) {
             $collection = new RouteCollection();
@@ -62,6 +63,7 @@ class RoutingServiceProvider implements ServiceProviderInterface
             $locator = new FileLocator($paths);
             $loader = new CachedYamlFileLoader($locator);
             $loader->setCache($cache);
+            $loader->setReplacements($app['routing.parameters']);
             $collection->addCollection($loader->load($paths));
             $routes->addCollection($collection);
 

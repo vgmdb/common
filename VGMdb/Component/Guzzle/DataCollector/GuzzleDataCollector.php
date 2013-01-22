@@ -43,6 +43,16 @@ class GuzzleDataCollector extends DataCollector
         }
     }
 
+    /**
+     * Checks if any requests were recorded.
+     *
+     * @return Boolean
+     */
+    public function hasRequests()
+    {
+        return isset($this->data['requests']);
+    }
+
     public function getRequests()
     {
         return $this->data['requests'];

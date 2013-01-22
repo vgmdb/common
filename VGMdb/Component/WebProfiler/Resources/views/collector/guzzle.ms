@@ -21,7 +21,7 @@
       <td>{{#.}}<div>{{.}}</div>{{/.}}</td>
     </tr>
     {{/request}}
-</tbody>
+  </tbody>
 </table>
 <h3>Response</h3>
 <table>
@@ -43,7 +43,7 @@
         <pre class="hidden" style="white-space: pre-wrap; white-space: -moz-pre-wrap !important; white-space: -pre-wrap; white-space: -o-pre-wrap; word-wrap: break-word;">{{body}}</pre>
       </td>
     </tr>
-</tbody>
+  </tbody>
 </table>
 
 <script type="text/javascript">//<![CDATA[

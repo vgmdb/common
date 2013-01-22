@@ -39,7 +39,7 @@ class ProfilerServiceProvider implements ServiceProviderInterface
 
         // data collector classes
         $app['data_collector.config.class'] = 'VGMdb\\Component\\HttpKernel\\DataCollector\\ConfigDataCollector';
-        $app['data_collector.request.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\RequestDataCollector';
+        $app['data_collector.request.class'] = 'VGMdb\\Component\\HttpKernel\\DataCollector\\RequestDataCollector';
         $app['data_collector.exception.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\ExceptionDataCollector';
         $app['data_collector.events.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\EventDataCollector';
         $app['data_collector.logger.class'] = 'Symfony\\Component\\HttpKernel\\DataCollector\\LoggerDataCollector';
@@ -52,13 +52,14 @@ class ProfilerServiceProvider implements ServiceProviderInterface
         $app['data_collector.db.class'] = 'VGMdb\\Component\\Doctrine\\DataCollector\\DoctrineDataCollector';
         $app['data_collector.propel.class'] = 'VGMdb\\Component\\Propel\\DataCollector\\PropelDataCollector';
         $app['data_collector.guzzle.class'] = 'VGMdb\\Component\\Guzzle\\DataCollector\\GuzzleDataCollector';
+        $app['data_collector.swiftmailer.class'] = 'VGMdb\\Component\\Swiftmailer\\DataCollector\\EmailDataCollector';
 
         // data collectors. remember to guard against nonexistent providers by returning -1
         $app['data_collector.config'] = $app->share(function ($app) {
             return new $app['data_collector.config.class']($app);
         });
         $app['data_collector.request'] = $app->share(function ($app) {
-            return new $app['data_collector.request.class']();
+            return new $app['data_collector.request.class']($app['request_context']);
         });
         $app['data_collector.exception'] = $app->share(function ($app) {
             return new $app['data_collector.exception.class']();
@@ -111,23 +112,30 @@ class ProfilerServiceProvider implements ServiceProviderInterface
             }
             return new $app['data_collector.guzzle.class']($app['guzzle.debug_logger.adapter']);
         });
+        $app['data_collector.swiftmailer'] = $app->share(function ($app) {
+            if (!isset($app['mailer'])) {
+                return -1;
+            }
+            return new $app['data_collector.swiftmailer.class']($app, true);
+        });
 
         $priorities = $app['profiler.options']['priorities'];
         $app['data_collector.registry'] = array(
-            'config'    => array($priorities['config'],    'collector/config'),
-            'request'   => array($priorities['request'],   'collector/request'),
-            'exception' => array($priorities['exception'], 'collector/exception'),
-            'events'    => array($priorities['events'],    'collector/events'),
-            'logger'    => array($priorities['logger'],    'collector/logger'),
-            'time'      => array($priorities['time'],      'collector/time'),
-            'memory'    => array($priorities['memory'],     null),
-            'router'    => array($priorities['router'],    'collector/router'),
-            'security'  => array($priorities['security'],  'collector/security'),
-            'container' => array($priorities['container'], 'collector/container'),
-            'view'      => array($priorities['view'],      'collector/view'),
-            'db'        => array($priorities['db'],        'collector/db'),
-            'propel'    => array($priorities['propel'],    'collector/propel'),
-            'guzzle'    => array($priorities['guzzle'],    'collector/guzzle'),
+            'config'      => array($priorities['config'],      '@WebProfiler/collector/config'),
+            'request'     => array($priorities['request'],     '@WebProfiler/collector/request'),
+            'exception'   => array($priorities['exception'],   '@WebProfiler/collector/exception'),
+            'events'      => array($priorities['events'],      '@WebProfiler/collector/events'),
+            'logger'      => array($priorities['logger'],      '@WebProfiler/collector/logger'),
+            'time'        => array($priorities['time'],        '@WebProfiler/collector/time'),
+            'memory'      => array($priorities['memory'],       null),
+            'router'      => array($priorities['router'],      '@WebProfiler/collector/router'),
+            'security'    => array($priorities['security'],    '@WebProfiler/collector/security'),
+            'container'   => array($priorities['container'],   '@WebProfiler/collector/container'),
+            'view'        => array($priorities['view'],        '@WebProfiler/collector/view'),
+            'db'          => array($priorities['db'],          '@WebProfiler/collector/db'),
+            'propel'      => array($priorities['propel'],      '@WebProfiler/collector/propel'),
+            'guzzle'      => array($priorities['guzzle'],      '@WebProfiler/collector/guzzle'),
+            'swiftmailer' => array($priorities['swiftmailer'], '@WebProfiler/collector/swiftmailer'),
         );
 
         $app['profiler'] = $app->share(function ($app) {

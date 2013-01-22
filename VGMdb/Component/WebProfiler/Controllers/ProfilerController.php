@@ -87,12 +87,21 @@ class ProfilerController extends AbstractController
             if ($name === 'exception' && !$profile->getCollector('exception')->hasException()) {
                 continue;
             }
+            if ($name === 'guzzle' && !$profile->getCollector('guzzle')->hasRequests()) {
+                continue;
+            }
+            if ($name === 'swiftmailer' && !$profile->getCollector('swiftmailer')->getMessageCount()) {
+                continue;
+            }
+            if ($name === 'zuora' && !$profile->getCollector('zuora')->hasRequests()) {
+                continue;
+            }
 
             $toolbar->nest($this->app['view']('@WebProfiler/profiler/menu', array(
                 'name'     => $name,
                 'selected' => ($name === $panel) ? true : false,
                 'url'      => $this->app['url']('profiler', array('token' => $token, 'panel' => $name))
-            ))->nest($this->app['view']('@WebProfiler/' . $template, array(
+            ))->nest($this->app['view']($template, array(
                 'token'     => $token,
                 'toolbar'   => true
             ))));
@@ -137,6 +146,19 @@ class ProfilerController extends AbstractController
             foreach ($panelData['collector']['data']['queries'] as $index => $query) {
                 $panelData['collector']['data']['queries'][$index]['sql_pretty'] = SqlFormatter::format($query['sql']);
             }
+        } elseif ($panel === 'zuora') {
+            foreach ($panelData['collector']['data']['requests'] as $index => $request) {
+                foreach (array('request', 'response') as $key) {
+                    if (!isset($panelData['collector']['data']['requests'][$index][$key])) {
+                        continue;
+                    }
+                    $dom = new \DOMDocument;
+                    $dom->preserveWhiteSpace = false;
+                    $dom->loadXML($panelData['collector']['data']['requests'][$index][$key]);
+                    $dom->formatOutput = true;
+                    $panelData['collector']['data']['requests'][$index][$key] = $dom->saveXml();
+                }
+            }
         }
 
         $layoutData['profile']['time_pretty'] = date('r', $layoutData['profile']['time']);
@@ -151,7 +173,7 @@ class ProfilerController extends AbstractController
         return $this->app['view']('@WebProfiler/profiler/layout', $layoutData)
                     ->nest($toolbar, 'toolbar')
                     ->nest($this->app['view']('@WebProfiler/profiler/search', $searchData), 'searchbar')
-                    ->nest($this->app['view']('@WebProfiler/' . $templates[$panel], $panelData));
+                    ->nest($this->app['view']($templates[$panel], $panelData));
     }
 
     /**

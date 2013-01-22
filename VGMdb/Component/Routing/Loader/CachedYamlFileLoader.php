@@ -3,11 +3,11 @@
 namespace VGMdb\Component\Routing\Loader;
 
 use Symfony\Component\Config\ConfigCache;
-use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
-use Symfony\Component\Routing\Loader\YamlFileLoader;
+use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Routing\Loader\YamlFileLoader;
 
 /**
  * CachedYamlFileLoader loads and caches Yaml routing configs.
@@ -16,10 +16,8 @@ use Symfony\Component\Yaml\Yaml;
  */
 class CachedYamlFileLoader extends YamlFileLoader
 {
-    protected static $availableKeys = array(
-        'type', 'resource', 'prefix', 'pattern', 'options', 'defaults', 'requirements'
-    );
     protected $cache;
+    protected $replacements = array();
 
     /**
      * Sets the configuration cache.
@@ -29,6 +27,18 @@ class CachedYamlFileLoader extends YamlFileLoader
     public function setCache(ConfigCache $cache)
     {
         $this->cache = $cache;
+    }
+
+    /**
+     * Sets the replacement parameters.
+     *
+     * @param array $replacements
+     */
+    public function setReplacements(array $replacements)
+    {
+        foreach ($replacements as $key => $value) {
+            $this->replacements['%'.$key.'%'] = $value;
+        }
     }
 
     /**
@@ -57,7 +67,7 @@ class CachedYamlFileLoader extends YamlFileLoader
                 $path = $this->locator->locate($file);
                 $collection->addResource(new FileResource($path));
 
-                $configs = Yaml::parse($path);
+                $configs = Yaml::parse(file_get_contents($path));
                 // empty file
                 if (null === $configs) {
                     $configs = array();
@@ -65,6 +75,12 @@ class CachedYamlFileLoader extends YamlFileLoader
                 // not an array
                 if (!is_array($configs)) {
                     throw new \InvalidArgumentException(sprintf('The file "%s" must contain a YAML array.', $file));
+                }
+
+                if ($this->replacements) {
+                    foreach ($configs as $name => $value) {
+                        $configs[$name] = $this->doReplacements($value);
+                    }
                 }
 
                 $routes[$path] = $configs;
@@ -80,24 +96,19 @@ class CachedYamlFileLoader extends YamlFileLoader
 
         foreach ($routes as $path => $configs) {
             foreach ($configs as $name => $config) {
-                foreach ($config as $key => $value) {
-                    if (!in_array($key, self::$availableKeys)) {
-                        throw new \InvalidArgumentException(sprintf(
-                            'Yaml routing loader does not support given key: "%s". Expected one of the (%s).',
-                            $key, implode(', ', self::$availableKeys)
-                        ));
+                if (isset($config['pattern'])) {
+                    if (isset($config['path'])) {
+                        throw new \InvalidArgumentException(sprintf('The file "%s" cannot define both a "path" and a "pattern" attribute. Use only "path".', $path));
                     }
+
+                    $config['path'] = $config['pattern'];
+                    unset($config['pattern']);
                 }
 
-                if (isset($config['resource'])) {
-                    $type = isset($config['type']) ? $config['type'] : null;
-                    $prefix = isset($config['prefix']) ? $config['prefix'] : null;
-                    $defaults = isset($config['defaults']) ? $config['defaults'] : array();
-                    $requirements = isset($config['requirements']) ? $config['requirements'] : array();
-                    $options = isset($config['options']) ? $config['options'] : array();
+                $this->validate($config, $name, $path);
 
-                    $this->setCurrentDir(dirname($path));
-                    $collection->addCollection($this->import($config['resource'], $type, false, $file), $prefix, $defaults, $requirements, $options);
+                if (isset($config['resource'])) {
+                    $this->parseImport($collection, $config, $path, $file);
                 } else {
                     $this->parseRoute($collection, $name, $config, $path);
                 }
@@ -105,5 +116,26 @@ class CachedYamlFileLoader extends YamlFileLoader
         }
 
         return $collection;
+    }
+
+    private function doReplacements($value)
+    {
+        if (!$this->replacements) {
+            return $value;
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $key => $val) {
+                $value[$key] = $this->doReplacements($val);
+            }
+
+            return $value;
+        }
+
+        if (is_string($value)) {
+            return strtr($value, $this->replacements);
+        }
+
+        return $value;
     }
 }

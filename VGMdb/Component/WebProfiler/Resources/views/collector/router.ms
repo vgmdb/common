@@ -41,13 +41,13 @@
 <table class="routing inline">
   <tr>
     <th>Route name</th>
-    <th>Pattern</th>
+    <th>Path</th>
     <th>Log</th>
   </tr>
   {{#traces}}
   <tr>
     <td>{{name}}</td>
-    <td>{{pattern}}</td>
+    <td>{{path}}</td>
     <td>{{log}}</td>
   </tr>
   {{/traces}}

@@ -96,7 +96,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
                 if (!class_exists('Symfony\\Component\\Yaml\\Yaml')) {
                     throw new \RuntimeException('Unable to read yaml as the Symfony Yaml Component is not installed.');
                 }
-                $config = Yaml::parse($this->filename);
+                $config = Yaml::parse(file_get_contents($this->filename));
             } elseif ('json' === $format) {
                 $config = json_decode(file_get_contents($this->filename), true);
             } else {

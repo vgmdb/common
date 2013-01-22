@@ -16,7 +16,7 @@ class PropelServiceProvider implements ServiceProviderInterface
     public function register(Application $app)
     {
         // default options
-        $app['propel.instance_pooling'] = true;
+        $app['propel.instance_pooling'] = false;
         $app['propel.force_master_connection'] = false;
 
         $app['propel.connection'] = $app->protect(function ($name = null, $mode = 'write') use ($app) {
@@ -57,6 +57,10 @@ class PropelServiceProvider implements ServiceProviderInterface
         if (!\Propel::isInit() && $app['propel.configuration']) {
             \Propel::setLogger($app['propel.logger']);
             \Propel::initialize();
+            if (!$app['propel.instance_pooling']) {
+                \Propel::disableInstancePooling();
+            }
+            \Propel::setForceMasterConnection($app['propel.force_master_connection']);
             spl_autoload_unregister(array('Propel', 'autoload')); // get your autoloader out of my framework
         }
     }

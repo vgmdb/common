@@ -108,6 +108,19 @@ class DebuggerServiceProvider implements ServiceProviderInterface
         $app['serializer'] = $app->share($app->extend('serializer', function ($serializer) use ($app) {
             return new $app['debug.serializer.class']($serializer, $app['debug.stopwatch'], $app['logger']);
         }));
+
+        // add logger to Swiftmailer
+        $app['swiftmailer.plugin.messagelogger.class'] = 'Swift_Plugins_MessageLogger';
+
+        $app['swiftmailer.plugin.messagelogger'] = $app->share(function ($app) {
+            return new $app['swiftmailer.plugin.messagelogger.class']();
+        });
+
+        $app['mailer'] = $app->share($app->extend('mailer', function ($mailer) use ($app) {
+            $mailer->registerPlugin($app['swiftmailer.plugin.messagelogger']);
+
+            return $mailer;
+        }));
     }
 
     public function boot(Application $app)

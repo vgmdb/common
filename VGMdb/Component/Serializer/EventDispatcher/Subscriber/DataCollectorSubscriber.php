@@ -43,6 +43,14 @@ class DataCollectorSubscriber implements EventSubscriberInterface
         } elseif ($object instanceof DoctrineDataCollector || $object instanceof PropelDataCollector) {
             $visitor->addData('time', sprintf('%.0f', ceil($object->getTime() * 1000)));
             $visitor->addData('querycount', sprintf('%d', $object->getQueryCount()));
+        } elseif ($object instanceof \Swift_Mime_SimpleMessage) {
+            $headers = array();
+            foreach ($object->getHeaders()->getAll() as $header) {
+                list($key, $value) = explode(':', $header->toString(), 2);
+                $headers[$key] = $value;
+            }
+            $visitor->addData('headers', $headers);
+            $visitor->addData('body', $object->getBody());
         }
     }
 

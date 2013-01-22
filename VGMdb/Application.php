@@ -69,8 +69,13 @@ class Application extends BaseApplication
         });
 
         // replace the request context
-        $this['request_context'] = $this->share(function () use ($app) {
-            return new RequestContext(null, null, null, null, $app['request.http_port'], $app['request.https_port']);
+        $this['request_context'] = $this->share(function ($app) {
+            $context = new RequestContext(null, null, null, null, $app['request.http_port'], $app['request.https_port']);
+            if (class_exists('Mobile_Detect')) {
+                $context->setMobileDetector(new \Mobile_Detect());
+            }
+
+            return $context;
         });
 
         // replace the redirectable url matcher
@@ -147,14 +152,6 @@ class Application extends BaseApplication
     public function stopTrace()
     {
         $this->stopwatch = null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function error($callback, $priority = -8)
-    {
-        $this['dispatcher']->addListener(KernelEvents::EXCEPTION, new ExceptionListenerWrapper($this, $callback), $priority);
     }
 
     /**
@@ -250,5 +247,37 @@ class Application extends BaseApplication
         }
 
         return $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function before($callback, $priority = 0)
+    {
+        throw new \RuntimeException('Calling before() is not allowed. Please create a proper Listener class.');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function after($callback, $priority = 0)
+    {
+        throw new \RuntimeException('Calling after() is not allowed. Please create a proper Listener class.');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function finish($callback, $priority = 0)
+    {
+        throw new \RuntimeException('Calling finish() is not allowed. Please create a proper Listener class.');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function error($callback, $priority = -8)
+    {
+        throw new \RuntimeException('Calling error() is not allowed. Please create a proper Listener class.');
     }
 }

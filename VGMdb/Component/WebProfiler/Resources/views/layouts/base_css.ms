@@ -117,6 +117,13 @@ abbr {
     border-bottom: 1px dotted #000;
     cursor: help;
 }
+pre.code {
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap !important;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+}
 .clear {
     clear: both;
     height: 0;
@@ -256,11 +263,7 @@ abbr {
 #collector-content table td {
     background-color: white;
 }
-h1 {
-    font-family: Georgia, "Times New Roman", Times, serif;
-    color: #404040;
-}
-h2, h3 {
+h1, h2, h3 {
     font-weight: bold;
     margin-bottom: 20px;
 }
@@ -328,6 +331,10 @@ a#resume-view-all {
 table th.value {
     width: 450px;
     background-color: #dfeeb8;
+}
+#content h1 {
+    font-size: 30px;
+    font-weight: bold;
 }
 #content h2 {
     font-size: 24px;

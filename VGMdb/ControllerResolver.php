@@ -48,7 +48,7 @@ class ControllerResolver extends BaseControllerResolver
         }
 
         throw new \InvalidArgumentException(
-            sprintf('Could not resolve "%s::%s" or "%s::%s".',
+            sprintf('Could not resolve "%s:%s" or "%s:%s".',
                 get_class($controller),
                 $verbMethod,
                 get_class($controller),
@@ -67,12 +67,12 @@ class ControllerResolver extends BaseControllerResolver
      */
     protected function createController($controller, $request = null)
     {
-        if (false === strpos($controller, '::')) {
+        if (false === strpos($controller, ':')) {
             $action = $request ? $request->attributes->get('_action') : '';
             $action = $action ?: 'index';
             list($class, $method) = array($controller, $action . 'Action');
         } else {
-            list($class, $method) = explode('::', $controller, 2);
+            list($class, $method) = explode(':', $controller, 2);
             $method .= 'Action';
         }
 
