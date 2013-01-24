@@ -4,8 +4,8 @@ namespace VGMdb\Component\User\Mailer;
 
 use VGMdb\Component\User\Model\UserInterface;
 use VGMdb\Component\User\Mailer\MailerInterface;
-use Symfony\Component\HttpKernel\Log\LoggerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Mailer with Mustache templating.

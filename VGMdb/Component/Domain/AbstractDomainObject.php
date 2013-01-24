@@ -3,7 +3,7 @@
 namespace VGMdb\Component\Domain;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpKernel\Log\LoggerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Base class for domain objects.

@@ -3,7 +3,7 @@
 namespace VGMdb\Component\User\Mailer;
 
 use VGMdb\Component\User\Model\UserInterface;
-use Symfony\Component\HttpKernel\Log\LoggerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * This mailer does nothing.

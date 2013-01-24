@@ -4,7 +4,6 @@ namespace VGMdb\Component\HttpKernel\Debug;
 
 use Symfony\Component\Stopwatch\Stopwatch;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\HttpKernel\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Profiler\Profile;
 use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -12,6 +11,7 @@ use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\EventDispatcher\Debug\TraceableEventDispatcherInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Similar to TraceableEventDispatcher with a bugfix in dispatch.

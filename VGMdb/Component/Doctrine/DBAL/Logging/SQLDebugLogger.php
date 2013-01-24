@@ -3,7 +3,7 @@
 namespace VGMdb\Component\Doctrine\DBAL\Logging;
 
 use Doctrine\DBAL\Logging\DebugStack;
-use Symfony\Component\HttpKernel\Log\LoggerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 /**

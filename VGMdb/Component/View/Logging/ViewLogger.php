@@ -3,8 +3,8 @@
 namespace VGMdb\Component\View\Logging;
 
 use VGMdb\Component\View\ViewInterface;
-use Symfony\Component\HttpKernel\Log\LoggerInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
+use Psr\Log\LoggerInterface;
 
 /**
  * A view logger that supports log collection and time profiling.

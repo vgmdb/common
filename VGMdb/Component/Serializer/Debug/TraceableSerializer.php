@@ -3,7 +3,7 @@
 namespace VGMdb\Component\Serializer\Debug;
 
 use Symfony\Component\Stopwatch\Stopwatch;
-use Symfony\Component\HttpKernel\Log\LoggerInterface;
+use Psr\Log\LoggerInterface;
 use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\Exclusion\ExclusionStrategyInterface;
 

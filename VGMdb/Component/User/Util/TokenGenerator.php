@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\User\Util;
 
-use Symfony\Component\HttpKernel\Log\LoggerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Token generator for registration and password resets.

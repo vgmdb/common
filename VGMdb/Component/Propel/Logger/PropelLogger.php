@@ -3,7 +3,7 @@
 namespace VGMdb\Component\Propel\Logger;
 
 use Symfony\Component\Stopwatch\Stopwatch;
-use Symfony\Component\HttpKernel\Log\LoggerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * PropelLogger.

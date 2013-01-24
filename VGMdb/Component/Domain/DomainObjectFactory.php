@@ -4,7 +4,7 @@ namespace VGMdb\Component\Domain;
 
 use Aura\Marshal\Manager as Marshal;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpKernel\Log\LoggerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Factory for domain objects.
