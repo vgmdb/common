@@ -9,19 +9,11 @@ namespace VGMdb\Component\Domain;
  */
 interface DomainObjectInterface
 {
-    public function save($object);
-
-    public function delete($object);
-
     public function find($criteria);
 
-    public function findAggregate($criteria);
+    public function save($object, $async = false);
 
-    public function findOne($criteria);
-
-    public function findOneAggregate($criteria);
+    public function delete($object, $async = false);
 
     public function count($criteria);
-
-    public function getInterfaceDefinition();
 }

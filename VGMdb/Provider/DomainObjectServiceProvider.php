@@ -9,7 +9,7 @@ use Aura\Marshal\Type\Builder as TypeBuilder;
 use Aura\Marshal\Relation\Builder as RelationBuilder;
 
 /**
- * Provides domain object marshalling.
+ * Domain object interoperability layer.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
@@ -19,7 +19,6 @@ class DomainObjectServiceProvider implements ServiceProviderInterface
     {
         $app['object_manager'] = $app->share(function ($app) {
             // the object manager is a factory that gives you domain objects
-            // it contains a data object marshal that aggregates multiple entities from different sources
             // a dispatcher propagates events to listeners
         });
 

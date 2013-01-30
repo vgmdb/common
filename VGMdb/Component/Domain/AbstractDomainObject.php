@@ -14,7 +14,6 @@ abstract class AbstractDomainObject implements DomainObjectInterface
 {
     protected $repositories;
     protected $serializer;
-    protected $marshal;
     protected $logger;
     protected $dispatcher;
 
