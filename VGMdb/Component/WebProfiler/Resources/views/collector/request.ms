@@ -15,7 +15,7 @@
     {{:request_query}}
     <tr>
       <th>{{..}}</th>
-      <td>{{#.}}{{.}}{{/.}}</td>
+      <td>{{.}}</td>
     </tr>
     {{/request_query}}
 </tbody>
@@ -38,7 +38,7 @@
     {{:request_request}}
     <tr>
       <th>{{..}}</th>
-      <td>{{#.}}{{.}}{{/.}}</td>
+      <td>{{.}}</td>
     </tr>
     {{/request_request}}
 </tbody>
@@ -61,7 +61,7 @@
     {{:request_attributes}}
     <tr>
       <th>{{..}}</th>
-      <td>{{#.}}{{.}}{{/.}}</td>
+      <td>{{.}}</td>
     </tr>
     {{/request_attributes}}
 </tbody>
@@ -84,7 +84,7 @@
     {{:request_cookies}}
     <tr>
       <th>{{..}}</th>
-      <td>{{#.}}{{.}}{{/.}}</td>
+      <td>{{.}}</td>
     </tr>
     {{/request_cookies}}
 </tbody>
@@ -107,7 +107,7 @@
     {{:request_context}}
     <tr>
       <th>{{..}}</th>
-      <td>{{#.}}{{.}}{{/.}}</td>
+      <td>{{.}}</td>
     </tr>
     {{/request_context}}
 </tbody>
@@ -127,7 +127,7 @@
     {{:request_headers}}
     <tr>
       <th>{{..}}</th>
-      <td>{{#.}}{{.}}{{/.}}</td>
+      <td>{{.}}</td>
     </tr>
     {{/request_headers}}
 </tbody>
@@ -136,7 +136,7 @@
 
 <h3>Request Content</h3>
 {{?content}}
-<table><tr><td><pre class="code">{{content}}</pre></td></tr></table>
+<table style="table-layout: fixed;"><tr><td><pre class="code">{{content}}</pre></td></tr></table>
 {{/content}}
 {{^content}}
 <p><em>No content</em></p>
@@ -155,7 +155,7 @@
     {{:request_server}}
     <tr>
       <th>{{..}}</th>
-      <td>{{#.}}{{.}}{{/.}}</td>
+      <td>{{.}}</td>
     </tr>
     {{/request_server}}
 </tbody>
@@ -175,7 +175,7 @@
     {{:response_headers}}
     <tr>
       <th>{{..}}</th>
-      <td>{{#.}}{{.}}{{/.}}</td>
+      <td>{{.}}</td>
     </tr>
     {{/response_headers}}
 </tbody>
@@ -195,7 +195,7 @@
     {{:session_metadata}}
     <tr>
       <th>{{..}}</th>
-      <td>{{#.}}{{.}}{{/.}}</td>
+      <td>{{.}}</td>
     </tr>
     {{/session_metadata}}
 </tbody>
@@ -218,7 +218,7 @@
     {{:session_attributes}}
     <tr>
       <th>{{..}}</th>
-      <td>{{#.}}{{.}}{{/.}}</td>
+      <td>{{.}}</td>
     </tr>
     {{/session_attributes}}
 </tbody>
@@ -241,7 +241,7 @@
     {{:flashes}}
     <tr>
       <th>{{..}}</th>
-      <td>{{#.}}{{.}}{{/.}}</td>
+      <td>{{.}}</td>
     </tr>
     {{/flashes}}
 </tbody>

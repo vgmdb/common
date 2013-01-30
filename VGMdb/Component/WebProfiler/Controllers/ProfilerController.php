@@ -128,7 +128,21 @@ class ProfilerController extends AbstractController
             'panel'     => true
         );
 
-        if ($panel === 'time') {
+        if ($panel === 'request') {
+            foreach ($panelData['collector']['data'] as $type => $values) {
+                if (is_array($values)) {
+                    foreach ($values as $key => $value) {
+                        if (is_array($value)) {
+                            if (count($value) === 1 && isset($value[0])) {
+                                $panelData['collector']['data'][$type][$key] = $this->varToString(reset($value));
+                            } else {
+                                $panelData['collector']['data'][$type][$key] = $this->varToString($value);
+                            }
+                        }
+                    }
+                }
+            }
+        } elseif ($panel === 'time') {
             $events = $panelData['collector']['data']['events'];
             unset($events['__section__']);
             $panelData['events_json'] = json_encode(array_values($events));
@@ -348,5 +362,46 @@ class ProfilerController extends AbstractController
     public function phpinfoAction()
     {
         die(phpinfo());
+    }
+
+    /**
+     * Converts a PHP variable to a string.
+     *
+     * @param mixed $var A PHP variable
+     *
+     * @return string The string representation of the variable
+     */
+    protected function varToString($var)
+    {
+        if (is_object($var)) {
+            return sprintf('Object(%s)', get_class($var));
+        }
+
+        if (is_array($var)) {
+            $a = array();
+            foreach ($var as $k => $v) {
+                $a[] = sprintf('%s => %s', $k, $this->varToString($v));
+            }
+
+            return sprintf("Array(%s)", implode(', ', $a));
+        }
+
+        if (is_resource($var)) {
+            return sprintf('Resource(%s)', get_resource_type($var));
+        }
+
+        if (null === $var) {
+            return 'null';
+        }
+
+        if (false === $var) {
+            return 'false';
+        }
+
+        if (true === $var) {
+            return 'true';
+        }
+
+        return (string) $var;
     }
 }
