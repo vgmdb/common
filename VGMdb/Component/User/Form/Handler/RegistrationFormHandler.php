@@ -6,7 +6,7 @@ use VGMdb\Component\User\Model\UserManagerInterface;
 use VGMdb\Component\User\Model\UserInterface;
 use VGMdb\Component\User\Mailer\MailerInterface;
 use VGMdb\Component\User\Util\TokenGeneratorInterface;
-use Symfony\Component\Form\FormInterface;
+use VGMdb\Component\Form\FormFlow;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -18,17 +18,22 @@ class RegistrationFormHandler
 {
     protected $request;
     protected $userManager;
+    protected $flow;
     protected $form;
     protected $mailer;
     protected $tokenGenerator;
 
-    public function __construct(FormInterface $form, Request $request, UserManagerInterface $userManager, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator)
+    public function __construct(FormFlow $flow, Request $request, UserManagerInterface $userManager, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator)
     {
-        $this->form = $form;
+        $this->flow = $flow;
         $this->request = $request;
         $this->userManager = $userManager;
         $this->mailer = $mailer;
         $this->tokenGenerator = $tokenGenerator;
+
+        $user = $this->createUser();
+        $this->flow->bind($user);
+        $this->form = $this->flow->createForm($user);
     }
 
     /**
@@ -38,20 +43,37 @@ class RegistrationFormHandler
      */
     public function process($requireConfirmation = false)
     {
-        $user = $this->createUser();
-        $this->form->setData($user);
+        if ($this->flow->isValid($this->form)) {
+            $this->flow->saveCurrentStepData();
 
-        if ('POST' === $this->request->getMethod()) {
-            $this->form->bind($this->request);
-
-            if ($this->form->isValid()) {
+            $user = $this->form->getData();
+            if (!$this->flow->nextStep()) {
                 $this->activateUser($user, $requireConfirmation);
+                $this->flow->reset();
 
-                return true;
+                return $user;
             }
+
+            $this->form = $this->flow->createForm($user);
         }
 
         return false;
+    }
+
+    /**
+     * @return FormFlow
+     */
+    public function getFlow()
+    {
+        return $this->flow;
+    }
+
+    /**
+     * @return FormInterface
+     */
+    public function getForm()
+    {
+        return $this->form;
     }
 
     /**

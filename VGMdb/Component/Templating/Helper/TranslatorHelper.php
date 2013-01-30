@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * This code was originally part of the Symfony FrameworkBundle.
+ *
+ * (c) Fabien Potencier <fabien@symfony.com>
+ */
+
 namespace VGMdb\Component\Templating\Helper;
 
 use Symfony\Component\Translation\TranslatorInterface;
@@ -8,7 +14,7 @@ use Symfony\Component\Templating\Helper\HelperInterface;
 /**
  * Provides translation functions.
  *
- * @author Gigablah <gigablah@vgmdb.net>
+ * @author Fabien Potencier <fabien@symfony.com>
  */
 class TranslatorHelper implements HelperInterface
 {

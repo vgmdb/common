@@ -25,7 +25,8 @@ class MustacheServiceProvider implements ServiceProviderInterface
             $mustache = new \Mustache_Engine(array(
                 'cache' => $app['mustache.cache_dir'],
                 'loader' => $loader,
-                'partials_loader' => $loader
+                'partials_loader' => $loader,
+                'logger' => $app['logger']
             ));
 
             if (isset($app['translate'])) {

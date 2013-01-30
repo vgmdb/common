@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * This code was originally part of the Symfony FrameworkBundle.
+ *
+ * (c) Fabien Potencier <fabien@symfony.com>
+ */
+
 namespace VGMdb\Component\Templating\Helper;
 
 use Symfony\Component\Form\FormRendererInterface;
@@ -7,9 +13,10 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\Templating\Helper\HelperInterface;
 
 /**
- * Provides helper functions for rendering forms.
+ * FormHelper provides helpers to help display forms.
  *
- * @author Gigablah <gigablah@vgmdb.net>
+ * @author Fabien Potencier <fabien@symfony.com>
+ * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class FormHelper implements HelperInterface
 {
@@ -99,7 +106,7 @@ class FormHelper implements HelperInterface
      *
      *     <?php echo view['form']->widget(array('attr' => array('class' => 'foo'))) ?>
      *
-     *     <?php echo view['form']->widget(array('separator' => '+++++)) ?>
+     *     <?php echo view['form']->widget(array('separator' => '+++++')) ?>
      *
      * @param FormView $view      The view for which to render the widget
      * @param array    $variables Additional variables passed to the template

@@ -40,6 +40,23 @@ class FormServiceProvider extends BaseFormServiceProvider
         /*$app['form.csrf_provider'] = $app->share(function ($app) {
             return new ExpiringSessionCsrfProvider($app['session'], $app['form.secret']);
         });*/
+
+        $app['form.flow.class'] = 'VGMdb\\Component\\Form\\FormFlow';
+        $app['form.flow.storage.class'] = 'VGMdb\\Component\\Form\\Storage\\SessionStorage';
+
+        $app['form.flow.storage'] = $app->share(function ($app) {
+            return new $app['form.flow.storage.class']($app['session']);
+        });
+
+        $app['form.flow'] = $app->share(function ($app) {
+            $flow = new $app['form.flow.class']();
+            $flow->setFormFactory($app['form.factory']);
+            $flow->setRequest($app['request']);
+            $flow->setStorage($app['form.flow.storage']);
+            $flow->setEventDispatcher($app['dispatcher']);
+
+            return $flow;
+        });
     }
 
     public function boot(Application $app)

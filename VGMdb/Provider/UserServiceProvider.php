@@ -3,6 +3,7 @@
 namespace VGMdb\Provider;
 
 use VGMdb\Component\User\Form\Type\RegistrationFormType;
+use VGMdb\Component\User\Form\Flow\RegistrationFormFlow;
 use VGMdb\Component\User\Form\Type\ResetPasswordFormType;
 use VGMdb\Component\User\Form\Handler\RegistrationFormHandler;
 use VGMdb\Component\User\Form\Handler\ResetPasswordFormHandler;
@@ -95,13 +96,29 @@ class UserServiceProvider implements ServiceProviderInterface
         });
 
         $app['user.registration.form'] = $app->share(function ($app) {
-            $form = $app['form.factory']->create(new RegistrationFormType($app['user.model.user_class']));
+            $form = $app['form.factory']->create($app['user.registration.form_type']);
+
             return $form;
+        });
+
+        $app['user.registration.form_type'] = $app->share(function ($app) {
+            return new RegistrationFormType($app['user.model.user_class']);
+        });
+
+        $app['user.registration.form_flow'] = $app->share(function ($app) {
+            $flow = new RegistrationFormFlow();
+            $flow->setFormType($app['user.registration.form_type']);
+            $flow->setFormFactory($app['form.factory']);
+            $flow->setRequest($app['request']);
+            $flow->setStorage($app['form.flow.storage']);
+            $flow->setEventDispatcher($app['dispatcher']);
+
+            return $flow;
         });
 
         $app['user.registration.form_handler'] = $app->share(function ($app) {
             return new RegistrationFormHandler(
-                $app['user.registration.form'],
+                $app['user.registration.form_flow'],
                 $app['request'],
                 $app['user_manager'],
                 $app['user.mailer'],

@@ -25,23 +25,31 @@ class RegistrationFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder
-            ->add('username', null, array('label' => 'Username'))
-            ->add('email', 'email', array('label' => 'Email'))
-            ->add('plainPassword', 'repeated',
-                array(
-                    'type' => 'password',
-                    'options' => array(),
-                    'first_options' => array('label' => 'Password'),
-                    'second_options' => array('label' => 'Confirm Password'),
-                    'invalid_message' => 'Passwords do not match.',
-                )
-            );
+        switch ($options['flowStep']) {
+            case 1:
+                $builder
+                    ->add('username', null, array('label' => 'Username'))
+                    ->add('email', 'email', array('label' => 'Email'));
+                break;
+            case 2:
+                $builder
+                    ->add('plainPassword', 'repeated',
+                        array(
+                            'type' => 'password',
+                            'options' => array(),
+                            'first_options' => array('label' => 'Password'),
+                            'second_options' => array('label' => 'Confirm Password'),
+                            'invalid_message' => 'Passwords do not match.',
+                        )
+                    );
+                break;
+        }
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
+            'flowStep' => 1,
             'data_class' => $this->class,
             'csrf_protection' => true,
             'csrf_field_name' => '_token',
