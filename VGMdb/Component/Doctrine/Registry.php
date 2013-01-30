@@ -30,7 +30,7 @@ class Registry extends AbstractManagerRegistry implements RegistryInterface
      */
     public function __construct(Application $app, array $connections, array $entityManagers, $defaultConnection, $defaultEntityManager)
     {
-        $this->$app = $app;
+        $this->app = $app;
 
         parent::__construct('ORM', $connections, $entityManagers, $defaultConnection, $defaultEntityManager, 'Doctrine\ORM\Proxy\Proxy');
     }

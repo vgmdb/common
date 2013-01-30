@@ -2,6 +2,7 @@
 
 namespace VGMdb\Provider;
 
+use VGMdb\Component\Doctrine\Registry;
 use VGMdb\Component\Doctrine\DBAL\Logging\SQLDebugLogger;
 use Silex\Application;
 use Silex\Provider\DoctrineServiceProvider as BaseDoctrineServiceProvider;
@@ -26,43 +27,71 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
     {
         parent::register($app);
 
+        $app['entity_managers'] = $app->share(function ($app) {
+            $entityManagers = array();
+
+            foreach ($app['orm.entity_managers'] as $name => $options) {
+                $app['entity_manager.' . $name] = $app->share(function ($app) use ($options) {
+                    if (!isset($app['orm.cache_dir'])) {
+                        throw new \RuntimeException('The orm.cache_dir path is not set.');
+                    }
+                    if (!isset($app['orm.entity_dir'])) {
+                        throw new \RuntimeException('The orm.entity_dir path is not set.');
+                    }
+                    if (!isset($app['orm.proxy_dir'])) {
+                        throw new \RuntimeException('The orm.proxy_dir path is not set.');
+                    }
+                    if (!isset($app['orm.proxy_namespace'])) {
+                        throw new \RuntimeException('The orm.proxy_namespace path is not set.');
+                    }
+
+                    $metadataCache = ($app['debug'] || !extension_loaded('apc')) ? new ArrayCache() : new ApcCache();
+                    $queryCache    = ($app['debug'] || !extension_loaded('apc')) ? new ArrayCache() : new ApcCache();
+
+                    $config = new Configuration();
+
+                    $r = new \ReflectionClass(get_class($config));
+                    AnnotationRegistry::registerFile(dirname($r->getFilename()) . '/Mapping/Driver/DoctrineAnnotations.php');
+
+                    $driver = new AnnotationDriver(
+                        new FileCacheReader(new AnnotationReader(), $app['orm.cache_dir'], $app['debug']),
+                        (array) $app['orm.entity_dir']
+                    );
+
+                    $config->setMetadataCacheImpl($metadataCache);
+                    $config->setMetadataDriverImpl($driver);
+                    $config->setQueryCacheImpl($queryCache);
+                    $config->setProxyDir($app['orm.proxy_dir']);
+                    $config->setProxyNamespace($app['orm.proxy_namespace']);
+                    $config->setAutoGenerateProxyClasses($app['debug']);
+
+                    $connections = $app['dbs'];
+                    $entityManager = EntityManager::create($connections[$options['connection']], $config);
+
+                    return $entityManager;
+                });
+
+                $entityManagers[$name] = 'entity_manager.' . $name;
+            }
+
+            return $entityManagers;
+        });
+
         $app['entity_manager'] = $app->share(function ($app) {
-            if (!isset($app['orm.cache_dir'])) {
-                throw new \RuntimeException('The orm.cache_dir path is not set.');
-            }
-            if (!isset($app['orm.entity_dir'])) {
-                throw new \RuntimeException('The orm.entity_dir path is not set.');
-            }
-            if (!isset($app['orm.proxy_dir'])) {
-                throw new \RuntimeException('The orm.proxy_dir path is not set.');
-            }
-            if (!isset($app['orm.proxy_namespace'])) {
-                throw new \RuntimeException('The orm.proxy_namespace path is not set.');
-            }
+            $entityManagers = array_keys($app['entity_managers']);
+            $defaultManager = reset($entityManagers);
 
-            $metadataCache = ($app['debug'] || !extension_loaded('apc')) ? new ArrayCache() : new ApcCache();
-            $queryCache    = ($app['debug'] || !extension_loaded('apc')) ? new ArrayCache() : new ApcCache();
+            return $app['entity_manager.' . $defaultManager];
+        });
 
-            $config = new Configuration();
-
-            $r = new \ReflectionClass(get_class($config));
-            AnnotationRegistry::registerFile(dirname($r->getFilename()) . '/Mapping/Driver/DoctrineAnnotations.php');
-
-            $driver = new AnnotationDriver(
-                new FileCacheReader(new AnnotationReader(), $app['orm.cache_dir'], $app['debug']),
-                (array) $app['orm.entity_dir']
+        $app['doctrine'] = $app->share(function ($app) {
+            return new Registry(
+                $app,
+                $app['dbs.options'],
+                $app['entity_managers'],
+                $app['dbal.default_connection'],
+                $app['orm.default_entity_manager']
             );
-
-            $config->setMetadataCacheImpl($metadataCache);
-            $config->setMetadataDriverImpl($driver);
-            $config->setQueryCacheImpl($queryCache);
-            $config->setProxyDir($app['orm.proxy_dir']);
-            $config->setProxyNamespace($app['orm.proxy_namespace']);
-            $config->setAutoGenerateProxyClasses($app['debug']);
-
-            $em = EntityManager::create($app['db'], $config);
-
-            return $em;
         });
 
         $app['db.logger'] = $app->share(function ($app) {
