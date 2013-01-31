@@ -2,6 +2,7 @@
 
 namespace VGMdb;
 
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Matcher\RedirectableUrlMatcher as BaseRedirectableUrlMatcher;
 
 /**
@@ -11,6 +12,30 @@ use Symfony\Component\Routing\Matcher\RedirectableUrlMatcher as BaseRedirectable
  */
 class RedirectableUrlMatcher extends BaseRedirectableUrlMatcher
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function match($pathinfo)
+    {
+        try {
+            $parameters = parent::match($pathinfo);
+        } catch (ResourceNotFoundException $e) {
+            if ('/' !== substr($pathinfo, -1) || !in_array($this->context->getMethod(), array('HEAD', 'GET'))) {
+                throw $e;
+            }
+
+            try {
+                parent::match(rtrim($pathinfo, '/'));
+
+                return $this->redirect(rtrim($pathinfo, '/'), null);
+            } catch (ResourceNotFoundException $e2) {
+                throw $e;
+            }
+        }
+
+        return $parameters;
+    }
+
     /**
      * Redirects the user to another URL.
      *
@@ -23,7 +48,7 @@ class RedirectableUrlMatcher extends BaseRedirectableUrlMatcher
     public function redirect($path, $route, $scheme = null)
     {
         return array(
-            '_controller' => 'VGMdb\\RedirectController::urlRedirect',
+            '_controller' => 'VGMdb\\RedirectController:urlRedirect',
             'path'        => $path,
             'permanent'   => true,
             'scheme'      => $scheme,
