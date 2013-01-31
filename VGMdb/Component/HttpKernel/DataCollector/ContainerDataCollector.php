@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\HttpKernel\DataCollector;
 
-use VGMdb\Application;
+use VGMdb\TraceableApplication;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
@@ -19,9 +19,9 @@ class ContainerDataCollector extends DataCollector
     /**
      * Constructor.
      *
-     * @param Application $app
+     * @param TraceableApplication $app
      */
-    public function __construct(Application $app)
+    public function __construct(TraceableApplication $app)
     {
         $this->app = $app;
     }
@@ -36,7 +36,7 @@ class ContainerDataCollector extends DataCollector
         sort($keys);
         $bootlog = $this->app->getBootlog();
 
-        $this->app->stopTrace();
+        $this->app->stopProfiling();
 
         foreach ($keys as $key) {
             $booted = isset($bootlog[$key]);

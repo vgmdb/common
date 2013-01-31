@@ -30,12 +30,9 @@ use Symfony\Component\HttpKernel\EventListener\RouterListener;
  */
 class Application extends BaseApplication
 {
-    private $booting;
-    private $booted;
-    private $readonly;
-    private $bootlog;
-    private $stopwatch;
-    private $startTime;
+    protected $booting;
+    protected $booted;
+    protected $readonly;
 
     /**
      * Constructor.
@@ -45,8 +42,6 @@ class Application extends BaseApplication
         $this->booting = false;
         $this->booted = false;
         $this->readonly = array();
-        $this->bootlog = array();
-        $this->startTime = microtime(true);
 
         // we don't pass $values into the parent constructor; we'll handle it ourselves
         parent::__construct();
@@ -130,34 +125,6 @@ class Application extends BaseApplication
     }
 
     /**
-     * Returns the request start time.
-     *
-     * @return integer
-     */
-    public function getStartTime()
-    {
-        return $this->startTime;
-    }
-
-    /**
-     * Returns the service boot log.
-     *
-     * @return array
-     */
-    public function getBootlog()
-    {
-        return $this->bootlog;
-    }
-
-    /**
-     * Stop tracing service access.
-     */
-    public function stopTrace()
-    {
-        $this->stopwatch = null;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function mount($prefix, $controllers)
@@ -205,13 +172,6 @@ class Application extends BaseApplication
     {
         $this->booting = true;
 
-        if ($this['debug'] && isset($this['debug.stopwatch'])) {
-            $start = microtime(true) * 1000;
-            $this->stopwatch = $this['debug.stopwatch'];
-            $end = microtime(true) * 1000;
-            $this->bootlog['debug.stopwatch'] = sprintf('%.0f', $end - $start);
-        }
-
         parent::boot();
 
         $this->booted = true;
@@ -227,29 +187,6 @@ class Application extends BaseApplication
         }
 
         parent::offsetSet($id, $value);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetGet($id)
-    {
-        $event = null;
-
-        if (null !== $this->stopwatch) {
-            $event = $this->stopwatch->start($id, 'boot');
-        }
-
-        $value = parent::offsetGet($id);
-
-        if (null !== $event) {
-            $event->stop($id);
-            if (!isset($this->bootlog[$id])) {
-                $this->bootlog[$id] = $event->getDuration();
-            }
-        }
-
-        return $value;
     }
 
     /**

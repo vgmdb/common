@@ -3,6 +3,7 @@
 namespace VGMdb\Component\HttpKernel\DataCollector;
 
 use VGMdb\Application;
+use VGMdb\TraceableApplication;
 use Symfony\Component\HttpKernel\DataCollector\TimeDataCollector as BaseTimeDataCollector;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,7 +28,9 @@ class TimeDataCollector extends BaseTimeDataCollector
     public function collect(Request $request, Response $response, \Exception $exception = null)
     {
         $this->data = array(
-            'start_time' => (null !== $this->app ? $this->app->getStartTime() : $_SERVER['REQUEST_TIME']) * 1000,
+            'start_time' => null !== $this->app && $this->app instanceof TraceableApplication
+                ? $this->app->getStartTime() * 1000
+                : $_SERVER['REQUEST_TIME'] * 1000,
             'events'     => array(),
         );
     }
