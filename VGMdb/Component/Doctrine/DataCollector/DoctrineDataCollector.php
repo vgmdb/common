@@ -184,4 +184,71 @@ class DoctrineDataCollector extends DataCollector
 
         return array($var, true);
     }
+
+    /**
+     * Return a query with the parameters replaced
+     *
+     * @param string $query
+     * @param array $parameters
+     *
+     * @return string
+     */
+    public function replaceQueryParameters($query, $parameters)
+    {
+        $i = 0;
+
+        $result = preg_replace_callback(
+            '/\?|(:[a-z0-9_]+)/i',
+            function ($matches) use ($parameters, &$i) {
+                $key = substr($matches[0], 1);
+                if (!isset($parameters[$i]) && !isset($parameters[$key])) {
+                    return $matches[0];
+                }
+
+                $value = isset($parameters[$i]) ? $parameters[$i] : $parameters[$key];
+                $result = $this->escapeFunction($value);
+                $i++;
+
+                return $result;
+            },
+            $query
+        );
+
+        return $result;
+    }
+
+    /**
+     * Escape parameters of a SQL query
+     * NEVER USE THIS FUNCTION OUTSIDE ITS INTENDED SCOPE
+     *
+     * @internal
+     *
+     * @param mixed $parameter
+     *
+     * @return string
+     */
+    private function escapeFunction($parameter)
+    {
+        $result = $parameter;
+
+        switch (true) {
+            case is_string($result) :
+                $result = "'" . addslashes($result) . "'";
+                break;
+
+            case is_array($result) :
+                foreach ($result as &$value) {
+                    $value = static::escapeFunction($value);
+                }
+
+                $result = implode(', ', $result);
+                break;
+
+            case is_object($result) :
+                $result = addslashes((string) $result);
+                break;
+        }
+
+        return $result;
+    }
 }
