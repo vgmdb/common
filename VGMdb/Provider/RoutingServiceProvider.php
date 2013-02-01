@@ -3,8 +3,8 @@
 namespace VGMdb\Provider;
 
 use VGMdb\Component\Routing\Loader\CachedYamlFileLoader;
-use VGMdb\RedirectableUrlMatcher;
-use VGMdb\RedirectableProxyUrlMatcher;
+use VGMdb\Component\Routing\Matcher\RedirectableUrlMatcher;
+use VGMdb\Component\Routing\Matcher\RedirectableProxyUrlMatcher;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\Config\ConfigCache;
@@ -38,7 +38,7 @@ class RoutingServiceProvider implements ServiceProviderInterface
 
                 $options = array(
                     'class'      => $class,
-                    'base_class' => 'Symfony\\Component\\Routing\\Matcher\\RedirectableUrlMatcher'
+                    'base_class' => 'Symfony\\Component\\Routing\\Matcher\\UrlMatcher'
                 );
 
                 $cache->write($dumper->dump($options), $app['routes']->getResources());

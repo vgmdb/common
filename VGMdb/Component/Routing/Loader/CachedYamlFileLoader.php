@@ -3,11 +3,11 @@
 namespace VGMdb\Component\Routing\Loader;
 
 use Symfony\Component\Config\ConfigCache;
-use Symfony\Component\Routing\RouteCollection;
-use Symfony\Component\Routing\Route;
 use Symfony\Component\Config\Resource\FileResource;
-use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Loader\YamlFileLoader;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * CachedYamlFileLoader loads and caches Yaml routing configs.
