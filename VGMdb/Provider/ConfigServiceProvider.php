@@ -6,7 +6,6 @@ use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Resource\FileResource;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -88,27 +87,33 @@ class ConfigServiceProvider implements ServiceProviderInterface
         }
 
         if (!$this->cache[$id]->isFresh()) {
-            if (!file_exists($filename)) {
-                if (!file_exists($filename . '.dist')) {
-                    throw new FileNotFoundException($filename . '.dist');
-                }
-
-                try {
-                    if (false === @copy($filename . '.dist', $filename)) {
-                        throw new \ErrorException('Copy operation failed.');
-                    }
-                } catch (\Exception $error) {
-                    throw new FileException(sprintf('Could not copy the file "%s" to "%s".', $filename . '.dist', $filename), 0, $error);
-                }
+            if (!file_exists($filename) && !file_exists($filename . '.dist')) {
+                throw new FileNotFoundException($filename . '.dist');
             }
+
+            $config = $resources = array();
 
             if ('yaml' === $format) {
                 if (!class_exists('Symfony\\Component\\Yaml\\Yaml')) {
                     throw new \RuntimeException('Unable to read yaml as the Symfony Yaml Component is not installed.');
                 }
-                $config = Yaml::parse(file_get_contents($filename));
+                if (file_exists($filename . '.dist')) {
+                    $resources[] = new FileResource($filename . '.dist');
+                    $config = array_replace_recursive($config, Yaml::parse(file_get_contents($filename . '.dist')));
+                }
+                if (file_exists($filename)) {
+                    $resources[] = new FileResource($filename);
+                    $config = array_replace_recursive($config, Yaml::parse(file_get_contents($filename)));
+                }
             } elseif ('json' === $format) {
-                $config = json_decode(file_get_contents($filename), true);
+                if (file_exists($filename . '.dist')) {
+                    $resources[] = new FileResource($filename . '.dist');
+                    $config = array_replace_recursive($config, json_decode(file_get_contents($filename . '.dist'), true));
+                }
+                if (file_exists($filename)) {
+                    $resources[] = new FileResource($filename);
+                    $config = array_replace_recursive($config, json_decode(file_get_contents($filename), true));
+                }
             } else {
                 throw new \InvalidArgumentException(
                     sprintf("The config file '%s' appears has invalid format '%s'.", $filename, $format)
@@ -121,7 +126,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
 
             $this->cache[$id]->write(
                 '<?php' . PHP_EOL . '$config = ' . var_export($config, true) . ';',
-                array(new FileResource($filename))
+                $resources
             );
         }
 

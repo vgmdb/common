@@ -286,7 +286,7 @@ EOF;
     {
         static $help = array(
             'ConfigServiceProvider' => array(
-                'FileException' => "The application tried to create a local configuration file, but was unsuccessful. You can either make the Config directory writable or copy the file yourself. All personalized settings should go to the .yml file, not the original .yml.dist files. <pre>chmod 0777 app/Guru/Resources/Config</pre> Alternatively, run the workspace setup command: <pre>sudo app/cli guru:setup</pre>"
+                'FileNotFoundException' => 'The application could not find a configuration file for your environment. By default it looks for $env.yml.dist in app/Guru/Resources/Config, but if you need personalized configuration you can override settings by creating a corresponding .yml file which will be ignored by revision control.'
             ),
             'ConfigCache' => array(
                 'RuntimeException' => "The configuration cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>sudo app/cli guru:setup</pre>"
