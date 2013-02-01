@@ -3,9 +3,10 @@
 namespace VGMdb\Provider;
 
 use VGMdb\Component\Routing\Loader\CachedYamlFileLoader;
+use VGMdb\RedirectableUrlMatcher;
+use VGMdb\RedirectableProxyUrlMatcher;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
-use Silex\RedirectableUrlMatcher;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Routing\RouteCollection;
@@ -20,8 +21,12 @@ class RoutingServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        // replace the default url matcher with one that supports caching
-        /*$app['url_matcher'] = $app->share(function ($app) {
+        $app['routing.matcher_cache_class'] = 'ProjectUrlMatcher';
+        $app['routing.loader_cache_class'] = 'ProjectRouteLoader';
+        $app['routing.parameters'] = array();
+
+        // replace the default url matcher with one that caches compiled routes
+        $app['url_matcher'] = $app->share(function ($app) {
             if (!isset($app['config.cache_dir']) || !isset($app['routing.matcher_cache_class'])) {
                 return new RedirectableUrlMatcher($app['routes'], $app['request_context']);
             }
@@ -33,7 +38,7 @@ class RoutingServiceProvider implements ServiceProviderInterface
 
                 $options = array(
                     'class'      => $class,
-                    'base_class' => 'Symfony\\Component\\Routing\\Matcher\\UrlMatcher'
+                    'base_class' => 'Symfony\\Component\\Routing\\Matcher\\RedirectableUrlMatcher'
                 );
 
                 $cache->write($dumper->dump($options), $app['routes']->getResources());
@@ -41,12 +46,8 @@ class RoutingServiceProvider implements ServiceProviderInterface
 
             require_once $cache;
 
-            return new $class($app['request_context']);
-        });*/
-
-        $app['routing.matcher_cache_class'] = 'ProjectUrlMatcher';
-        $app['routing.loader_cache_class'] = 'ProjectRouteLoader';
-        $app['routing.parameters'] = array();
+            return new RedirectableProxyUrlMatcher(new $class($app['request_context']));
+        });
 
         $app['routes'] = $app->share($app->extend('routes', function ($routes, $app) {
             $collection = new RouteCollection();

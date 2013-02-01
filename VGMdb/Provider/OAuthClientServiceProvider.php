@@ -25,6 +25,14 @@ class OAuthClientServiceProvider implements ServiceProviderInterface
             return new \Opauth($config, false);
         });
 
+        $app['opauth.controller'] = $app->protect(function ($strategy, $callback) use ($app) {
+            if ($strategy === 'facebook' || $strategy === 'twitter' || $strategy === 'google') {
+                $app['opauth']->run();
+            }
+
+            throw new NotFoundHttpException();
+        });
+
         // generate the authentication factories
         foreach (array('facebook', 'google', 'twitter') as $type) {
             $app['security.authentication_listener.factory.opauth.'.$type] = $app->protect(function($name, $options) use ($type, $app) {
@@ -85,18 +93,12 @@ class OAuthClientServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
-        $app->match($app['opauth.path'], function() {});
+        $app->match($app['opauth.path'], null);
 
         // fake route which will be handled by auth listener
-        $app->match($app['opauth.path'] . '/{strategy}', function () {});
+        $app->match($app['opauth.path'] . '/{strategy}', null);
 
         // this route must be unsecured
-        $app->match('/login/{strategy}/{callback}', function ($strategy, $callback) use ($app) {
-            if ($strategy === 'facebook' || $strategy === 'twitter' || $strategy === 'google') {
-                $app['opauth']->run();
-            }
-
-            throw new NotFoundHttpException();
-        });
+        $app->match('/login/{strategy}/{callback}', 'opauth.controller');
     }
 }

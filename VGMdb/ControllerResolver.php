@@ -37,7 +37,13 @@ class ControllerResolver extends BaseControllerResolver
             }
         }
 
-        list($controller, $method) = $this->createController($controller, $request);
+        $callable = $this->createController($controller, $request);
+
+        if ($callable instanceof \Closure) {
+            return $callable;
+        }
+
+        list($controller, $method) = $callable;
 
         $verbMethod = strtolower($request->getMethod()) . ucfirst($method);
         if (method_exists($controller, $verbMethod)) {
@@ -82,6 +88,10 @@ class ControllerResolver extends BaseControllerResolver
             $class = $this->app[$class];
         } elseif (isset($this->app['namespace'])) {
             $class = $this->app['namespace'] . '\\Controllers\\' . $class;
+        }
+
+        if ($class instanceof \Closure) {
+            return $class;
         }
 
         if (!class_exists($class)) {

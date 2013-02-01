@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Provider;
+namespace VGMdb\Component\Security\Core\User;
 
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -12,16 +12,16 @@ use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class DefaultUserProvider implements UserProviderInterface
+class StubUserProvider implements UserProviderInterface
 {
     public function loadUserByUsername($username)
     {
-        if ($username !== 'gigablah') {
+        if ($username !== 'admin') {
             throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));
         }
 
         return new User(
-            'gigablah',
+            'admin',
             '5FZ2Z8QIkA7UTZ4BYkoC+GsReLf569mSKDsfods6LYQ8t+a8EW9oaircfMpmaLbPBh4FOBiiFyLfuZmTSUwzZg==',
             array('ROLE_ADMIN', 'ROLE_USER'),
             true,
@@ -33,12 +33,12 @@ class DefaultUserProvider implements UserProviderInterface
 
     public function loadUserByUserId($uid)
     {
-        if ($uid !== '1110663126') {
+        if ((string) $uid !== '1') {
             throw new UsernameNotFoundException(sprintf('User ID "%s" does not exist.', $uid));
         }
 
         return new User(
-            'gigablah',
+            'admin',
             '5FZ2Z8QIkA7UTZ4BYkoC+GsReLf569mSKDsfods6LYQ8t+a8EW9oaircfMpmaLbPBh4FOBiiFyLfuZmTSUwzZg==',
             array('ROLE_ADMIN', 'ROLE_USER'),
             true,

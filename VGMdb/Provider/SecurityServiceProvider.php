@@ -5,11 +5,13 @@ namespace VGMdb\Provider;
 use VGMdb\Component\Security\Http\Authentication\AuthenticationSuccessHandler;
 use VGMdb\Component\Security\Http\Authentication\AuthenticationFailureHandler;
 use Silex\Application;
+use Silex\LazyUrlMatcher;
 use Silex\Provider\SecurityServiceProvider as BaseSecurityServiceProvider;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Symfony\Component\Security\Http\Firewall\ExceptionListener;
 use Symfony\Component\Security\Http\Firewall\LogoutListener;
 use Symfony\Component\Security\Http\Logout\SessionLogoutHandler;
+use Symfony\Component\Security\Http\HttpUtils;
 
 /**
  * Security component provider.
@@ -23,6 +25,16 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
         parent::register($app);
 
         $that = $this;
+
+        // replace HttpUtils so that it uses LazyUrlMatcher
+        $app['security.http_utils'] = $app->share(function ($app) {
+            return new HttpUtils(
+                isset($app['url_generator']) ? $app['url_generator'] : null,
+                new LazyUrlMatcher(function () use ($app) {
+                    return $app['url_matcher'];
+                })
+            );
+        });
 
         $app['security.secure_random'] = $app->share(function ($app) {
             return new SecureRandom($app['security.secure_random.seed'], $app['logger']);
@@ -106,5 +118,16 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
                 );
             });
         });
+    }
+
+    public function boot(Application $app)
+    {
+        $app['dispatcher']->addSubscriber($app['security.firewall']);
+
+        foreach ($this->fakeRoutes as $route) {
+            list($method, $pattern, $name) = $route;
+
+            $app->$method($pattern, null)->bind($name);
+        }
     }
 }

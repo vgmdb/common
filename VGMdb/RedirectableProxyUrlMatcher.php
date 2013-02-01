@@ -3,29 +3,53 @@
 namespace VGMdb;
 
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\Routing\Matcher\RedirectableUrlMatcher as BaseRedirectableUrlMatcher;
+use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
+use Symfony\Component\Routing\RequestContext;
 
 /**
- * Changes the RedirectableUrlMatcher to remove trailing slashes.
+ * RedirectableUrlMatcher that wraps a compiled route cache.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class RedirectableUrlMatcher extends BaseRedirectableUrlMatcher
+class RedirectableProxyUrlMatcher implements UrlMatcherInterface
 {
+    protected $matcher;
+
+    public function __construct(UrlMatcherInterface $matcher)
+    {
+        $this->matcher = $matcher;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setContext(RequestContext $context)
+    {
+        $this->matcher->setContext($context);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getContext()
+    {
+        return $this->matcher->getContext();
+    }
+
     /**
      * {@inheritdoc}
      */
     public function match($pathinfo)
     {
         try {
-            $parameters = parent::match($pathinfo);
+            $parameters = $this->matcher->match($pathinfo);
         } catch (ResourceNotFoundException $e) {
-            if ('/' !== substr($pathinfo, -1) || !in_array($this->context->getMethod(), array('HEAD', 'GET'))) {
+            if ('/' !== substr($pathinfo, -1) || !in_array($this->matcher->getContext()->getMethod(), array('HEAD', 'GET'))) {
                 throw $e;
             }
 
             try {
-                parent::match(rtrim($pathinfo, '/'));
+                $this->matcher->match(rtrim($pathinfo, '/'));
 
                 return $this->redirect(rtrim($pathinfo, '/'), null);
             } catch (ResourceNotFoundException $e2) {
@@ -52,8 +76,8 @@ class RedirectableUrlMatcher extends BaseRedirectableUrlMatcher
             'path'        => $path,
             'permanent'   => true,
             'scheme'      => $scheme,
-            'httpPort'    => $this->context->getHttpPort(),
-            'httpsPort'   => $this->context->getHttpsPort(),
+            'httpPort'    => $this->matcher->getContext()->getHttpPort(),
+            'httpsPort'   => $this->matcher->getContext()->getHttpsPort(),
             '_route'      => $route,
         );
     }
