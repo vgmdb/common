@@ -23,7 +23,7 @@ class SmartyServiceProvider implements ServiceProviderInterface
             $smarty->setCompileCheck($app['debug']);
             $smarty->cache_locking = true;
 
-            if (isset($app['translate'])) {
+            if (isset($app['translator'])) {
                 /**
                  * @todo Add translation plugin
                  */

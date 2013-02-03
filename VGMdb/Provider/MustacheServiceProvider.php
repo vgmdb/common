@@ -29,9 +29,9 @@ class MustacheServiceProvider implements ServiceProviderInterface
                 'logger' => $app['logger']
             ));
 
-            if (isset($app['translate'])) {
+            if (isset($app['translator'])) {
                 $mustache->addHelper('t', function ($string) use ($app) {
-                    return $app['translate']($string);
+                    return $app['translator']->trans($string);
                 });
             } else {
                 $mustache->addHelper('t', function ($string) {

@@ -17,6 +17,7 @@ class DomainObjectServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
+        $app['domain.object.base_class'] = 'VGMdb\\Component\\Domain\\DomainObject';
         $app['object_manager'] = $app->share(function ($app) {
             // the object manager is a factory that gives you domain objects
             // a dispatcher propagates events to listeners

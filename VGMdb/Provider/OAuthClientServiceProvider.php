@@ -22,7 +22,17 @@ class OAuthClientServiceProvider implements ServiceProviderInterface
         $app['opauth'] = $app->share(function ($app) {
             $config = $app['opauth.config'];
             $config['path'] = $app['opauth.path'] . '/';
-            return new \Opauth($config, false);
+            if ('cli' === PHP_SAPI) {
+                $_SERVER['HTTP_HOST'] = 'localhost';
+                $_SERVER['REQUEST_URI'] = '/';
+            }
+            $opauth = new \Opauth($config, false);
+            if ('cli' === PHP_SAPI) {
+                unset($_SERVER['HTTP_HOST']);
+                unset($_SERVER['REQUEST_URI']);
+            }
+
+            return $opauth;
         });
 
         $app['opauth.controller'] = $app->protect(function ($strategy, $callback) use ($app) {
