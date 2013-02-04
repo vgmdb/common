@@ -4,6 +4,7 @@ namespace VGMdb;
 
 use Silex\ControllerResolver as BaseControllerResolver;
 use Symfony\Component\HttpFoundation\Request;
+use Psr\Log\LoggerInterface;
 
 /**
  * Allows the controller resolver to recognize custom verbs and methods.
@@ -12,6 +13,18 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ControllerResolver extends BaseControllerResolver
 {
+    protected $logger;
+
+    /**
+     * {@inheritDoc}
+     */
+    public function __construct(Application $app, LoggerInterface $logger = null)
+    {
+        $this->logger = $logger;
+
+        parent::__construct($app, $logger);
+    }
+
     /**
      * {@inheritDoc}
      */
