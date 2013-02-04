@@ -2,10 +2,10 @@
 
 namespace VGMdb\Provider;
 
+use VGMdb\Component\Translation\Translator;
 use VGMdb\Component\Translation\TranslationLoader;
 use Silex\Application;
 use Silex\Provider\TranslationServiceProvider as BaseTranslationServiceProvider;
-use Symfony\Component\Translation\Translator;
 use Symfony\Component\Translation\Extractor\ChainExtractor;
 use Symfony\Component\Translation\Writer\TranslationWriter;
 use Doctrine\Common\Annotations\AnnotationRegistry;
@@ -23,6 +23,12 @@ class TranslationServiceProvider extends BaseTranslationServiceProvider
         parent::register($app);
 
         $app['translator.extractor.classes'] = array();
+        $app['translator.formats'] = array(
+            'mofile' => 'mo',
+            'pofile' => 'po',
+            'xliff' => 'xlf',
+            'yaml' => 'yml'
+        );
 
         $app['translator.doc_parser'] = $app->share(function ($app) {
             $parser = new DocParser();
@@ -70,6 +76,7 @@ class TranslationServiceProvider extends BaseTranslationServiceProvider
 
         $app['translator.loader'] = $app->share(function ($app) {
             $loader = new TranslationLoader();
+            $loader->setExtensions($app['translator.formats']);
             foreach ($app['translator.loader.classes'] as $format => $class) {
                 $loader->addLoader($format, new $class());
             }
@@ -81,16 +88,17 @@ class TranslationServiceProvider extends BaseTranslationServiceProvider
             $translator = new Translator($app['locale'], $app['translator.message_selector']);
             $translator->setFallbackLocale($app['locale_fallback']);
 
-            foreach (glob($app['translator.base_dir'] . '/*', \GLOB_ONLYDIR|\GLOB_NOSORT) as $path) {
-                $format = basename($path);
-                if (!array_key_exists($format, $app['translator.loader.classes'])) {
-                    throw new \RuntimeException(sprintf('Missing loader class for translation format "%s".', $format));
+            foreach ($app['translator.loader.classes'] as $format => $class) {
+                $translator->addLoader($format, new $class());
+
+                if (array_key_exists($format, $app['translator.formats'])) {
+                    $extension = $app['translator.formats'][$format];
+                } else {
+                    $extension = strtolower($format);
                 }
 
-                $translator->addLoader($format, new $app['translator.loader.classes'][$format]());
-
-                foreach (glob($app['translator.base_dir'] . '/' . $format . '/*.' . $format) as $file) {
-                    $name = basename($file, '.' . $format);
+                foreach (glob($app['translator.base_dir'] . '/*.' . $extension) as $file) {
+                    $name = basename($file, '.' . $extension);
                     list($domain, $locale) = explode('.', $name);
                     $translator->addResource($format, $file, $locale, $domain);
                 }

@@ -107,6 +107,7 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
             class_exists('Doctrine\\ORM\\Mapping\\Driver\\AnnotationDriver');
         }
 
+        // autoload Doctrine proxies. Not PSR-0 compliant!
         if (isset($app['orm.proxy_dir'])) {
             $namespace = $app['orm.proxy_namespace'];
             $dir = $app['orm.proxy_dir'];
