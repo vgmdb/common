@@ -27,21 +27,22 @@ class TranslationServiceProvider extends BaseTranslationServiceProvider
             'mofile' => 'mo',
             'pofile' => 'po',
             'xliff' => 'xlf',
-            'yaml' => 'yml'
+            'yaml' => 'yml',
+            'json' => 'js'
         );
 
         $app['translator.doc_parser'] = $app->share(function ($app) {
             $parser = new DocParser();
             $parser->setImports(array(
-                'desc'    => 'VGMdb\\Component\\Translation\\Annotation\\Desc',
+                'id'      => 'VGMdb\\Component\\Translation\\Annotation\\Id',
                 'meaning' => 'VGMdb\\Component\\Translation\\Annotation\\Meaning',
                 'ignore'  => 'VGMdb\\Component\\Translation\\Annotation\\Ignore',
             ));
             $parser->setIgnoreNotImportedAnnotations(true);
 
-            $r = new \ReflectionClass('VGMdb\\Component\\Translation\\Annotation\\Desc');
+            $r = new \ReflectionClass('VGMdb\\Component\\Translation\\Annotation\\Id');
             $dir = dirname($r->getFilename());
-            AnnotationRegistry::registerFile($dir . '/Desc.php');
+            AnnotationRegistry::registerFile($dir . '/Id.php');
             AnnotationRegistry::registerFile($dir . '/Meaning.php');
             AnnotationRegistry::registerFile($dir . '/Ignore.php');
 

@@ -13,7 +13,7 @@ namespace VGMdb\Component\Translation\Annotation;
  *
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
-final class Desc
+final class Id
 {
     /** @var string @Required */
     public $text;
@@ -30,7 +30,7 @@ final class Desc
         }
 
         if (!isset($values['text'])) {
-            throw new \RuntimeException(sprintf('The "text" attribute for annotation "@Desc" must be set.'));
+            throw new \RuntimeException(sprintf('The "text" attribute for annotation "@Id" must be set.'));
         }
 
         $this->text = $values['text'];

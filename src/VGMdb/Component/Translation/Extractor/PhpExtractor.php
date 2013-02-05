@@ -2,9 +2,11 @@
 
 namespace VGMdb\Component\Translation\Extractor;
 
-use VGMdb\Component\Translation\Annotation\Desc;
+use VGMdb\Component\Translation\Annotation\Id;
 use VGMdb\Component\Translation\Annotation\Ignore;
 use VGMdb\Component\Translation\Annotation\Meaning;
+use VGMdb\Component\Translation\Extractor\Model\FileSource;
+use VGMdb\Component\Translation\Extractor\Model\Message;
 use Silex\Application;
 use Symfony\Component\Translation\MessageCatalogue;
 
@@ -20,6 +22,9 @@ class PhpExtractor extends AbstractExtractor implements \PHPParser_NodeVisitor
     protected $phpParser;
     protected $traverser;
     protected $logger;
+    protected $baseDir;
+    protected $file;
+    protected $catalogue;
 
     public function __construct(Application $app)
     {
@@ -27,6 +32,7 @@ class PhpExtractor extends AbstractExtractor implements \PHPParser_NodeVisitor
         $this->phpParser = $app['translator.php_parser'];
         $this->traverser = $app['translator.php_traverser'];
         $this->traverser->addVisitor($this);
+        $this->baseDir = $app['translator.extractor.base_dir'];
     }
 
     /**
@@ -69,13 +75,13 @@ class PhpExtractor extends AbstractExtractor implements \PHPParser_NodeVisitor
         }
 
         $ignore = false;
-        $desc = $meaning = null;
+        $id = $meaning = null;
         if (null !== $docComment = $this->getDocCommentForNode($node)) {
             foreach ($this->docParser->parse($docComment, 'file '.$this->file.' near line '.$node->getLine()) as $annotation) {
                 if ($annotation instanceof Ignore) {
                     $ignore = true;
-                } elseif ($annotation instanceof Desc) {
-                    $desc = $annotation->text;
+                } elseif ($annotation instanceof Id) {
+                    $id = $annotation->text;
                 } elseif ($annotation instanceof Meaning) {
                     $meaning = $annotation->text;
                 }
@@ -98,7 +104,11 @@ class PhpExtractor extends AbstractExtractor implements \PHPParser_NodeVisitor
             throw new \RuntimeException($message);
         }
 
-        $id = $node->args[0]->value->value;
+        $desc = $node->args[0]->value->value;
+
+        if (null === $id) {
+            $id = $desc;
+        }
 
         $index = 'trans' === strtolower($node->name) ? 2 : 3;
         if (isset($node->args[$index])) {
@@ -123,15 +133,12 @@ class PhpExtractor extends AbstractExtractor implements \PHPParser_NodeVisitor
             $domain = 'messages';
         }
 
-        $this->catalogue->set($id, $this->generateUntranslatedMessage($id), $domain);
+        $message = new Message($id, $domain);
+        $message->setDesc($desc);
+        $message->setMeaning($meaning);
+        $message->addSource(new FileSource((string) substr($this->file, strlen($this->baseDir) + 1), $node->getLine()));
 
-        if ($desc) {
-            $this->catalogue->setMetadata('desc.'.$id, $desc, $domain);
-        }
-
-        if ($meaning) {
-            $this->catalogue->setMetadata('meaning.'.$id, $meaning, $domain);
-        }
+        $this->catalogue->set($id, $message, $domain);
     }
 
     public function leaveNode(\PHPParser_Node $node)

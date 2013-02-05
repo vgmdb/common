@@ -15,11 +15,11 @@ class JsonFileDumper extends FileDumper
     /**
      * {@inheritDoc}
      */
-    public function format(MessageCatalogue $messages, $domain = 'messages')
+    public function format(MessageCatalogue $messages, $domain)
     {
         $output = array();
         foreach ($messages->all($domain) as $source => $target) {
-            $output[$domain][$source] = $target;
+            $output[$domain][$source] = (string) $target;
         }
 
         return json_encode($output);

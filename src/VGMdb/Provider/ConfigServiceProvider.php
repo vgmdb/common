@@ -13,25 +13,54 @@ use Symfony\Component\Yaml\Yaml;
  * Provides YAML or JSON configuration.
  *
  * @author Igor Wiedler <igor@wiedler.ch>
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class ConfigServiceProvider implements ServiceProviderInterface
 {
-    private $filenames;
     private $cache;
+    private $options = array();
     private $replacements = array();
+
+    public function __construct(array $options = array())
+    {
+        $this->options = $options;
+    }
 
     public function register(Application $app)
     {
-        foreach ($this->filenames as $filename) {
+        foreach (array('config.files', 'config.base_dir', 'config.cache_dir') as $key) {
+            if (!array_key_exists($key, $this->options)) {
+                throw new \RuntimeException(sprintf('Config service parameter missing: "%s"', $key));
+            }
+        }
+
+        $filenames = $this->options['config.files'];
+        $base_dir = $this->options['config.base_dir'];
+        $cache_dir = $this->options['config.cache_dir'];
+
+        if (array_key_exists('config.parameters', $this->options)) {
+            $replacements = $this->options['config.parameters'];
+            if (is_array($replacements)) {
+                foreach ($replacements as $key => $value) {
+                    $this->replacements['%'.$key.'%'] = $value;
+                }
+            }
+        }
+
+        if (!is_array($filenames)) {
+            $filenames = array($filenames);
+        }
+
+        foreach ($filenames as $filename) {
             if (!$filename) {
                 continue;
             }
 
-            $id = hash('md4', $filename);
-            $cacheFile = $app['config.cache_dir'] . '/' . $id . '.php';
+            $id = $this->getFileHash($filename);
+            $cacheFile = $cache_dir . '/' . $id . '.php';
             $this->cache[$id] = new ConfigCache($cacheFile, $app['debug']);
 
-            $config = $this->readConfig($filename);
+            $config = $this->readConfig($base_dir . '/' . $filename, $id);
 
             $this->replaceConfig($app, $config);
         }
@@ -39,21 +68,6 @@ class ConfigServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
-    }
-
-    public function __construct($filenames, array $replacements = array())
-    {
-        if (!is_array($filenames)) {
-            $filenames = array($filenames);
-        }
-
-        $this->filenames = $filenames;
-
-        if ($replacements) {
-            foreach ($replacements as $key => $value) {
-                $this->replacements['%'.$key.'%'] = $value;
-            }
-        }
     }
 
     private function doReplacements($value)
@@ -77,10 +91,9 @@ class ConfigServiceProvider implements ServiceProviderInterface
         return $value;
     }
 
-    private function readConfig($filename)
+    private function readConfig($filename, $id)
     {
         $format = $this->getFileFormat($filename);
-        $id = hash('md4', $filename);
 
         if (!$filename || !$format) {
             throw new \RuntimeException('A valid configuration file must be passed before reading the config.');
@@ -161,5 +174,10 @@ class ConfigServiceProvider implements ServiceProviderInterface
         }
 
         return pathinfo($filename, PATHINFO_EXTENSION);
+    }
+
+    public function getFileHash($filename)
+    {
+        return str_replace('/', '-', $filename);
     }
 }

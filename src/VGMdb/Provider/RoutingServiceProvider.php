@@ -27,12 +27,12 @@ class RoutingServiceProvider implements ServiceProviderInterface
 
         // replace the default url matcher with one that caches compiled routes
         $app['url_matcher'] = $app->share(function ($app) {
-            if (!isset($app['config.cache_dir']) || !isset($app['routing.matcher_cache_class'])) {
+            if (!isset($app['routing.cache_dir']) || !isset($app['routing.matcher_cache_class'])) {
                 return new RedirectableUrlMatcher($app['routes'], $app['request_context']);
             }
 
             $class = $app['routing.matcher_cache_class'];
-            $cache = new ConfigCache($app['config.cache_dir'] . '/' . $class . '.php', $app['debug']);
+            $cache = new ConfigCache($app['routing.cache_dir'] . '/' . $class . '.php', $app['debug']);
             if (!$cache->isFresh()) {
                 $dumper = new PhpMatcherDumper($app['routes']);
 
