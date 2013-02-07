@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\Domain;
+namespace VGMdb\Component\DomainObject;
 
 /**
  * Interface definition for domain objects.
@@ -9,11 +9,7 @@ namespace VGMdb\Component\Domain;
  */
 interface DomainObjectInterface
 {
-    public function find($criteria);
-
     public function save($object, $async = false);
 
     public function delete($object, $async = false);
-
-    public function count($criteria);
 }

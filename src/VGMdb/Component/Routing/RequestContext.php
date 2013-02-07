@@ -229,6 +229,8 @@ class RequestContext extends BaseRequestContext
     /**
      * Check whether the client is a mobile device.
      *
+     * @todo Cache results in APC
+     *
      * @link http://detectmobilebrowsers.com/
      *
      * @return Boolean

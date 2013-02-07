@@ -4,13 +4,13 @@ namespace VGMdb;
 
 use VGMdb\Component\HttpFoundation\Request;
 use VGMdb\Component\HttpFoundation\Response;
+use VGMdb\Component\HttpKernel\Controller\ControllerCollection;
+use VGMdb\Component\HttpKernel\Controller\ControllerResolver;
 use VGMdb\Component\HttpKernel\EventListener\ExceptionListener;
+use VGMdb\Component\HttpKernel\EventListener\ExceptionListenerWrapper;
 use VGMdb\Component\Routing\RequestContext;
 use VGMdb\Component\Routing\Matcher\RedirectableUrlMatcher;
 use VGMdb\Component\View\ViewInterface;
-use VGMdb\ControllerCollection;
-use VGMdb\ControllerResolver;
-use VGMdb\ExceptionListenerWrapper;
 use Silex\Application as BaseApplication;
 use Silex\ControllerProviderInterface;
 use Silex\LazyUrlMatcher;
@@ -82,7 +82,7 @@ class Application extends BaseApplication
         });
 
         foreach ($values as $key => $value) {
-            $this[$key] = $value;
+            $this->readonly($key, $value);
         }
     }
 

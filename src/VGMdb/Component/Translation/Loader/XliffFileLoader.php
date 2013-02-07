@@ -53,8 +53,7 @@ class XliffFileLoader implements LoaderInterface
         $catalogue = new MessageCatalogue($locale);
 
         foreach ($doc->xpath('//xliff:trans-unit') as $trans) {
-            $id = ($resName = (string) $trans->attributes()->resname)
-                       ? $resName : (string) $trans->source;
+            $id = ($resName = (string) $trans->attributes()->resname) ? $resName : (string) $trans->source;
 
             $message = Message::create($id, $domain)->setDesc((string) $trans->source)->setLocaleString((string) $trans->target);
             $catalogue->set($id, $message, $domain);

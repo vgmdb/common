@@ -1,6 +1,8 @@
 <?php
 
-namespace VGMdb;
+namespace VGMdb\Component\HttpKernel\Controller;
+
+use Silex\Application;
 
 /**
  * Base class for application controllers.

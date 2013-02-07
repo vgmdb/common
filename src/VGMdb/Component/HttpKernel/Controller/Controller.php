@@ -1,8 +1,7 @@
 <?php
 
-namespace VGMdb;
+namespace VGMdb\Component\HttpKernel\Controller;
 
-use VGMdb\Component\View\ViewInterface;
 use Silex\Controller as BaseController;
 
 /**

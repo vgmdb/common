@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\HttpKernel\DataCollector;
 
-use VGMdb\RedirectController;
+use VGMdb\Component\HttpKernel\Controller\RedirectController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\DataCollector\RouterDataCollector as BaseRouterDataCollector;
 use Symfony\Component\HttpKernel\KernelEvents;

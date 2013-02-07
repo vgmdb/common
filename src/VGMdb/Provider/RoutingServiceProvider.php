@@ -5,6 +5,7 @@ namespace VGMdb\Provider;
 use VGMdb\Component\Routing\Loader\CachedYamlFileLoader;
 use VGMdb\Component\Routing\Matcher\RedirectableUrlMatcher;
 use VGMdb\Component\Routing\Matcher\RedirectableProxyUrlMatcher;
+use VGMdb\Component\HttpKernel\EventListener\RouteAttributeListener;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\Config\ConfigCache;
@@ -49,6 +50,10 @@ class RoutingServiceProvider implements ServiceProviderInterface
             return new RedirectableProxyUrlMatcher(new $class($app['request_context']));
         });
 
+        $app['routing.attribute_listener'] = $app->share(function ($app) {
+            return new RouteAttributeListener($app['request_context'], $app['logger']);
+        });
+
         $app['routes'] = $app->share($app->extend('routes', function ($routes, $app) {
             $collection = new RouteCollection();
             $paths = array();
@@ -74,5 +79,6 @@ class RoutingServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
+        $app['dispatcher']->addSubscriber($app['routing.attribute_listener']);
     }
 }

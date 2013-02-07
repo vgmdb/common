@@ -1,8 +1,7 @@
 <?php
 
-namespace VGMdb;
+namespace VGMdb\Component\HttpKernel\Controller;
 
-use VGMdb\Controller;
 use Silex\ControllerCollection as BaseControllerCollection;
 use Silex\Route;
 

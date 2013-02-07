@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\WebProfiler\Controllers;
 
-use VGMdb\AbstractController;
+use VGMdb\Component\HttpKernel\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

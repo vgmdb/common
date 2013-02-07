@@ -1,7 +1,8 @@
 <?php
 
-namespace VGMdb;
+namespace VGMdb\Component\HttpKernel\Controller;
 
+use Silex\Application;
 use Silex\ControllerResolver as BaseControllerResolver;
 use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
