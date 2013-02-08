@@ -9,7 +9,9 @@ namespace VGMdb\Component\DomainObject;
  */
 interface DomainObjectInterface
 {
-    public function save($object, $async = false);
+    public function save();
 
-    public function delete($object, $async = false);
+    public function delete();
+
+    public static function accepts($object);
 }

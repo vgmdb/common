@@ -13,14 +13,27 @@ use Psr\Log\LoggerInterface;
  */
 abstract class DomainObjectFactory
 {
-    protected $serializer;
+    protected $classMap;
     protected $dispatcher;
     protected $logger;
+    protected $serializer;
 
-    public function __construct(SerializerInterface $serializer, EventDispatcherInterface $dispatcher = null, LoggerInterface $logger = null)
+    public function __construct(array $classMap, EventDispatcherInterface $dispatcher, LoggerInterface $logger = null, SerializerInterface $serializer = null)
     {
-        $this->serializer = $serializer;
+        $this->classMap = $classMap;
         $this->dispatcher = $dispatcher;
         $this->logger = $logger;
+        $this->serializer = $serializer;
+    }
+
+    public function create($domain, $type = 'array')
+    {
+        if (!array_key_exists($type, $this->classMap)) {
+            throw new \InvalidArgumentException(sprintf('No DomainObject wrapper found for type "%s".', $type));
+        }
+    }
+
+    public function createFromObject($object, $type = null)
+    {
     }
 }

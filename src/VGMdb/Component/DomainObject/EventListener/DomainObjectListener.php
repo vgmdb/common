@@ -2,9 +2,7 @@
 
 namespace VGMdb\Component\DomainObject\EventListener;
 
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use JMS\Serializer\SerializerInterface;
-use Psr\Log\LoggerInterface;
+use VGMdb\Component\DomainObject\DomainObjectFactory;
 
 /**
  * Listener for domain object retrievals.
@@ -13,14 +11,10 @@ use Psr\Log\LoggerInterface;
  */
 class DomainObjectListener
 {
-    protected $serializer;
-    protected $dispatcher;
-    protected $logger;
+    protected $factory
 
-    public function __construct(SerializerInterface $serializer, EventDispatcherInterface $dispatcher = null, LoggerInterface $logger = null)
+    public function __construct(DomainObjectFactory $factory)
     {
-        $this->serializer = $serializer;
-        $this->dispatcher = $dispatcher;
-        $this->logger = $logger;
+        $this->factory = $factory;
     }
 }

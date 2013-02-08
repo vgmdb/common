@@ -2,11 +2,9 @@
 
 namespace VGMdb\Provider;
 
+use VGMdb\Component\DomainObject\DomainObjectFactory;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
-use Aura\Marshal\Manager;
-use Aura\Marshal\Type\Builder as TypeBuilder;
-use Aura\Marshal\Relation\Builder as RelationBuilder;
 
 /**
  * Domain object interoperability layer.
@@ -17,73 +15,10 @@ class DomainObjectServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['domain.object.base_class'] = 'VGMdb\\Component\\Domain\\DomainObject';
-        $app['object_manager'] = $app->share(function ($app) {
-            // the object manager is a factory that gives you domain objects
-            // a dispatcher propagates events to listeners
-        });
+        $app['domain.object_factory'] = $app->share(function ($app) {
+            $serializer = isset($app['serializer']) ? $app['serializer'] : null;
 
-        $app['object_marshal'] = $app->share(function ($app) {
-            $manager = new Manager(new TypeBuilder, new RelationBuilder, array(
-                'users' => array(
-                    'identity_field' => 'id',
-                    'relation_names' => array(
-                        'auth_providers' => array(
-                            'relationship' => 'has_many',
-                            'native_field' => 'id',
-                            'foreign_field' => 'user_id'
-                        ),
-                        'roles' => array(
-                            'relationship' => 'has_many',
-                            'native_field' => 'id',
-                            'foreign_field' => 'user_id'
-                        ),
-                        'last_login' => array(
-                            'relationship' => 'has_one',
-                            'foreign_type' => 'last_logins',
-                            'native_field' => 'id',
-                            'foreign_field' => 'id'
-                        )
-                    )
-                ),
-                'auth_providers' => array(
-                    'identity_field' => 'id',
-                    'index_fields' => array('user_id'),
-                    'relation_names' => array(
-                        'user' => array(
-                            'relationship' => 'belongs_to',
-                            'foreign_type' => 'users',
-                            'native_field' => 'user_id',
-                            'foreign_field' => 'id'
-                        )
-                    )
-                ),
-                'roles' => array(
-                    'identity_field' => 'id',
-                    'index_fields' => array('user_id'),
-                    'relation_names' => array(
-                        'user' => array(
-                            'relationship' => 'belongs_to',
-                            'foreign_type' => 'users',
-                            'native_field' => 'user_id',
-                            'foreign_field' => 'id'
-                        )
-                    )
-                ),
-                'last_logins' => array(
-                    'identity_field' => 'id',
-                    'relation_names' => array(
-                        'user' => array(
-                            'relationship' => 'belongs_to',
-                            'foreign_type' => 'users',
-                            'native_field' => 'id',
-                            'foreign_field' => 'id'
-                        )
-                    )
-                )
-            ));
-
-            return $manager;
+            return new DomainObjectFactory($app['dispatcher'], $app['logger'], $serializer);
         });
     }
 
