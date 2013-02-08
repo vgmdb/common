@@ -32,6 +32,8 @@ class RequestDataCollector extends BaseRequestDataCollector
 
         $this->data['request_context'] = array(
             'app_name'   => $this->context->getAppName(),
+            'app_env'    => $this->context->getEnvironment(),
+            'is_debug'   => $this->context->isDebug() ? 'true' : 'false',
             'base_url'   => $this->context->getBaseUrl(),
             'path_info'  => $this->context->getPathInfo(),
             'method'     => $this->context->getMethod(),

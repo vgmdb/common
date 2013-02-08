@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 class RequestContext extends BaseRequestContext
 {
     private $appName;
+    private $appEnv;
+    private $isDebug;
     private $format;
     private $version;
     private $locale;
@@ -66,6 +68,46 @@ class RequestContext extends BaseRequestContext
     public function setAppName($appName)
     {
         $this->appName = $appName;
+    }
+
+    /**
+     * Gets the application environment.
+     *
+     * @return string Application environment.
+     */
+    public function getEnvironment()
+    {
+        return $this->appEnv;
+    }
+
+    /**
+     * Sets the application environment.
+     *
+     * @param string $appEnv Application environment.
+     */
+    public function setEnvironment($appEnv)
+    {
+        $this->appEnv = $appEnv;
+    }
+
+    /**
+     * Check whether debug flag is activated.
+     *
+     * @return Boolean The debug flag.
+     */
+    public function isDebug()
+    {
+        return $this->isDebug;
+    }
+
+    /**
+     * Sets the debug flag.
+     *
+     * @param Boolean $debug Whether the debug flag is activated.
+     */
+    public function setDebug($debug)
+    {
+        $this->isDebug = (Boolean) $debug;
     }
 
     /**
@@ -209,7 +251,7 @@ class RequestContext extends BaseRequestContext
     /**
      * Gets the HTTP referer.
      *
-     * @return string The HTTP referer
+     * @return string The HTTP referer.
      */
     public function getReferer()
     {
@@ -219,7 +261,7 @@ class RequestContext extends BaseRequestContext
     /**
      * Gets the HTTP referer.
      *
-     * @param string $referer The HTTP referer
+     * @param string $referer The HTTP referer.
      */
     public function setReferer($referer)
     {

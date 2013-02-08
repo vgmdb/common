@@ -72,6 +72,8 @@ class Application extends BaseApplication
                 $context->setMobileDetector(new \Mobile_Detect());
             }
             $context->setAppName($app['name']);
+            $context->setEnvironment($app['env']);
+            $context->setDebug($app['debug']);
 
             return $context;
         });

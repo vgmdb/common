@@ -32,7 +32,7 @@ class RoutingServiceProvider implements ServiceProviderInterface
                 return new RedirectableUrlMatcher($app['routes'], $app['request_context']);
             }
 
-            $class = $app['routing.matcher_cache_class'];
+            $class = ucfirst($this->camelCase($app['routing.matcher_cache_class']));
             $cache = new ConfigCache($app['routing.cache_dir'] . '/' . $class . '.php', $app['debug']);
             if (!$cache->isFresh()) {
                 $dumper = new PhpMatcherDumper($app['routes']);
@@ -64,7 +64,7 @@ class RoutingServiceProvider implements ServiceProviderInterface
                 $paths = glob($app['routing.config_dir'] . '/*.yml');
             }
 
-            $class = $app['routing.loader_cache_class'];
+            $class = ucfirst($this->camelCase($app['routing.loader_cache_class']));
             $cache = new ConfigCache($app['routing.cache_dir'] . '/' . $class . '.php', $app['debug']);
             $locator = new FileLocator($paths);
             $loader = new CachedYamlFileLoader($locator);
@@ -80,5 +80,10 @@ class RoutingServiceProvider implements ServiceProviderInterface
     public function boot(Application $app)
     {
         $app['dispatcher']->addSubscriber($app['routing.attribute_listener']);
+    }
+
+    private function camelCase($string)
+    {
+        return preg_replace('#[-_ ](.?)#e', 'strtoupper(\'$1\')', $string);
     }
 }

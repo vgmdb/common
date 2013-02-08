@@ -26,7 +26,7 @@ class RouteAttributeListener implements EventSubscriberInterface
      */
     public function __construct(RequestContext $context, LoggerInterface $logger = null)
     {
-        $this->context = $context ?: $matcher->getContext();
+        $this->context = $context;
         $this->logger = $logger;
     }
 
