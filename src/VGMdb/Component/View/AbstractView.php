@@ -45,6 +45,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
      * @param array           $data
      * @param mixed           $engine
      * @param LoggerInterface $logger
+     *
      * @return ViewInterface
      */
     public static function create($template, array $data = array(), $engine = null, $logger = null)
@@ -136,6 +137,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
      *
      * @param mixed  $view
      * @param string $key
+     *
      * @return View
      */
     public function wrap($view, $key = 'content')
@@ -175,6 +177,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
      * Engine-specific render function.
      *
      * @param array $data
+     *
      * @return string
      */
     abstract protected function renderInternal($data = array());
@@ -228,33 +231,29 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
     /**
      * Gets a parameter or an object.
      *
-     * @param  string $id The unique identifier for the parameter or object
+     * @param string $id The unique identifier for the parameter or object
+     *
      * @return mixed The value of the parameter or an object
-     * @throws \InvalidArgumentException if the identifier is not defined
      */
     function offsetGet($id)
     {
-        if (array_key_exists($id, self::$globals)) {
-            $value = self::$globals[$id];
+        if (isset(self::$globals[$id])) {
+            return self::$globals[$id];
         } else {
-            if (!$this->offsetExists($id)) {
-                throw new \InvalidArgumentException(sprintf('Identifier "%s" is not defined.', $id));
-            }
-            $value = parent::offsetGet($id);
+            return parent::offsetGet($id);
         }
-
-        return $value;
     }
 
     /**
      * Returns whether the requested index exists.
      *
-     * @param  string $id The unique identifier for the parameter or object
+     * @param string $id The unique identifier for the parameter or object
+     *
      * @return Boolean True if the requested index exists, false otherwise
      */
     public function offsetExists($id)
     {
-        if (array_key_exists($id, self::$globals)) {
+        if (isset(self::$globals[$id])) {
             return true;
         }
 

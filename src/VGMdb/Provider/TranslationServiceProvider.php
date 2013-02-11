@@ -92,7 +92,7 @@ class TranslationServiceProvider extends BaseTranslationServiceProvider
             foreach ($app['translator.loader.classes'] as $format => $class) {
                 $translator->addLoader($format, new $class());
 
-                if (array_key_exists($format, $app['translator.formats'])) {
+                if (isset($app['translator.formats'][$format])) {
                     $extension = $app['translator.formats'][$format];
                 } else {
                     $extension = strtolower($format);

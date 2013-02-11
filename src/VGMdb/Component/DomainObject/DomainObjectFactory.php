@@ -28,7 +28,7 @@ abstract class DomainObjectFactory
 
     public function create($domain, $type = 'array')
     {
-        if (!array_key_exists($type, $this->classMap)) {
+        if (!isset($this->classMap[$type])) {
             throw new \InvalidArgumentException(sprintf('No DomainObject wrapper found for type "%s".', $type));
         }
     }

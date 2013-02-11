@@ -84,10 +84,10 @@ class XliffFileDumper extends BaseXliffFileDumper
 
         foreach ($catalogue->all($domain) as $id => $message) {
             $body->appendChild($unit = $doc->createElement('trans-unit'));
-            $unit->setAttribute('id', hash('sha1', $id));
-            $unit->setAttribute('resname', $id);
 
             if (is_object($message) && $message instanceof Message) {
+                $unit->setAttribute('id', $message->getHash());
+                $unit->setAttribute('resname', $message->getId());
                 $unit->appendChild($source = $doc->createElement('source'));
                 if (preg_match('/[<>&]/', $message->getSourceString())) {
                     $source->appendChild($doc->createCDATASection($message->getSourceString()));
@@ -130,6 +130,8 @@ class XliffFileDumper extends BaseXliffFileDumper
                     $unit->setAttribute('extradata', 'Meaning: '.$meaning);
                 }
             } else {
+                $unit->setAttribute('id', hash('sha1', $id));
+                $unit->setAttribute('resname', $id);
                 $unit->appendChild($source = $doc->createElement('source'));
                 if (preg_match('/[<>&]/', $id)) {
                     $source->appendChild($doc->createCDATASection($id));

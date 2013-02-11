@@ -12,16 +12,20 @@ namespace VGMdb\Component\Translation\Extractor\Model;
  * Represents an _extracted_ message.
  *
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class Message
 {
     /** Unique ID of this message (same across the same domain) */
     private $id;
 
+    /** Whether the message is new */
     private $new = true;
 
+    /** Message domain **/
     private $domain;
 
+    /** The localized string **/
     private $localeString;
 
     /** Additional information about the intended meaning */
@@ -34,9 +38,11 @@ class Message
     private $sources = array();
 
     /**
-     * @static
+     * Create a new extraction message for the current file.
+     *
      * @param $id
      * @param string $domain
+     *
      * @return Message
      */
     public static function forThisFile($id, $domain = 'messages')
@@ -52,9 +58,11 @@ class Message
     }
 
     /**
-     * @static
+     * Create a new extraction message.
+     *
      * @param $id
      * @param string $domain
+     *
      * @return Message
      */
     public static function create($id, $domain = 'messages')
@@ -63,6 +71,8 @@ class Message
     }
 
     /**
+     * Constructor.
+     *
      * @param $id
      * @param string $domain
      */
@@ -73,7 +83,10 @@ class Message
     }
 
     /**
+     * Add a new extraction source.
+     *
      * @param SourceInterface $source
+     *
      * @return Message
      */
     public function addSource(SourceInterface $source)
@@ -87,21 +100,51 @@ class Message
         return $this;
     }
 
+    /**
+     * Get the hash of the message ID.
+     *
+     * @return string
+     */
+    public function getHash()
+    {
+        return hash('sha1', $this->id);
+    }
+
+    /**
+     * Get the message ID.
+     *
+     * @return string
+     */
     public function getId()
     {
         return $this->id;
     }
 
+    /**
+     * Get the message domain.
+     *
+     * @return string
+     */
     public function getDomain()
     {
         return $this->domain;
     }
 
+    /**
+     * Check whether the message is new.
+     *
+     * @return Boolean
+     */
     public function isNew()
     {
         return $this->new;
     }
 
+    /**
+     * Get the localized string.
+     *
+     * @return string
+     */
     public function getLocaleString()
     {
         return strlen($this->localeString) ? $this->localeString : (strlen($this->desc) ? $this->desc : $this->id);
@@ -110,8 +153,7 @@ class Message
     /**
      * Returns the string from which to translate.
      *
-     * This typically is the description, but we will fallback to the id
-     * if that has not been given.
+     * This typically is the description, but we will fallback to the id if that has not been given.
      *
      * @return string
      */
@@ -120,21 +162,43 @@ class Message
         return $this->desc ?: $this->id;
     }
 
+    /**
+     * Get the intended meaning of the string.
+     *
+     * @return string
+     */
     public function getMeaning()
     {
         return $this->meaning;
     }
 
+    /**
+     * Get the description of the string.
+     *
+     * This is typically the untranslated string itself.
+     *
+     * @return string
+     */
     public function getDesc()
     {
         return $this->desc;
     }
 
+    /**
+     * Get the extraction sources for the string.
+     *
+     * @return array
+     */
     public function getSources()
     {
         return $this->sources;
     }
 
+    /**
+     * Set the meaning of the string.
+     *
+     * @return Message
+     */
     public function setMeaning($meaning)
     {
         $this->meaning = $meaning;
@@ -142,6 +206,11 @@ class Message
         return $this;
     }
 
+    /**
+     * Mark the message as new.
+     *
+     * @return Message
+     */
     public function setNew($bool)
     {
         $this->new = (Boolean) $bool;
@@ -149,6 +218,11 @@ class Message
         return $this;
     }
 
+    /**
+     * Set the description of the string.
+     *
+     * @return Message
+     */
     public function setDesc($desc)
     {
         $this->desc = $desc;
@@ -156,6 +230,11 @@ class Message
         return $this;
     }
 
+    /**
+     * Set the localized translation of the string.
+     *
+     * @return Message
+     */
     public function setLocaleString($str)
     {
         $this->localeString = $str;
@@ -170,6 +249,7 @@ class Message
      * In these cases, use mergeExisting() instead.
      *
      * @param Message $message
+     *
      * @throws \RuntimeException
      */
     public function merge(Message $message)
@@ -203,6 +283,7 @@ class Message
      * In these cases, use merge() instead.
      *
      * @param Message $message
+     *
      * @throws \RuntimeException
      */
     public function mergeExisting(Message $message)
@@ -225,6 +306,11 @@ class Message
         }
     }
 
+    /**
+     * Check whether the message has sources attached.
+     *
+     * @return Boolean
+     */
     public function hasSource(SourceInterface $source)
     {
         foreach ($this->sources as $cSource) {

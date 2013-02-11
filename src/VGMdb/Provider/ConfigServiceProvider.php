@@ -38,7 +38,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
         $base_dir = $this->options['config.base_dir'];
         $cache_dir = $this->options['config.cache_dir'];
 
-        if (array_key_exists('config.parameters', $this->options)) {
+        if (isset($this->options['config.parameters'])) {
             $replacements = $this->options['config.parameters'];
             if (is_array($replacements)) {
                 foreach ($replacements as $key => $value) {

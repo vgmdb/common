@@ -6,6 +6,7 @@ use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Silex\Provider\MonologServiceProvider as BaseMonologServiceProvider;
 use Monolog\Handler\FirePHPHandler;
+use Monolog\Handler\NullHandler;
 
 /**
  * Monolog Provider without the cruft in boot().
@@ -19,6 +20,10 @@ class MonologServiceProvider extends BaseMonologServiceProvider
         parent::register($app);
 
         $app['monolog.handler'] = $app->share(function ($app) {
+            if (!$app['logger.options']['handlers']['firephp']) {
+                return new NullHandler();
+            }
+
             return new FirePHPHandler();
         });
     }

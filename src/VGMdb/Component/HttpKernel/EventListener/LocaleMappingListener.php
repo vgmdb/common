@@ -26,7 +26,7 @@ class LocaleMappingListener implements EventSubscriberInterface
     public function onKernelRequest(GetResponseEvent $event)
     {
         $locale = $event->getRequest()->getLocale();
-        if (array_key_exists($locale, $this->localeMap)) {
+        if (isset($this->localeMap[$locale])) {
             $locale = $this->localeMap[$locale];
         }
 

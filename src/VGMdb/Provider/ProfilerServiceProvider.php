@@ -48,6 +48,7 @@ class ProfilerServiceProvider implements ServiceProviderInterface
         $app['data_collector.router.class'] = 'VGMdb\\Component\\HttpKernel\\DataCollector\\RouterDataCollector';
         $app['data_collector.security.class'] = 'VGMdb\\Component\\Security\\DataCollector\\SecurityDataCollector';
         $app['data_collector.container.class'] = 'VGMdb\\Component\\HttpKernel\\DataCollector\\ContainerDataCollector';
+        $app['data_collector.classloader.class'] = 'VGMdb\\Component\\HttpKernel\\DataCollector\\ClassLoaderDataCollector';
         $app['data_collector.view.class'] = 'VGMdb\\Component\\View\\DataCollector\\ViewDataCollector';
         $app['data_collector.db.class'] = 'VGMdb\\Component\\Doctrine\\DataCollector\\DoctrineDataCollector';
         $app['data_collector.propel.class'] = 'VGMdb\\Component\\Propel\\DataCollector\\PropelDataCollector';
@@ -87,6 +88,9 @@ class ProfilerServiceProvider implements ServiceProviderInterface
         });
         $app['data_collector.container'] = $app->share(function ($app) {
             return new $app['data_collector.container.class']($app);
+        });
+        $app['data_collector.classloader'] = $app->share(function ($app) {
+            return new $app['data_collector.classloader.class']();
         });
         $app['data_collector.view'] = $app->share(function ($app) {
             return new $app['data_collector.view.class']($app['view.logger']);
@@ -131,6 +135,7 @@ class ProfilerServiceProvider implements ServiceProviderInterface
             'router'      => array($priorities['router'],      '@WebProfiler/collector/router'),
             'security'    => array($priorities['security'],    '@WebProfiler/collector/security'),
             'container'   => array($priorities['container'],   '@WebProfiler/collector/container'),
+            'classloader' => array($priorities['classloader'], '@WebProfiler/collector/classloader'),
             'view'        => array($priorities['view'],        '@WebProfiler/collector/view'),
             'db'          => array($priorities['db'],          '@WebProfiler/collector/db'),
             'propel'      => array($priorities['propel'],      '@WebProfiler/collector/propel'),

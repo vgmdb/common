@@ -83,6 +83,14 @@ class Application extends BaseApplication
             return new RedirectableUrlMatcher($app['routes'], $app['request_context']);
         });
 
+        $values = array_replace(array(
+            'debug' => false,
+            'env' => 'prod',
+            'name' => 'app',
+            'namespace' => 'App',
+            'base_dir' => __DIR__
+        ), $values);
+
         foreach ($values as $key => $value) {
             $this->readonly($key, $value);
         }
@@ -184,7 +192,7 @@ class Application extends BaseApplication
      */
     public function offsetSet($id, $value)
     {
-        if (array_key_exists($id, $this->readonly) && parent::offsetExists($id)) {
+        if (isset($this->readonly[$id]) && parent::offsetExists($id)) {
             throw new \RuntimeException(sprintf('Identifier "%s" is readonly.', $id));
         }
 

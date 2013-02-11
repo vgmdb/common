@@ -43,7 +43,7 @@ abstract class AbstractDomainObject implements DomainObjectInterface, \ArrayAcce
     public function save()
     {
         if (null !== $this->logger) {
-            $this->logger->info('Saving object.');
+            $this->logger->debug('Saving object.');
         }
 
         $event = new DomainObjectEvent($this);
@@ -55,7 +55,7 @@ abstract class AbstractDomainObject implements DomainObjectInterface, \ArrayAcce
     public function delete()
     {
         if (null !== $this->logger) {
-            $this->logger->info('Deleting object.');
+            $this->logger->debug('Deleting object.');
         }
 
         $event = new DomainObjectEvent($this);

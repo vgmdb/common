@@ -49,7 +49,7 @@ class ViewServiceProvider implements ServiceProviderInterface
 
         $app['widget'] = $app->protect(function ($view, $callback = null) use ($app) {
             static $widgets = array();
-            if (!array_key_exists($template, $widgets)) {
+            if (!isset($widgets[$template])) {
                 $widgets[$template] = $widget = new Widget($view, $callback);
             }
 

@@ -59,7 +59,7 @@ class TranslationLoader
         foreach ($this->loaders as $format => $loader) {
             // load any existing translation files
             $extension = $catalogue->getLocale().'.';
-            if (array_key_exists($format, $this->extensions)) {
+            if (isset($this->extensions[$format])) {
                 $extension .= $this->extensions[$format];
             } else {
                 $extension .= strtolower($format);
