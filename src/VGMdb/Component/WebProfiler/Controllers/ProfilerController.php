@@ -156,6 +156,21 @@ class ProfilerController extends AbstractController
                 $panelData['request']['data']['route_params'] = $request->getRouteParams();
                 $panelData['traces'] = $matcher->getTraces($request->getPathInfo());
             }
+        } elseif ($panel === 'classloader') {
+            $panelData['collector']['data']['namespaces'] = array();
+            foreach ($panelData['collector']['data']['classes'] as $class) {
+                if (false === strpos($class, '\\')) {
+                    $namespace = 'Other';
+                } else {
+                    $namespace = explode('\\', $class);
+                    $namespace = $namespace[0];
+                }
+                if (!isset($panelData['collector']['data']['namespaces'][$namespace])) {
+                    $panelData['collector']['data']['namespaces'][$namespace] = 0;
+                }
+                $panelData['collector']['data']['namespaces'][$namespace]++;
+            }
+            arsort($panelData['collector']['data']['namespaces']);
         } elseif ($panel === 'db') {
             foreach ($panelData['collector']['data']['queries'] as $index => $query) {
                 $query['sql'] = $collector->replaceQueryParameters($query['sql'], $query['params']);
