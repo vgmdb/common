@@ -37,10 +37,13 @@ class Message
     /** The sources where this message occurs */
     private $sources = array();
 
+    /** Parameters to replace */
+    private $parameters = array();
+
     /**
      * Create a new extraction message for the current file.
      *
-     * @param $id
+     * @param string $id
      * @param string $domain
      *
      * @return Message
@@ -60,7 +63,7 @@ class Message
     /**
      * Create a new extraction message.
      *
-     * @param $id
+     * @param string $id
      * @param string $domain
      *
      * @return Message
@@ -73,7 +76,7 @@ class Message
     /**
      * Constructor.
      *
-     * @param $id
+     * @param string $id
      * @param string $domain
      */
     public function __construct($id, $domain = 'messages')
@@ -197,6 +200,8 @@ class Message
     /**
      * Set the meaning of the string.
      *
+     * @param string $meaning
+     *
      * @return Message
      */
     public function setMeaning($meaning)
@@ -208,6 +213,8 @@ class Message
 
     /**
      * Mark the message as new.
+     *
+     * @param Boolean $bool
      *
      * @return Message
      */
@@ -221,6 +228,8 @@ class Message
     /**
      * Set the description of the string.
      *
+     * @param string $desc
+     *
      * @return Message
      */
     public function setDesc($desc)
@@ -233,11 +242,27 @@ class Message
     /**
      * Set the localized translation of the string.
      *
+     * @param string $str
+     *
      * @return Message
      */
     public function setLocaleString($str)
     {
         $this->localeString = $str;
+
+        return $this;
+    }
+
+    /**
+     * Set replacement parameters.
+     *
+     * @param array $parameters
+     *
+     * @return Message
+     */
+    public function setParameters(array $parameters = array())
+    {
+        $this->parameters = $parameters;
 
         return $this;
     }
@@ -307,7 +332,9 @@ class Message
     }
 
     /**
-     * Check whether the message has sources attached.
+     * Check whether the message has a source attached.
+     *
+     * @param SourceInterface $source
      *
      * @return Boolean
      */
@@ -329,6 +356,6 @@ class Message
      */
     public function __toString()
     {
-        return $this->getLocaleString();
+        return strtr($this->getLocaleString(), $this->parameters);
     }
 }
