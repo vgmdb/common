@@ -4,6 +4,7 @@ namespace VGMdb\Provider;
 
 use VGMdb\Component\Security\Http\Authentication\AuthenticationSuccessHandler;
 use VGMdb\Component\Security\Http\Authentication\AuthenticationFailureHandler;
+use VGMdb\Component\Routing\Generator\LazyUrlGenerator;
 use Silex\Application;
 use Silex\LazyUrlMatcher;
 use Silex\Provider\SecurityServiceProvider as BaseSecurityServiceProvider;
@@ -26,10 +27,12 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
 
         $that = $this;
 
-        // replace HttpUtils so that it uses LazyUrlMatcher
+        // replace HttpUtils so that it loads UrlGenerator and UrlMatcher lazily
         $app['security.http_utils'] = $app->share(function ($app) {
             return new HttpUtils(
-                isset($app['url_generator']) ? $app['url_generator'] : null,
+                isset($app['url_generator']) ? new LazyUrlGenerator(function () use ($app) {
+                    return $app['url_generator'];
+                }) : null,
                 new LazyUrlMatcher(function () use ($app) {
                     return $app['url_matcher'];
                 })
