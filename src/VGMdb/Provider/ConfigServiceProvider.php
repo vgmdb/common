@@ -32,6 +32,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
             if (!array_key_exists($key, $this->options)) {
                 throw new \RuntimeException(sprintf('Config service parameter missing: "%s"', $key));
             }
+            $app[$key] = $this->options[$key];
         }
 
         $filenames = $this->options['config.files'];

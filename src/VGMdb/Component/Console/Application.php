@@ -59,9 +59,14 @@ class Application extends BaseApplication
         return parent::doRun($input, $output);
     }
 
-    public function getContainer()
+    public function getContainer(InputInterface $input = null)
     {
         if (null === $this->app) {
+            if (null !== $input) {
+                $debug = !$input->getOption('no-debug');
+                $env = $input->hasOption('env') ? $input->getOption('env') : 'dev';
+                $app_name = $input->hasOption('app') ? $input->getOption('app') : 'project';
+            }
             $app = require($this->options['app.path']);
             $this->app = $app;
         }

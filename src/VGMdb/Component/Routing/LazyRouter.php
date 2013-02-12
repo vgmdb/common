@@ -99,6 +99,8 @@ class LazyRouter extends Router implements WarmableInterface
         $currentDir = $this->getOption('cache_dir');
 
         // force cache generation
+        $this->matcher = null;
+        $this->generator = null;
         $this->setOption('cache_dir', $cacheDir);
         $this->getMatcher();
         $this->getGenerator();

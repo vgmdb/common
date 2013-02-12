@@ -44,7 +44,6 @@ class UserServiceProvider implements ServiceProviderInterface
                 $app['security.encoder_factory'],
                 $app['user.util.username_canonicalizer'],
                 $app['user.util.email_canonicalizer'],
-                //$app['db'],
                 $app['entity_manager'],
                 $app['user.model.user_class'],
                 $app['user.model.auth_class']
