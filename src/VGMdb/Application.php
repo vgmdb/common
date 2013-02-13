@@ -8,6 +8,7 @@ use VGMdb\Component\HttpKernel\Controller\ControllerCollection;
 use VGMdb\Component\HttpKernel\Controller\ControllerResolver;
 use VGMdb\Component\HttpKernel\EventListener\ExceptionListener;
 use VGMdb\Component\HttpKernel\EventListener\ExceptionListenerWrapper;
+use VGMdb\Component\HttpKernel\EventListener\MiddlewareListener;
 use VGMdb\Component\Routing\RequestContext;
 use VGMdb\Component\Routing\Matcher\RedirectableUrlMatcher;
 use VGMdb\Component\View\ViewInterface;
@@ -15,7 +16,6 @@ use Silex\Application as BaseApplication;
 use Silex\ControllerProviderInterface;
 use Silex\LazyUrlMatcher;
 use Silex\EventListener\LocaleListener;
-use Silex\EventListener\MiddlewareListener;
 use Silex\EventListener\ConverterListener;
 use Silex\EventListener\StringToResponseListener;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -81,6 +81,25 @@ class Application extends BaseApplication
         // replace the redirectable url matcher
         $this['url_matcher'] = $this->share(function ($app) {
             return new RedirectableUrlMatcher($app['routes'], $app['request_context']);
+        });
+
+        $this['dispatcher'] = $this->share(function () use ($app) {
+            $dispatcher = new $app['dispatcher_class']();
+
+            $urlMatcher = new LazyUrlMatcher(function () use ($app) {
+                return $app['url_matcher'];
+            });
+            $dispatcher->addSubscriber(new RouterListener($urlMatcher, $app['request_context'], $app['logger']));
+            $dispatcher->addSubscriber(new LocaleListener($app, $urlMatcher));
+            if (isset($app['exception_handler'])) {
+                $dispatcher->addSubscriber($app['exception_handler']);
+            }
+            $dispatcher->addSubscriber(new ResponseListener($app['charset']));
+            $dispatcher->addSubscriber(new MiddlewareListener($app));
+            $dispatcher->addSubscriber(new ConverterListener($app['routes']));
+            $dispatcher->addSubscriber(new StringToResponseListener());
+
+            return $dispatcher;
         });
 
         $values = array_replace(array(
