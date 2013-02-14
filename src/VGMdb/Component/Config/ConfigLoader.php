@@ -41,8 +41,8 @@ class ConfigLoader
         $configs = $this->getConfig();
 
         $replacements = array();
-        if (isset($this->options['config.parameters'])) {
-            $parameters = (array) $this->options['config.parameters'];
+        if (isset($this->options['parameters'])) {
+            $parameters = (array) $this->options['parameters'];
             foreach ($parameters as $key => $value) {
                 $replacements['%' . $key . '%'] = $value;
             }
@@ -53,8 +53,8 @@ class ConfigLoader
 
     public function getConfig()
     {
-        $filenames = (array) $this->options['config.files'];
-        $directories = (array) $this->options['config.base_dirs'];
+        $filenames = (array) $this->options['files'];
+        $directories = (array) $this->options['base_dirs'];
 
         $configs = array();
         foreach ($directories as $directory) {

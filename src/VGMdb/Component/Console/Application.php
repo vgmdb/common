@@ -33,6 +33,7 @@ class Application extends BaseApplication
         $this->getDefinition()->addOption(new InputOption('--process-isolation', null, InputOption::VALUE_NONE, 'Launch commands from shell as a separate processes.'));
         $this->getDefinition()->addOption(new InputOption('--env', '-e', InputOption::VALUE_REQUIRED, 'The Environment name.', 'dev'));
         $this->getDefinition()->addOption(new InputOption('--no-debug', null, InputOption::VALUE_NONE, 'Switches off debug mode.'));
+        $this->getDefinition()->addOption(new InputOption('--enable-cache', null, InputOption::VALUE_NONE, 'Switches on caching.'));
     }
 
     /**
@@ -66,9 +67,10 @@ class Application extends BaseApplication
                 $debug = !$input->getOption('no-debug');
                 $env = $input->hasOption('env') ? $input->getOption('env') : 'dev';
                 $app_name = $input->hasOption('app') ? $input->getOption('app') : 'project';
+                $cache = $input->getOption('enable-cache');
             }
-            $app = require($this->options['app.path']);
-            $this->app = $app;
+
+            $this->app = require($this->options['app.path']);
         }
 
         return $this->app;

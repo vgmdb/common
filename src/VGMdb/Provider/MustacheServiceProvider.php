@@ -15,6 +15,7 @@ class MustacheServiceProvider implements ServiceProviderInterface
     public function register(Application $app)
     {
         $app['mustache.loader_class'] = 'VGMdb\\Component\\View\\Mustache\\Loader\\PrefixLoader';
+        $app['mustache.helpers'] = array();
 
         $app['mustache'] = $app->share(function ($app) {
             $loader = new $app['mustache.loader_class'](
@@ -41,6 +42,14 @@ class MustacheServiceProvider implements ServiceProviderInterface
                 $mustache->addHelper('t', function ($string) {
                     return $string;
                 });
+            }
+
+            foreach ($app['mustache.helpers'] as $name => $helper) {
+                if (is_callable($helper) || $helper instanceof \Closure) {
+                    $mustache->addHelper($name, $helper);
+                } elseif (class_exists($helper)) {
+                    $mustache->addHelper($name, new $helper($app));
+                }
             }
 
             return $mustache;

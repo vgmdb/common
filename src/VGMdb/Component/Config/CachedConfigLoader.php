@@ -15,12 +15,12 @@ class CachedConfigLoader extends ConfigLoader implements WarmableInterface
 {
     public function getConfig()
     {
-        $filenames = (array) $this->options['config.files'];
-        $directories = (array) $this->options['config.base_dirs'];
+        $filenames = (array) $this->options['files'];
+        $directories = (array) $this->options['base_dirs'];
 
-        $cacheClass = implode('', array_map('ucfirst', explode('-', $this->options['config.cache_class'])));
-        $cacheFile = $this->options['config.cache_dir'] . '/' . $cacheClass . '.php';
-        $cache = new ConfigCache($cacheFile, $this->options['config.debug']);
+        $cacheClass = implode('', array_map('ucfirst', explode('-', $this->options['cache_class'])));
+        $cacheFile = $this->options['cache_dir'] . '/' . $cacheClass . '.php';
+        $cache = new ConfigCache($cacheFile, $this->options['debug']);
 
         if (!$cache->isFresh()) {
             $configs = $resources = array();
@@ -54,7 +54,7 @@ class CachedConfigLoader extends ConfigLoader implements WarmableInterface
      */
     public function warmUp($cacheDir)
     {
-        $this->setOption('config.cache_dir', $cacheDir);
+        $this->setOption('cache_dir', $cacheDir);
 
         $this->getConfig();
     }

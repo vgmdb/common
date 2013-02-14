@@ -23,28 +23,22 @@ class ConfigServiceProvider implements ServiceProviderInterface
 
     public function register(Application $app)
     {
-        $required = array(
-            'config.debug',
-            'config.cache_dir',
-            'config.cache_class',
-            'config.base_dirs',
-            'config.files'
+        $app['config.options'] = array(
+            'debug'       => isset($this->options['config.debug']) ? (Boolean) $this->options['config.debug'] : false,
+            'cache_dir'   => $this->options['config.cache_dir'],
+            'cache_class' => $this->options['config.cache_class'],
+            'base_dirs'   => $this->options['config.base_dirs'],
+            'files'       => $this->options['config.files'],
+            'parameters'  => isset($this->options['config.parameters']) ? $this->options['config.parameters'] : array()
         );
 
-        foreach ($required as $key) {
-            if (!array_key_exists($key, $this->options)) {
-                throw new \RuntimeException(sprintf('Config service parameter missing: "%s"', $key));
-            }
-            $app[$key] = $this->options[$key];
-        }
-
-        if ($app['nocache']) {
-            $loader = new ConfigLoader($this->options);
+        if ($app['cache']) {
+            $app['config.loader'] = new CachedConfigLoader($app['config.options']);
         } else {
-            $loader = new CachedConfigLoader($this->options);
+            $app['config.loader'] = new ConfigLoader($app['config.options']);
         }
 
-        $loader->load($app);
+        $app['config.loader']->load($app);
     }
 
     public function boot(Application $app)
