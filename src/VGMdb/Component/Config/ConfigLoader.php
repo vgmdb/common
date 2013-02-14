@@ -2,10 +2,7 @@
 
 namespace VGMdb\Component\Config;
 
-use Symfony\Component\Config\ConfigCache;
-use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
-use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -13,7 +10,7 @@ use Symfony\Component\Yaml\Yaml;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class ConfigLoader implements WarmableInterface
+class ConfigLoader
 {
     protected $options = array();
 
@@ -41,13 +38,6 @@ class ConfigLoader implements WarmableInterface
             throw new \InvalidArgumentException('Container must be an array or an instance of ArrayAccess.');
         }
 
-        foreach (array('config.files', 'config.base_dirs', 'config.cache_dir', 'config.cache_class', 'config.debug') as $key) {
-            if (!array_key_exists($key, $this->options)) {
-                throw new \RuntimeException(sprintf('ConfigLoader parameter missing: "%s"', $key));
-            }
-            $container[$key] = $this->options[$key];
-        }
-
         $configs = $this->getConfig();
 
         $replacements = array();
@@ -66,27 +56,13 @@ class ConfigLoader implements WarmableInterface
         $filenames = (array) $this->options['config.files'];
         $directories = (array) $this->options['config.base_dirs'];
 
-        $cacheClass = implode('', array_map('ucfirst', explode('-', $this->options['config.cache_class'])));
-        $cacheFile = $this->options['config.cache_dir'] . '/' . $cacheClass . '.php';
-        $cache = new ConfigCache($cacheFile, $this->options['config.debug']);
-
-        if (!$cache->isFresh()) {
-            $configs = $resources = array();
-            foreach ($directories as $directory) {
-                foreach ($filenames as $filename) {
-                    list($config, $resource) = $this->loadFile($directory . '/' . $filename);
-                    $configs = array_replace_recursive($configs, $config);
-                    $resources = array_merge($resources, $resource);
-                }
+        $configs = array();
+        foreach ($directories as $directory) {
+            foreach ($filenames as $filename) {
+                list($config, $resource) = $this->loadFile($directory . '/' . $filename);
+                $configs = array_replace_recursive($configs, $config);
             }
-
-            $cache->write(
-                '<?php' . PHP_EOL . '$configs = ' . var_export($configs, true) . ';',
-                $resources
-            );
         }
-
-        require_once $cache;
 
         return $configs;
     }
@@ -103,27 +79,27 @@ class ConfigLoader implements WarmableInterface
             throw new FileNotFoundException($filename . '.dist');
         }
 
-        $config = $resources = array();
+        $config = $filenames = array();
 
         if ('yaml' === $format) {
             if (!class_exists('Symfony\\Component\\Yaml\\Yaml')) {
                 throw new \RuntimeException('Unable to read yaml as the Symfony Yaml Component is not installed.');
             }
             if (file_exists($filename . '.dist')) {
-                $resources[] = new FileResource($filename . '.dist');
+                $filenames[] = $filename . '.dist';
                 $config = array_replace_recursive($config, Yaml::parse(file_get_contents($filename . '.dist')));
             }
             if (file_exists($filename)) {
-                $resources[] = new FileResource($filename);
+                $filenames[] = $filename;
                 $config = array_replace_recursive($config, Yaml::parse(file_get_contents($filename)));
             }
         } elseif ('json' === $format) {
             if (file_exists($filename . '.dist')) {
-                $resources[] = new FileResource($filename . '.dist');
+                $filenames[] = $filename . '.dist';
                 $config = array_replace_recursive($config, json_decode(file_get_contents($filename . '.dist'), true));
             }
             if (file_exists($filename)) {
-                $resources[] = new FileResource($filename);
+                $filenames[] = $filename;
                 $config = array_replace_recursive($config, json_decode(file_get_contents($filename), true));
             }
         } else {
@@ -132,7 +108,7 @@ class ConfigLoader implements WarmableInterface
             );
         }
 
-        return array($config, $resources);
+        return array($config, $filenames);
     }
 
     protected function replaceConfig($container, array $config, array $replacements)
@@ -180,17 +156,5 @@ class ConfigLoader implements WarmableInterface
         }
 
         return pathinfo($filename, PATHINFO_EXTENSION);
-    }
-
-    /**
-     * Warms up the cache.
-     *
-     * @param string $cacheDir The cache directory
-     */
-    public function warmUp($cacheDir)
-    {
-        $this->setOption('config.cache_dir', $cacheDir);
-
-        $this->getConfig();
     }
 }
