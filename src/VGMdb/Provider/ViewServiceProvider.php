@@ -28,8 +28,11 @@ class ViewServiceProvider implements ServiceProviderInterface
             }
 
             $locale = $app['locale'] ? strtoupper($app['locale']) : strtoupper($app['locale_fallback']);
-            AbstractView::share($locale, true);
-            AbstractView::share('DEBUG', $app['debug']);
+            AbstractView::share(array(
+                $locale => true,
+                'DEBUG' => $app['debug'],
+                'YEAR'  => date('Y')
+            ));
 
             return $view_factory;
         });
