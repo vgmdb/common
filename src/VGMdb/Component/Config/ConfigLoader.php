@@ -2,6 +2,9 @@
 
 namespace VGMdb\Component\Config;
 
+use Symfony\Component\Config\Loader\Loader;
+use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\Config\Loader\LoaderResolverInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -10,7 +13,7 @@ use Symfony\Component\Yaml\Yaml;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class ConfigLoader
+class ConfigLoader extends Loader
 {
     protected $options = array();
 
@@ -32,7 +35,7 @@ class ConfigLoader
         $this->options[$key] = $value;
     }
 
-    public function load($container)
+    public function load($container, $type = null)
     {
         if (!is_array($container) && !$container instanceof \ArrayAccess) {
             throw new \InvalidArgumentException('Container must be an array or an instance of ArrayAccess.');
@@ -56,59 +59,52 @@ class ConfigLoader
         $filenames = (array) $this->options['files'];
         $directories = (array) $this->options['base_dirs'];
 
-        $configs = array();
+        $conf = array();
         foreach ($directories as $directory) {
             foreach ($filenames as $filename) {
-                list($config, $resource) = $this->loadFile($directory . '/' . $filename);
-                $configs = array_replace_recursive($configs, $config);
+                $conf = array_merge($conf, $this->loadConfig($directory . '/' . $filename));
             }
+        }
+
+        $configs = array();
+        foreach ($conf as $path => $config) {
+            $configs = array_replace_recursive($configs, $config);
         }
 
         return $configs;
     }
 
-    protected function loadFile($filename)
+    protected function loadConfig($filename)
     {
         $format = $this->getFileFormat($filename);
 
         if (!$filename || !$format) {
-            throw new \RuntimeException('A valid configuration file must be passed before reading the config.');
+            throw new \InvalidArgumentException('A valid configuration file must be passed before reading the config.');
+        }
+
+        if (!in_array($format, array('yaml', 'json'))) {
+            throw new \InvalidArgumentException(sprintf("The config file '%s' has invalid format '%s'.", $filename, $format));
+        }
+
+        if ('yaml' === $format && !class_exists('Symfony\\Component\\Yaml\\Yaml')) {
+            throw new \RuntimeException('Unable to read yaml as the Symfony Yaml Component is not installed.');
         }
 
         if (!file_exists($filename) && !file_exists($filename . '.dist')) {
             throw new FileNotFoundException($filename . '.dist');
         }
 
-        $config = $filenames = array();
+        $configs = array();
 
-        if ('yaml' === $format) {
-            if (!class_exists('Symfony\\Component\\Yaml\\Yaml')) {
-                throw new \RuntimeException('Unable to read yaml as the Symfony Yaml Component is not installed.');
+        foreach (array($filename . '.dist', $filename) as $file) {
+            if (file_exists($file)) {
+                $configs[$file] = 'yaml' === $format
+                    ? Yaml::parse(file_get_contents($file))
+                    : json_decode(file_get_contents($file), true);
             }
-            if (file_exists($filename . '.dist')) {
-                $filenames[] = $filename . '.dist';
-                $config = array_replace_recursive($config, Yaml::parse(file_get_contents($filename . '.dist')));
-            }
-            if (file_exists($filename)) {
-                $filenames[] = $filename;
-                $config = array_replace_recursive($config, Yaml::parse(file_get_contents($filename)));
-            }
-        } elseif ('json' === $format) {
-            if (file_exists($filename . '.dist')) {
-                $filenames[] = $filename . '.dist';
-                $config = array_replace_recursive($config, json_decode(file_get_contents($filename . '.dist'), true));
-            }
-            if (file_exists($filename)) {
-                $filenames[] = $filename;
-                $config = array_replace_recursive($config, json_decode(file_get_contents($filename), true));
-            }
-        } else {
-            throw new \InvalidArgumentException(
-                sprintf("The config file '%s' appears has invalid format '%s'.", $filename, $format)
-            );
         }
 
-        return array($config, $filenames);
+        return $configs;
     }
 
     protected function replaceConfig($container, array $config, array $replacements)
@@ -156,5 +152,14 @@ class ConfigLoader
         }
 
         return pathinfo($filename, PATHINFO_EXTENSION);
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function supports($resource, $type = null)
+    {
+        return in_array($type ?: $this->getFileFormat($resource), array('yaml', 'json'));
     }
 }

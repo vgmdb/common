@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\Config\CacheWarmer;
 
-use VGMdb\Component\Config\ConfigLoader;
+use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 
@@ -18,7 +18,7 @@ class ConfigCacheWarmer implements CacheWarmerInterface
     /**
      * Constructor.
      */
-    public function __construct(ConfigLoader $loader)
+    public function __construct(LoaderInterface $loader)
     {
         $this->loader = $loader;
     }

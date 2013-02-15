@@ -3,6 +3,7 @@
 namespace VGMdb\Provider;
 
 use VGMdb\Component\Routing\LazyRouter;
+use VGMdb\Component\Routing\Loader\YamlFileLoader;
 use VGMdb\Component\Routing\Loader\CachedYamlFileLoader;
 use VGMdb\Component\HttpKernel\EventListener\RouteAttributeListener;
 use Silex\Application;
@@ -51,13 +52,19 @@ class RoutingServiceProvider implements ServiceProviderInterface
 
         $app['routing.loader'] = $app->share(function ($app) {
             $locator = new FileLocator($app['routing.resource']);
-            $loader = new CachedYamlFileLoader($locator);
-
-            $class = implode('', array_map('ucfirst', explode('-', $app['routing.loader_cache_class'])));
-            $cache = new ConfigCache($app['routing.cache_dir'] . '/' . $class . '.php', $app['debug']);
-            $loader->setCache($cache);
-
+            $loader = new YamlFileLoader($locator);
             $loader->setReplacements($app['routing.parameters']);
+
+            return $loader;
+        });
+
+        $app['routing.cached_loader'] = $app->share(function ($app) {
+            $loader = new CachedYamlFileLoader($app['routing.loader'], array(
+                'debug' => $app['debug'],
+                'cache_class' => $app['routing.loader_cache_class'],
+                'cache_dir' => $app['routing.cache_dir'],
+                'files' => $app['routing.resource']
+            ));
 
             return $loader;
         });

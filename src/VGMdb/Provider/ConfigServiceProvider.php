@@ -32,13 +32,14 @@ class ConfigServiceProvider implements ServiceProviderInterface
             'parameters'  => isset($this->options['config.parameters']) ? $this->options['config.parameters'] : array()
         );
 
-        if ($app['cache']) {
-            $app['config.loader'] = new CachedConfigLoader($app['config.options']);
-        } else {
-            $app['config.loader'] = new ConfigLoader($app['config.options']);
-        }
+        $app['config.cached_loader'] = new CachedConfigLoader($app['config.options']);
+        $app['config.loader'] = new ConfigLoader($app['config.options']);
 
-        $app['config.loader']->load($app);
+        if ($app['cache']) {
+            $app['config.cached_loader']->load($app);
+        } else {
+            $app['config.loader']->load($app);
+        }
     }
 
     public function boot(Application $app)

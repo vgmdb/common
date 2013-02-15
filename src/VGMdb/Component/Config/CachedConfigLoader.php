@@ -23,17 +23,17 @@ class CachedConfigLoader extends ConfigLoader implements WarmableInterface
         $cache = new ConfigCache($cacheFile, $this->options['debug']);
 
         if (!$cache->isFresh()) {
-            $configs = $resources = array();
+            $conf = array();
             foreach ($directories as $directory) {
                 foreach ($filenames as $filename) {
-                    list($config, $resource) = $this->loadFile($directory . '/' . $filename);
-                    $configs = array_replace_recursive($configs, $config);
-                    $resources = array_merge($resources, $resource);
+                    $conf = array_merge($conf, $this->loadConfig($directory . '/' . $filename));
                 }
             }
 
-            foreach ($resources as $index => $resource) {
-                $resources[$index] = new FileResource($resource);
+            $configs = $resources = array();
+            foreach ($conf as $path => $config) {
+                $resources[] = new FileResource($path);
+                $configs = array_replace_recursive($configs, $config);
             }
 
             $cache->write(

@@ -69,7 +69,8 @@ class LazyRouter extends Router implements WarmableInterface
     public function getRouteCollection()
     {
         if (null === $this->collection) {
-            $this->collection = $this->app['routing.loader']->load($this->resource, $this->options['resource_type']);
+            $loader = $this->app['cache'] ? $this->app['routing.cached_loader'] : $this->app['routing.loader'];
+            $this->collection = $loader->load($this->resource, $this->options['resource_type']);
             $this->resolveParameters($this->collection);
         }
 
