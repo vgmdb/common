@@ -137,7 +137,7 @@ class PropelLogger
             if ($this->incrementQuery) {
                 $watch = 'Propel Query '.(count($this->queries)+1);
             } else {
-                $watch = 'propel';
+                $watch = 'propel.query';
             }
             if ('PropelPDO::prepare' === $method) {
                 $this->isPrepared = true;

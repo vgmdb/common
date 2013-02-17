@@ -34,7 +34,7 @@ class SQLDebugLogger extends DebugStack
     public function startQuery($sql, array $params = null, array $types = null)
     {
         if ($this->enabled && null !== $this->stopwatch) {
-            $this->stopwatch->start('doctrine', 'doctrine');
+            $this->stopwatch->start('doctrine.query', 'doctrine');
         }
 
         parent::startQuery($sql, $params, $types);
@@ -46,7 +46,7 @@ class SQLDebugLogger extends DebugStack
     public function stopQuery()
     {
         if ($this->enabled && null !== $this->stopwatch) {
-            $this->stopwatch->stop('doctrine');
+            $this->stopwatch->stop('doctrine.query');
         }
 
         parent::stopQuery();

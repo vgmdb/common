@@ -17,23 +17,14 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class DoctrineDataCollector extends DataCollector
 {
-    private $app;
     private $registry;
     private $connections;
     private $managers;
     private $loggers = array();
 
-    /*public function __construct(ManagerRegistry $registry = null)
+    public function __construct(ManagerRegistry $registry = null)
     {
         $this->registry = $registry;
-        $this->connections = (null !== $registry) ? $registry->getConnectionNames() : null;
-        $this->managers = (null !== $registry) ? $registry->getManagerNames() : null;
-    }*/
-
-    public function __construct(Application $app)
-    {
-        $this->app = $app;
-        $this->registry = $registry = isset($app['db.registry']) ? $app['db.registry'] : null;
         $this->connections = (null !== $registry) ? $registry->getConnectionNames() : null;
         $this->managers = (null !== $registry) ? $registry->getManagerNames() : null;
     }
@@ -101,7 +92,7 @@ class DoctrineDataCollector extends DataCollector
      */
     public function getName()
     {
-        return 'db';
+        return 'doctrine';
     }
 
     private function sanitizeQueries($connectionName, $queries)
@@ -130,12 +121,7 @@ class DoctrineDataCollector extends DataCollector
                 }
                 if ($type instanceof Type) {
                     $query['types'][$j] = $type->getBindingType();
-                    if (null !== $this->registry) {
-                        $platform = $this->registry->getConnection($connectionName)->getDatabasePlatform();
-                    } else {
-                        $dbs = $this->app['dbs'];
-                        $platform = $dbs[$connectionName]->getDatabasePlatform();
-                    }
+                    $platform = $this->registry->getConnection($connectionName)->getDatabasePlatform();
                     $param = $type->convertToDatabaseValue($param, $platform);
                 }
             }

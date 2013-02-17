@@ -50,7 +50,7 @@ class ProfilerServiceProvider implements ServiceProviderInterface
         $app['data_collector.container.class'] = 'VGMdb\\Component\\HttpKernel\\DataCollector\\ContainerDataCollector';
         $app['data_collector.classloader.class'] = 'VGMdb\\Component\\HttpKernel\\DataCollector\\ClassLoaderDataCollector';
         $app['data_collector.view.class'] = 'VGMdb\\Component\\View\\DataCollector\\ViewDataCollector';
-        $app['data_collector.db.class'] = 'VGMdb\\Component\\Doctrine\\DataCollector\\DoctrineDataCollector';
+        $app['data_collector.doctrine.class'] = 'VGMdb\\Component\\Doctrine\\DataCollector\\DoctrineDataCollector';
         $app['data_collector.propel.class'] = 'VGMdb\\Component\\Propel\\DataCollector\\PropelDataCollector';
         $app['data_collector.guzzle.class'] = 'VGMdb\\Component\\Guzzle\\DataCollector\\GuzzleDataCollector';
         $app['data_collector.swiftmailer.class'] = 'VGMdb\\Component\\Swiftmailer\\DataCollector\\EmailDataCollector';
@@ -95,11 +95,11 @@ class ProfilerServiceProvider implements ServiceProviderInterface
         $app['data_collector.view'] = $app->share(function ($app) {
             return new $app['data_collector.view.class']($app['view.logger']);
         });
-        $app['data_collector.db'] = $app->share(function ($app) {
-            if (!isset($app['db'])) {
+        $app['data_collector.doctrine'] = $app->share(function ($app) {
+            if (!isset($app['doctrine'])) {
                 return -1;
             }
-            $collector = new $app['data_collector.db.class']($app);
+            $collector = new $app['data_collector.doctrine.class']($app['doctrine']);
             $collector->addLogger($app['dbs.default'], $app['db.debug_logger']);
 
             return $collector;
@@ -137,7 +137,7 @@ class ProfilerServiceProvider implements ServiceProviderInterface
             'container'   => array($priorities['container'],   '@WebProfiler/collector/container'),
             'classloader' => array($priorities['classloader'], '@WebProfiler/collector/classloader'),
             'view'        => array($priorities['view'],        '@WebProfiler/collector/view'),
-            'db'          => array($priorities['db'],          '@WebProfiler/collector/db'),
+            'doctrine'    => array($priorities['doctrine'],    '@WebProfiler/collector/doctrine'),
             'propel'      => array($priorities['propel'],      '@WebProfiler/collector/propel'),
             'guzzle'      => array($priorities['guzzle'],      '@WebProfiler/collector/guzzle'),
             'swiftmailer' => array($priorities['swiftmailer'], '@WebProfiler/collector/swiftmailer'),

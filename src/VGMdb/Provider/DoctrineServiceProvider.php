@@ -13,8 +13,9 @@ use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\FileCacheReader;
-use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\ApcCache;
+use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Cache\FilesystemCache;
 
 /**
  * Doctrine DBAL and ORM Provider.
@@ -30,34 +31,38 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
         $app['entity_managers'] = $app->share(function ($app) {
             $entityManagers = array();
 
+            if (!isset($app['orm.cache_dir'])) {
+                throw new \RuntimeException('The orm.cache_dir path is not set.');
+            }
+            if (!isset($app['orm.entity_dir'])) {
+                throw new \RuntimeException('The orm.entity_dir path is not set.');
+            }
+            if (!isset($app['orm.proxy_dir'])) {
+                throw new \RuntimeException('The orm.proxy_dir path is not set.');
+            }
+            if (!isset($app['orm.proxy_namespace'])) {
+                throw new \RuntimeException('The orm.proxy_namespace path is not set.');
+            }
+
+            $metadataCache = ($app['debug'] || !extension_loaded('apc'))
+                ? new FilesystemCache($app['orm.cache_dir'])
+                : new ApcCache();
+
+            $queryCache = ($app['debug'] || !extension_loaded('apc'))
+                ? new FilesystemCache($app['orm.cache_dir'])
+                : new ApcCache();
+
+            $driver = new AnnotationDriver(
+                new FileCacheReader(new AnnotationReader(), $app['orm.cache_dir'], $app['debug']),
+                (array) $app['orm.entity_dir']
+            );
+
+            $ref = new \ReflectionClass('Doctrine\\ORM\\Configuration');
+            AnnotationRegistry::registerFile(dirname($ref->getFilename()) . '/Mapping/Driver/DoctrineAnnotations.php');
+
             foreach ($app['orm.entity_managers'] as $name => $options) {
-                $app['entity_manager.' . $name] = $app->share(function ($app) use ($options) {
-                    if (!isset($app['orm.cache_dir'])) {
-                        throw new \RuntimeException('The orm.cache_dir path is not set.');
-                    }
-                    if (!isset($app['orm.entity_dir'])) {
-                        throw new \RuntimeException('The orm.entity_dir path is not set.');
-                    }
-                    if (!isset($app['orm.proxy_dir'])) {
-                        throw new \RuntimeException('The orm.proxy_dir path is not set.');
-                    }
-                    if (!isset($app['orm.proxy_namespace'])) {
-                        throw new \RuntimeException('The orm.proxy_namespace path is not set.');
-                    }
-
-                    $metadataCache = ($app['debug'] || !extension_loaded('apc')) ? new ArrayCache() : new ApcCache();
-                    $queryCache    = ($app['debug'] || !extension_loaded('apc')) ? new ArrayCache() : new ApcCache();
-
+                $app['entity_manager.' . $name] = $app->share(function ($app) use ($options, $metadataCache, $queryCache, $driver) {
                     $config = new Configuration();
-
-                    $r = new \ReflectionClass(get_class($config));
-                    AnnotationRegistry::registerFile(dirname($r->getFilename()) . '/Mapping/Driver/DoctrineAnnotations.php');
-
-                    $driver = new AnnotationDriver(
-                        new FileCacheReader(new AnnotationReader(), $app['orm.cache_dir'], $app['debug']),
-                        (array) $app['orm.entity_dir']
-                    );
-
                     $config->setMetadataCacheImpl($metadataCache);
                     $config->setMetadataDriverImpl($driver);
                     $config->setQueryCacheImpl($queryCache);
@@ -78,10 +83,10 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
         });
 
         $app['entity_manager'] = $app->share(function ($app) {
-            $entityManagers = array_keys($app['entity_managers']);
+            $entityManagers = $app['entity_managers'];
             $defaultManager = reset($entityManagers);
 
-            return $app['entity_manager.' . $defaultManager];
+            return $app[$defaultManager];
         });
 
         $app['doctrine'] = $app->share(function ($app) {

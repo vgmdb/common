@@ -171,7 +171,7 @@ class ProfilerController extends AbstractController
                 $panelData['collector']['data']['namespaces'][$namespace]++;
             }
             arsort($panelData['collector']['data']['namespaces']);
-        } elseif ($panel === 'db') {
+        } elseif ($panel === 'doctrine') {
             foreach ($panelData['collector']['data']['queries'] as $index => $query) {
                 $query['sql'] = $collector->replaceQueryParameters($query['sql'], $query['params']);
                 $panelData['collector']['data']['queries'][$index]['sql_pretty'] = SqlFormatter::format($query['sql']);
