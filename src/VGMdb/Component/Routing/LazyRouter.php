@@ -12,6 +12,7 @@ use Silex\Application;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RequestContext as BaseRequestContext;
 use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 use Psr\Log\LoggerInterface;
 
@@ -23,35 +24,23 @@ use Psr\Log\LoggerInterface;
  */
 class LazyRouter extends Router implements WarmableInterface
 {
-    protected $app;
     protected $parameters;
     protected $matcherProxyClass;
 
     /**
      * Constructor.
      *
-     * @param Application     $app        Application instance
+     * @param LoaderInterface $loader     A LoaderInterface instance
      * @param mixed           $resource   The main resource to load
      * @param array           $options    An array of options
      * @param parameters      $parameters An array of routing parameters
      * @param RequestContext  $context    The context
      * @param LoggerInterface $logger     A logger instance
      */
-    public function __construct(Application $app, $resource, array $options = array(), array $parameters = array(), BaseRequestContext $context = null, LoggerInterface $logger = null)
+    public function __construct(LoaderInterface $loader, $resource, array $options = array(), array $parameters = array(), RequestContext $context = null, LoggerInterface $logger = null)
     {
-        $this->app = $app;
         $this->parameters = $parameters;
-        $this->resource = $resource;
-        $this->context = null === $context ? new BaseRequestContext() : $context;
-        $this->logger = $logger;
-        $this->setOptions($options);
-    }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setOptions(array $options)
-    {
         /**
          * This is a workaround, since the parent class filters out unknown keys
          */
@@ -60,7 +49,7 @@ class LazyRouter extends Router implements WarmableInterface
             unset($options['matcher_proxy_class']);
         }
 
-        parent::setOptions($options);
+        parent::__construct($loader, $resource, $options, $context, $logger);
     }
 
     /**
@@ -69,8 +58,7 @@ class LazyRouter extends Router implements WarmableInterface
     public function getRouteCollection()
     {
         if (null === $this->collection) {
-            $loader = $this->app['cache'] ? $this->app['routing.cached_loader'] : $this->app['routing.loader'];
-            $this->collection = $loader->load($this->resource, $this->options['resource_type']);
+            parent::getRouteCollection();
             $this->resolveParameters($this->collection);
         }
 

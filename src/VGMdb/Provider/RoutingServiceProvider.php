@@ -5,6 +5,7 @@ namespace VGMdb\Provider;
 use VGMdb\Component\Routing\LazyRouter;
 use VGMdb\Component\Routing\Loader\YamlFileLoader;
 use VGMdb\Component\Routing\Loader\CachedYamlFileLoader;
+use VGMdb\Component\Routing\Loader\ClosureLoaderResolver;
 use VGMdb\Component\Routing\Translation\TranslationRouter;
 use VGMdb\Component\Routing\Translation\RouteExclusionStrategy;
 use VGMdb\Component\Routing\Translation\PathGenerationStrategy;
@@ -16,6 +17,7 @@ use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Config\Loader\DelegatingLoader;
 
 /**
  * Provides caching for routes loaded from YAML configuration.
@@ -41,7 +43,7 @@ class RoutingServiceProvider implements ServiceProviderInterface
             $matcherClass = implode('', array_map('ucfirst', explode('-', $app['routing.matcher_cache_class'])));
 
             $router = new TranslationRouter(
-                $app,
+                $app['routing.delegating_loader'],
                 $app['routing.resource'],
                 array(
                     'cache_dir'             => $app['routing.cache_dir'],
@@ -81,6 +83,18 @@ class RoutingServiceProvider implements ServiceProviderInterface
             ));
 
             return $loader;
+        });
+
+        $app['routing.delegating_loader'] = $app->share(function ($app) {
+            return new DelegatingLoader(
+                new ClosureLoaderResolver(function () use ($app) {
+                    if ($app['cache']) {
+                        return $app['routing.cached_loader'];
+                    } else {
+                        return $app['routing.loader'];
+                    }
+                })
+            );
         });
 
         $app['routing.resource'] = $app->share(function ($app) {

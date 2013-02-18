@@ -2,7 +2,6 @@
 
 namespace VGMdb\Component\Translation;
 
-use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\Loader\LoaderInterface;
 
 /**
@@ -53,8 +52,9 @@ class TranslationLoader
      *
      * @param string           $directory the directory to look into
      * @param MessageCatalogue $catalogue the catalogue
+     * @param Boolean          $intersect whether to discard messages not already in catalogue
      */
-    public function loadMessages($directory, MessageCatalogue $catalogue)
+    public function loadMessages($directory, MessageCatalogue $catalogue, $intersect = false)
     {
         foreach ($this->loaders as $format => $loader) {
             // load any existing translation files
@@ -67,7 +67,13 @@ class TranslationLoader
             $files = glob($directory.'/*.'.$extension);
             foreach ($files as $file) {
                 $domain = substr(basename($file), 0, -1 * strlen($extension) - 1);
-                $catalogue->addCatalogue($loader->load($file, $catalogue->getLocale(), $domain));
+                $loaded = $loader->load($file, $catalogue->getLocale(), $domain);
+
+                if ($intersect) {
+                    $catalogue->intersectCatalogue($loaded);
+                } else {
+                    $catalogue->addCatalogue($loaded);
+                }
             }
         }
     }

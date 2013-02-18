@@ -36,14 +36,14 @@ class MustacheServiceProvider implements ServiceProviderInterface
                     if (false !== strpos($string, '{{!')) {
                         $string = trim(substr(strstr($string, '}}', true), 3));
                     }
-                    return $app['translator']->trans($string);
+                    return $app['translator']->trans($string, array(), 'messages', $app['locale']);
                 });
                 $mustache->addHelper('T', function ($string, $mustache) use ($app) {
                     $string = trim($string);
                     if (false !== strpos($string, '{{!')) {
                         $string = trim(substr(strstr($string, '}}', true), 3));
                     }
-                    return $app['translator']->trans($mustache->render($string));
+                    return $app['translator']->trans($mustache->render($string), array(), 'messages', $app['locale']);
                 });
             } else {
                 $mustache->addHelper('t', function ($string) {
