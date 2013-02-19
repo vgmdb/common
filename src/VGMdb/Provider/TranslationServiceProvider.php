@@ -34,15 +34,15 @@ class TranslationServiceProvider extends BaseTranslationServiceProvider
         $app['translator.doc_parser'] = $app->share(function ($app) {
             $parser = new DocParser();
             $parser->setImports(array(
-                'id'      => 'VGMdb\\Component\\Translation\\Annotation\\Id',
+                'desc'    => 'VGMdb\\Component\\Translation\\Annotation\\Desc',
                 'meaning' => 'VGMdb\\Component\\Translation\\Annotation\\Meaning',
                 'ignore'  => 'VGMdb\\Component\\Translation\\Annotation\\Ignore',
             ));
             $parser->setIgnoreNotImportedAnnotations(true);
 
-            $r = new \ReflectionClass('VGMdb\\Component\\Translation\\Annotation\\Id');
+            $r = new \ReflectionClass('VGMdb\\Component\\Translation\\Annotation\\Desc');
             $dir = dirname($r->getFilename());
-            AnnotationRegistry::registerFile($dir . '/Id.php');
+            AnnotationRegistry::registerFile($dir . '/Desc.php');
             AnnotationRegistry::registerFile($dir . '/Meaning.php');
             AnnotationRegistry::registerFile($dir . '/Ignore.php');
 

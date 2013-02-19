@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\Translation\Extractor;
 
-use VGMdb\Component\Translation\Annotation\Id;
+use VGMdb\Component\Translation\Annotation\Desc;
 use VGMdb\Component\Translation\Annotation\Ignore;
 use VGMdb\Component\Translation\Annotation\Meaning;
 use VGMdb\Component\Translation\Extractor\Model\FileSource;
@@ -75,13 +75,13 @@ class PhpExtractor extends AbstractExtractor implements \PHPParser_NodeVisitor
         }
 
         $ignore = false;
-        $id = $meaning = null;
+        $desc = $meaning = null;
         if (null !== $docComment = $this->getDocCommentForNode($node)) {
             foreach ($this->docParser->parse($docComment, 'file '.$this->file.' near line '.$node->getLine()) as $annotation) {
                 if ($annotation instanceof Ignore) {
                     $ignore = true;
-                } elseif ($annotation instanceof Id) {
-                    $id = $annotation->text;
+                } elseif ($annotation instanceof Desc) {
+                    $desc = $annotation->text;
                 } elseif ($annotation instanceof Meaning) {
                     $meaning = $annotation->text;
                 }
@@ -104,11 +104,7 @@ class PhpExtractor extends AbstractExtractor implements \PHPParser_NodeVisitor
             throw new \RuntimeException($message);
         }
 
-        $desc = $node->args[0]->value->value;
-
-        if (null === $id) {
-            $id = $desc;
-        }
+        $id = $node->args[0]->value->value;
 
         $index = 'trans' === strtolower($node->name) ? 2 : 3;
         if (isset($node->args[$index])) {

@@ -2,7 +2,6 @@
 
 namespace VGMdb\Provider;
 
-use VGMdb\Component\Routing\LazyRouter;
 use VGMdb\Component\Routing\Loader\YamlFileLoader;
 use VGMdb\Component\Routing\Loader\CachedYamlFileLoader;
 use VGMdb\Component\Routing\Loader\ClosureLoaderResolver;
@@ -39,10 +38,13 @@ class RoutingServiceProvider implements ServiceProviderInterface
         $app['routing.translation.domain'] = 'routes';
 
         $app['router'] = $app->share(function ($app) {
+            $routerClass = isset($app['translator'])
+                ? 'VGMdb\\Component\\Routing\\Translation\\TranslationRouter'
+                : 'VGMdb\\Component\\Routing\\LazyRouter';
             $generatorClass = implode('', array_map('ucfirst', explode('-', $app['routing.generator_cache_class'])));
             $matcherClass = implode('', array_map('ucfirst', explode('-', $app['routing.matcher_cache_class'])));
 
-            $router = new TranslationRouter(
+            $router = new $routerClass(
                 $app['routing.delegating_loader'],
                 $app['routing.resource'],
                 array(
@@ -59,9 +61,11 @@ class RoutingServiceProvider implements ServiceProviderInterface
                 $app['logger']
             );
 
-            $router->setLocaleResolver($app['routing.translation.locale_resolver']);
-            $router->setTranslationLoader($app['routing.translation.loader']);
-            $router->setDefaultLocale($app['routing.translation.locale']);
+            if ($router instanceof TranslationRouter) {
+                $router->setLocaleResolver($app['routing.translation.locale_resolver']);
+                $router->setTranslationLoader($app['routing.translation.loader']);
+                $router->setDefaultLocale($app['routing.translation.locale']);
+            }
 
             return $router;
         });

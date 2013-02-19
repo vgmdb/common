@@ -25,7 +25,7 @@ use Psr\Log\LoggerInterface;
 class LazyRouter extends Router implements WarmableInterface
 {
     protected $parameters;
-    protected $matcherProxyClass;
+    protected $matcherProxyClass = 'VGMdb\\Component\\Routing\\Matcher\\RedirectableProxyUrlMatcher';
 
     /**
      * Constructor.
