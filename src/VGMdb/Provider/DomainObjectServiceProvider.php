@@ -15,10 +15,17 @@ class DomainObjectServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
+        $app['domain.object_classmap'] = array();
+
         $app['domain.object_factory'] = $app->share(function ($app) {
             $serializer = isset($app['serializer']) ? $app['serializer'] : null;
 
-            return new DomainObjectFactory($app['dispatcher'], $app['logger'], $serializer);
+            return new DomainObjectFactory(
+                $app['domain.object_classmap'],
+                $app['dispatcher'],
+                $app['logger'],
+                $serializer
+            );
         });
     }
 

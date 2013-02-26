@@ -3,8 +3,8 @@
 namespace VGMdb\Provider;
 
 use Silex\Application;
-use Silex\ServiceProviderInterface;
 use Silex\Provider\MonologServiceProvider as BaseMonologServiceProvider;
+use Monolog\Handler\ChromePHPHandler;
 use Monolog\Handler\FirePHPHandler;
 use Monolog\Handler\NullHandler;
 
@@ -19,12 +19,19 @@ class MonologServiceProvider extends BaseMonologServiceProvider
     {
         parent::register($app);
 
+        $app['monolog.handlers'] = array();
+
         $app['monolog.handler'] = $app->share(function ($app) {
-            if (!$app['logger.options']['handlers']['firephp']) {
-                return new NullHandler();
+            $handlers = $app['monolog.handlers'];
+
+            if (isset($handlers['chromephp']) && $handlers['chromephp'] === true) {
+                return new ChromePHPHandler();
+            }
+            if (isset($handlers['firephp']) && $handlers['firephp'] === true) {
+                return new FirePHPHandler();
             }
 
-            return new FirePHPHandler();
+            return new NullHandler();
         });
     }
 

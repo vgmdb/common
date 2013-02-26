@@ -10,30 +10,16 @@ namespace VGMdb\Component\DomainObject;
 final class DomainObjectEvents
 {
     /**
-     * The PRESAVE event occurs before an object is saved.
+     * The SAVE event occurs when an object is saved.
      *
      * @var string
      */
-    const PRESAVE = 'domain.presave';
+    const SAVE = 'domain.save';
 
     /**
-     * The POSTSAVE event occurs after an object is saved.
+     * The DELETE event occurs when an object is deleted.
      *
      * @var string
      */
-    const POSTSAVE = 'domain.postsave';
-
-    /**
-     * The PREDELETE event occurs before an object is deleted.
-     *
-     * @var string
-     */
-    const PREDELETE = 'domain.predelete';
-
-    /**
-     * The POSTDELETE event occurs after an object is deleted.
-     *
-     * @var string
-     */
-    const POSTDELETE = 'domain.postdelete';
+    const DELETE = 'domain.delete';
 }

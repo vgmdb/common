@@ -4,6 +4,8 @@ namespace VGMdb\Component\DomainObject;
 
 use VGMdb\Component\DomainObject\DomainObjectEvents;
 use VGMdb\Component\DomainObject\Event\DomainObjectEvent;
+use VGMdb\Component\DomainObject\ArrayAccessHandlerInterface;
+use VGMdb\Component\DomainObject\Handler\ArrayHandler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 
@@ -17,17 +19,24 @@ abstract class AbstractDomainObject implements DomainObjectInterface, \ArrayAcce
     protected $object;
     protected $logger;
     protected $dispatcher;
+    protected $handler;
 
-    public function __construct($object)
+    public function __construct($object, ArrayAccessHandlerInterface $handler = null)
     {
-        if (!static::accepts($object)) {
+        if (is_object($object) && !static::accepts($object)) {
             throw new \InvalidArgumentException(sprintf(
                 'Cannot accept object of type "%s".',
-                is_object($object) ? get_class($object) : gettype($object)
+                get_class($object)
             ));
         }
 
         $this->object = $object;
+        $this->handler = $handler ?: new ArrayHandler();
+    }
+
+    public function getObject()
+    {
+        return $this->object;
     }
 
     public function setLogger(LoggerInterface $logger = null)
@@ -47,9 +56,7 @@ abstract class AbstractDomainObject implements DomainObjectInterface, \ArrayAcce
         }
 
         $event = new DomainObjectEvent($this);
-        $this->dispatcher->dispatch(DomainObjectEvents::PRESAVE, $event);
-        $this->doSave();
-        $this->dispatcher->dispatch(DomainObjectEvents::POSTSAVE, $event);
+        $this->dispatcher->dispatch(DomainObjectEvents::SAVE, $event);
     }
 
     public function delete()
@@ -59,14 +66,28 @@ abstract class AbstractDomainObject implements DomainObjectInterface, \ArrayAcce
         }
 
         $event = new DomainObjectEvent($this);
-        $this->dispatcher->dispatch(DomainObjectEvents::PREDELETE, $event);
-        $this->doDelete();
-        $this->dispatcher->dispatch(DomainObjectEvents::POSTDELETE, $event);
+        $this->dispatcher->dispatch(DomainObjectEvents::DELETE, $event);
     }
 
-    abstract protected function doSave();
-
-    abstract protected function doDelete();
-
     abstract public static function accepts($object);
+
+    public function offsetExists($offset)
+    {
+        return $this->handler->offsetExists($this->getObject(), $offset);
+    }
+
+    public function offsetGet($offset)
+    {
+        return $this->handler->offsetGet($this->getObject(), $offset);
+    }
+
+    public function offsetUnset($offset)
+    {
+        $this->handler->offsetUnset($this->getObject(), $offset);
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        $this->handler->offsetSet($this->getObject(), $offset, $value);
+    }
 }

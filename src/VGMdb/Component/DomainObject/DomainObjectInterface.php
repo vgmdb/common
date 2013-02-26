@@ -9,6 +9,8 @@ namespace VGMdb\Component\DomainObject;
  */
 interface DomainObjectInterface
 {
+    public function getObject();
+
     public function save();
 
     public function delete();

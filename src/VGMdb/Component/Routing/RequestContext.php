@@ -18,6 +18,7 @@ class RequestContext extends BaseRequestContext
     private $format;
     private $version;
     private $locale;
+    private $localeKeywords;
     private $language;
     private $region;
     private $userAgent;
@@ -161,14 +162,31 @@ class RequestContext extends BaseRequestContext
     }
 
     /**
+     * Gets the locale string with keywords.
+     *
+     * @return string The locale string.
+     */
+    public function getLocaleWithKeywords()
+    {
+        return $this->locale . ($this->localeKeywords ? '@' . $this->localeKeywords : '');
+    }
+
+    /**
      * Sets the locale string.
      *
-     * Also sets the language and region at the same time.
+     * Also sets the language and region at the same time. The locale may contain
+     * additional keywords, which will be stored in localeKeywords.
      *
      * @param string $locale The locale string.
      */
     public function setLocale($locale)
     {
+        if (false !== strpos($locale, '@')) {
+            $locale = explode('@', $locale);
+            $this->setLocaleKeywords(end($locale));
+            $locale = reset($locale);
+        }
+
         $this->locale = $locale;
 
         $locale = explode('_', $locale);
@@ -180,6 +198,28 @@ class RequestContext extends BaseRequestContext
         if ($language = implode('_', $locale)) {
             $this->language = $language;
         }
+    }
+
+    /**
+     * Gets the locale keywords.
+     *
+     * @return string The locale keywords.
+     */
+    public function getLocaleKeywords()
+    {
+        return $this->localeKeywords;
+    }
+
+    /**
+     * Sets the locale keywords, such as calendar and currency.
+     *
+     * @link http://userguide.icu-project.org/locale
+     *
+     * @param string $keywords The locale keywords.
+     */
+    public function setLocaleKeywords($keywords)
+    {
+        $this->localeKeywords = $keywords;
     }
 
     /**

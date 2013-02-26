@@ -286,31 +286,31 @@ EOF;
     {
         static $help = array(
             'ConfigServiceProvider' => array(
-                'FileNotFoundException' => 'The application could not find a configuration file for your environment. By default it looks for $env.yml.dist in app/Guru/Resources/Config, but if you need personalized configuration you can override settings by creating a corresponding .yml file which will be ignored by revision control.'
+                'FileNotFoundException' => 'The application could not find a configuration file for your environment. By default it looks for $env.yml.dist in app/Guru/Resources/config/app, but if you need personalized configuration you can override settings by creating a corresponding .yml file which will be ignored by revision control.'
             ),
             'ConfigCache' => array(
-                'RuntimeException' => "The configuration cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>sudo app/cli guru:setup</pre>"
+                'RuntimeException' => "The configuration cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>sudo app/console guru:setup</pre>"
             ),
             'FileCacheReader' => array(
-                'InvalidArgumentException' => "The annotation cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>sudo app/cli guru:setup</pre>"
+                'InvalidArgumentException' => "The annotation cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>sudo app/console guru:setup</pre>"
             ),
             'SessionHandlerProxy' => array(
-                'ErrorException' => "The session handler failed. If you're storing sessions on disk, please ensure that the directory is writable: <pre>mkdir data/sessions\nchmod -R 0777 data/sessions</pre> Alternatively, run the workspace setup command: <pre>sudo app/cli guru:setup</pre>"
+                'ErrorException' => "The session handler failed. If you're storing sessions on disk, please ensure that the directory is writable: <pre>mkdir data/sessions\nchmod -R 0777 data/sessions</pre> Alternatively, run the workspace setup command: <pre>sudo app/console guru:setup</pre>"
             ),
             'FilesystemCache' => array(
-                'RuntimeException' => "The asset cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>sudo app/cli guru:setup</pre>"
+                'RuntimeException' => "The asset cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>sudo app/console guru:setup</pre>"
             ),
             'AssetWriter' => array(
-                'RuntimeException' => "The minified assets could not be written. Please ensure that /css/lib.css is writable: <pre>touch public/css/lib.css\nchmod 0777 public/css/lib.css</pre> Alternatively, run the workspace setup command: <pre>sudo app/cli guru:setup</pre>"
+                'RuntimeException' => "The minified assets could not be written. Please ensure that /css/lib.css is writable: <pre>touch public/css/lib.css\nchmod 0777 public/css/lib.css</pre> Alternatively, run the workspace setup command: <pre>sudo app/console guru:setup</pre>"
             ),
             'SqliteProfilerStorage' => array(
-                'Exception' => "The profiler cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>sudo app/cli guru:setup</pre>"
+                'Exception' => "The profiler cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>sudo app/console guru:setup</pre>"
             ),
             'AbstractView' => array(
-                'RuntimeException' => "The template could not be rendered. Either: <ul><li>There is an error in your template.</li><li>The template filename is wrong or hasn't been created yet.</li><li>The template cache could not be created.</li></ul> Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>sudo app/cli guru:setup</pre>"
+                'RuntimeException' => "The template could not be rendered. Either: <ul><li>There is an error in your template.</li><li>The template filename is wrong or hasn't been created yet.</li><li>The template cache could not be created.</li></ul> Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>sudo app/console guru:setup</pre>"
             ),
             'SerializerBuilder' => array(
-                'InvalidArgumentException' => "The metadata cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>sudo app/cli guru:setup</pre>"
+                'InvalidArgumentException' => "The metadata cache could not be created. Please ensure that your cache directory exists and is writable: <pre>mkdir data/cache\nchmod -R 0777 data/cache</pre> Alternatively, run the workspace setup command: <pre>sudo app/console guru:setup</pre>"
             )
         );
 
