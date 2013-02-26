@@ -90,9 +90,16 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
         });
 
         $app['doctrine'] = $app->share(function ($app) {
+            $dbs = $app['dbs'];
+            $connections = array();
+            foreach (array_keys($app['dbs.options']) as $name) {
+                $app['doctrine.dbal.' . $name] = $dbs[$name];
+                $connections[$name] = 'doctrine.dbal.' . $name;
+            }
+
             return new Registry(
                 $app,
-                $app['dbs.options'],
+                $connections,
                 $app['entity_managers'],
                 $app['dbal.default_connection'],
                 $app['orm.default_entity_manager']
