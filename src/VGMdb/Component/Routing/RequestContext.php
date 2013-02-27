@@ -407,4 +407,37 @@ class RequestContext extends BaseRequestContext
     {
         $this->mobileDetector = $mobileDetector;
     }
+
+    /**
+     * Dump the context to an array.
+     */
+    public function toArray()
+    {
+        $data = array(
+            'app_name'        => $this->getAppName(),
+            'app_env'         => $this->getEnvironment(),
+            'is_debug'        => (Boolean) $this->isDebug(),
+            'base_url'        => $this->getBaseUrl(),
+            'path_info'       => $this->getPathInfo(),
+            'method'          => $this->getMethod(),
+            'host'            => $this->getHost(),
+            'scheme'          => $this->getScheme(),
+            'http_port'       => $this->getHttpPort(),
+            'https_port'      => $this->getHttpsPort(),
+            'parameters'      => $this->getParameters(),
+            'format'          => $this->getFormat(),
+            'version'         => $this->getVersion(),
+            'locale'          => $this->getLocale(),
+            'locale_keywords' => $this->getLocaleKeywords(),
+            'language'        => $this->getLanguage(),
+            'region'          => $this->getRegion(),
+            'user_agent'      => $this->getUserAgent(),
+            'referer'         => $this->getReferer(),
+            'is_mobile'       => (Boolean) $this->isMobile(),
+            'is_tablet'       => (Boolean) $this->isTablet(),
+            'is_web'          => (Boolean) $this->isWeb(),
+        );
+
+        return $data;
+    }
 }

@@ -127,10 +127,10 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
     {
         $app['dispatcher']->addSubscriber($app['security.firewall']);
 
-        foreach ($this->fakeRoutes as $route) {
+        /*foreach ($this->fakeRoutes as $route) {
             list($method, $pattern, $name) = $route;
 
             $app->$method($pattern, null)->bind($name);
-        }
+        }*/
     }
 }

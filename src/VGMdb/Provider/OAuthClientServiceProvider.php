@@ -103,12 +103,5 @@ class OAuthClientServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
-        $app->match($app['opauth.path'], null);
-
-        // fake route which will be handled by auth listener
-        $app->match($app['opauth.path'] . '/{strategy}', null);
-
-        // this route must be unsecured
-        $app->match('/login/{strategy}/{callback}', 'opauth.controller');
     }
 }
