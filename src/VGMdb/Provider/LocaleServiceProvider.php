@@ -55,7 +55,16 @@ class LocaleServiceProvider implements ServiceProviderInterface
         });
 
         $app['locale.formatter.currency'] = $app->share(function ($app) {
-            return new \NumberFormatter($app['request_context']->getLocale(), \NumberFormatter::CURRENCY);
+            $formatter = new \NumberFormatter($app['request_context']->getLocale(), \NumberFormatter::DECIMAL);
+            $formatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, 0);
+            $formatter->setSymbol(\NumberFormatter::GROUPING_SEPARATOR_SYMBOL, $app['locale.formats']['currency'][$app['locale']][1]);
+            $formatter->setPattern($app['locale.formats']['currency'][$app['locale']]);
+
+            return $formatter;
+        });
+
+        $app['locale.currency'] = $app->share(function ($app) {
+            return $app['locale.formatter.currency']->getSymbol(\NumberFormatter::INTL_CURRENCY_SYMBOL);
         });
     }
 

@@ -17,7 +17,6 @@ use Silex\ControllerProviderInterface;
 use Silex\LazyUrlMatcher;
 use Silex\EventListener\LocaleListener;
 use Silex\EventListener\ConverterListener;
-use Silex\EventListener\StringToResponseListener;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\HttpKernel\EventListener\ResponseListener;
@@ -97,7 +96,6 @@ class Application extends BaseApplication
             $dispatcher->addSubscriber(new ResponseListener($app['charset']));
             $dispatcher->addSubscriber(new MiddlewareListener($app));
             $dispatcher->addSubscriber(new ConverterListener($app['routes']));
-            $dispatcher->addSubscriber(new StringToResponseListener());
 
             return $dispatcher;
         });

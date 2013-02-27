@@ -32,7 +32,6 @@ class LayoutListener implements EventSubscriberInterface
         $response = $event->getResponse();
         $request = $event->getRequest();
         $template = $request->attributes->get('_layout');
-        $route = $request->attributes->get('_route');
 
         if ($event->getRequest()->getRequestFormat() === 'html') {
             if (!$template && isset($this->app['view.default_layout'])) {
@@ -58,7 +57,8 @@ class LayoutListener implements EventSubscriberInterface
             }
 
             $content = $response->getContent();
-            if ($content instanceof ViewInterface && $layout instanceof ViewInterface) {
+
+            if ($content instanceof ViewInterface) {
                 $response->setContent($content->wrap($layout));
             }
         }

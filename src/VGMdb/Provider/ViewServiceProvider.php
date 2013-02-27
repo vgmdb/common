@@ -6,7 +6,7 @@ use VGMdb\Component\View\ViewFactory;
 use VGMdb\Component\View\AbstractView;
 use VGMdb\Component\View\Widget;
 use VGMdb\Component\View\EventListener\LayoutListener;
-use VGMdb\Component\View\EventListener\RenderListener;
+use VGMdb\Component\View\EventListener\ViewListener;
 use VGMdb\Component\View\Logging\ViewLogger;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -42,9 +42,12 @@ class ViewServiceProvider implements ServiceProviderInterface
             return new ViewLogger($app['logger']);
         });
 
-        $app['view'] = $app->protect(function ($template, array $data = array(), $type = null) use ($app) {
+        $app['view'] = $app->protect(function ($template, $data = array(), $type = null) use ($app) {
             if (!$type) {
                 $type = $app['view.default_engine'];
+            }
+            if (!is_array($data)) {
+                $data = array('content' => $data);
             }
             $view = $app['view_factory']->create($template, $data, $app[$type]);
 
@@ -68,6 +71,6 @@ class ViewServiceProvider implements ServiceProviderInterface
         }
 
         $app['dispatcher']->addSubscriber(new LayoutListener($app)); // -32
-        $app['dispatcher']->addSubscriber(new RenderListener($app)); // -64
+        $app['dispatcher']->addSubscriber(new ViewListener($app));   // -16, -64
     }
 }

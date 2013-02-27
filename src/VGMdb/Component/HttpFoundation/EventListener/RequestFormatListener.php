@@ -104,13 +104,12 @@ class RequestFormatListener implements EventSubscriberInterface
                 case 'jpg':
                     $response = new BeaconResponse($format);
                     break;
-                default:
-                    $response = new Response($response);
-                    break;
             }
         }
 
-        $event->setResponse($response);
+        if ($response instanceof Response) {
+            $event->setResponse($response);
+        }
     }
 
     public function onKernelResponse(FilterResponseEvent $event)
