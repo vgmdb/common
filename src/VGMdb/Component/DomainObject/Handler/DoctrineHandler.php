@@ -12,34 +12,44 @@ use Doctrine\Common\Util\Inflector;
  */
 class DoctrineHandler implements ArrayAccessHandlerInterface
 {
-    public function offsetExists(&$object, $offset)
+    public function offsetExists($object, $offset)
     {
         $getter = 'get' . static::classify($offset);
 
         return method_exists($object, $getter);
     }
 
-    public function offsetGet(&$object, $offset)
+    public function offsetGet($object, $offset)
     {
         $getter = 'get' . static::classify($offset);
 
-        return $object->$getter;
+        if (!method_exists($object, $getter)) {
+            throw new \InvalidArgumentException('Offset does not exist.');
+        }
+
+        return $object->$getter();
     }
 
-    public function offsetUnset(&$object, $offset)
+    public function offsetUnset($object, $offset)
     {
         $setter = 'set' . static::classify($offset);
+
+        if (!method_exists($object, $setter)) {
+            throw new \InvalidArgumentException('Offset does not exist.');
+        }
+
         $object->$setter(null);
     }
 
-    public function offsetSet(&$object, $offset, $value)
+    public function offsetSet($object, $offset, $value)
     {
-        if (is_null($offset)) {
-            throw new \InvalidArgumentException('Offset must not be null.');
-        } else {
-            $setter = 'set' . static::classify($offset);
-            $object->$setter($value);
+        $setter = 'set' . static::classify($offset);
+
+        if (!method_exists($object, $setter)) {
+            throw new \InvalidArgumentException('Offset does not exist.');
         }
+
+        $object->$setter($value);
     }
 
     protected static function classify($offset)

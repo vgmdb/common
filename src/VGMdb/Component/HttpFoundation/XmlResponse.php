@@ -2,6 +2,7 @@
 
 namespace VGMdb\Component\HttpFoundation;
 
+use VGMdb\Component\HttpFoundation\Util\XmlSerializable;
 use VGMdb\Component\View\ViewInterface;
 use VGMdb\Component\View\View;
 use JMS\Serializer\Serializer;
@@ -126,6 +127,10 @@ class XmlResponse extends Response
             self::xmlEncode($data, $domDocument, $domDocument);
 
             return $domDocument->saveXML();
+        }
+
+        if ($data instanceof XmlSerializable) {
+            $data = $data->xmlSerialize();
         }
 
         if (is_array($data) || $data instanceof \ArrayAccess) {

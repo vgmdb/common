@@ -11,29 +11,29 @@ use Psr\Log\LoggerInterface;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-abstract class DomainObjectFactory
+class DomainObjectFactory
 {
-    protected $classMap;
+    protected $config;
     protected $dispatcher;
     protected $logger;
-    protected $serializer;
 
-    public function __construct(array $classMap, EventDispatcherInterface $dispatcher, LoggerInterface $logger = null, SerializerInterface $serializer = null)
+    public function __construct(array $config, EventDispatcherInterface $dispatcher, LoggerInterface $logger = null)
     {
-        $this->classMap = $classMap;
+        $this->config = $config;
         $this->dispatcher = $dispatcher;
         $this->logger = $logger;
-        $this->serializer = $serializer;
     }
 
-    public function create($domain, $type = 'array')
+    public function create($data, $domain = null)
     {
-        if (!isset($this->classMap[$type])) {
-            throw new \InvalidArgumentException(sprintf('No DomainObject wrapper found for type "%s".', $type));
+        $classes = $this->config['classes'];
+
+        if ($domain && isset($classes[$domain])) {
+            $class = $classes[$domain];
+        } else {
+            $class = $this->config['default_class'];
         }
-    }
 
-    public function createFromObject($object, $type = null)
-    {
+        return new $class($data);
     }
 }

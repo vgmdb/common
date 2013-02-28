@@ -9,11 +9,13 @@ namespace VGMdb\Component\DomainObject;
  */
 interface DomainObjectInterface
 {
-    public function getObject();
+    public function setEntity($entity);
+
+    public function getEntity();
 
     public function save();
 
     public function delete();
 
-    public static function accepts($object);
+    public function toArray();
 }

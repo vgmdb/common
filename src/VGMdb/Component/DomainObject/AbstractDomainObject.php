@@ -6,6 +6,7 @@ use VGMdb\Component\DomainObject\DomainObjectEvents;
 use VGMdb\Component\DomainObject\Event\DomainObjectEvent;
 use VGMdb\Component\DomainObject\ArrayAccessHandlerInterface;
 use VGMdb\Component\DomainObject\Handler\ArrayHandler;
+use VGMdb\Component\HttpFoundation\Util\XmlSerializable;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 
@@ -14,29 +15,25 @@ use Psr\Log\LoggerInterface;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-abstract class AbstractDomainObject implements DomainObjectInterface, \ArrayAccess
+abstract class AbstractDomainObject extends \ArrayObject implements DomainObjectInterface
 {
-    protected $object;
+    protected $entity;
     protected $logger;
     protected $dispatcher;
-    protected $handler;
 
-    public function __construct($object, ArrayAccessHandlerInterface $handler = null)
+    public function __construct(array $data = array())
     {
-        if (is_object($object) && !static::accepts($object)) {
-            throw new \InvalidArgumentException(sprintf(
-                'Cannot accept object of type "%s".',
-                get_class($object)
-            ));
-        }
-
-        $this->object = $object;
-        $this->handler = $handler ?: new ArrayHandler();
+        parent::__construct($data);
     }
 
-    public function getObject()
+    public function setEntity($entity)
     {
-        return $this->object;
+        $this->entity = $entity;
+    }
+
+    public function getEntity()
+    {
+        return $this->entity;
     }
 
     public function setLogger(LoggerInterface $logger = null)
@@ -69,25 +66,8 @@ abstract class AbstractDomainObject implements DomainObjectInterface, \ArrayAcce
         $this->dispatcher->dispatch(DomainObjectEvents::DELETE, $event);
     }
 
-    abstract public static function accepts($object);
-
-    public function offsetExists($offset)
+    public function toArray()
     {
-        return $this->handler->offsetExists($this->getObject(), $offset);
-    }
-
-    public function offsetGet($offset)
-    {
-        return $this->handler->offsetGet($this->getObject(), $offset);
-    }
-
-    public function offsetUnset($offset)
-    {
-        $this->handler->offsetUnset($this->getObject(), $offset);
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        $this->handler->offsetSet($this->getObject(), $offset, $value);
+        return parent::getArrayCopy();
     }
 }

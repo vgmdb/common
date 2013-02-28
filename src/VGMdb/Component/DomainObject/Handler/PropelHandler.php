@@ -11,38 +11,54 @@ use VGMdb\Component\DomainObject\ArrayAccessHandlerInterface;
  */
 class PropelHandler implements ArrayAccessHandlerInterface
 {
-    public function offsetExists(&$object, $offset)
+    public function offsetExists($object, $offset)
     {
         $getter = 'get' . static::classify($object, $offset);
 
         return method_exists($object, $getter);
     }
 
-    public function offsetGet(&$object, $offset)
+    public function offsetGet($object, $offset)
     {
         $getter = 'get' . static::classify($object, $offset);
 
-        return $object->$getter;
+        if (!method_exists($object, $getter)) {
+            throw new \InvalidArgumentException('Offset does not exist.');
+        }
+
+        return $object->$getter();
     }
 
-    public function offsetUnset(&$object, $offset)
+    public function offsetUnset($object, $offset)
     {
         $setter = 'set' . static::classify($object, $offset);
+
+        if (!method_exists($object, $setter)) {
+            throw new \InvalidArgumentException('Offset does not exist.');
+        }
+
         $object->$setter(null);
     }
 
-    public function offsetSet(&$object, $offset, $value)
+    public function offsetSet($object, $offset, $value)
     {
-        if (is_null($offset)) {
-            throw new \InvalidArgumentException('Offset must not be null.');
-        } else {
-            $setter = 'set' . static::classify($object, $offset);
-            $object->$setter($value);
+        $setter = 'set' . static::classify($object, $offset);
+
+        if (!method_exists($object, $setter)) {
+            throw new \InvalidArgumentException('Offset does not exist.');
         }
+
+        $object->$setter($value);
     }
 
     protected static function classify($object, $offset)
     {
-        return $object::translateFieldName($offset, \BasePeer::TYPE_FIELDNAME, \BasePeer::TYPE_PHPNAME);
+        $peer = $object::PEER;
+
+        try {
+            return $peer::translateFieldName($offset, \BasePeer::TYPE_FIELDNAME, \BasePeer::TYPE_PHPNAME);
+        } catch (\PropelException $e) {
+            return null;
+        }
     }
 }

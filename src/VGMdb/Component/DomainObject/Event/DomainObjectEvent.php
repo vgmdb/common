@@ -6,7 +6,7 @@ use VGMdb\Component\DomainObject\DomainObjectInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Allows pre and post CRUD operations on domain objects.
+ * Notification of CRUD operations on domain objects.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */

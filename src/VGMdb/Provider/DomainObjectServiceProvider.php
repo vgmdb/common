@@ -15,17 +15,16 @@ class DomainObjectServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['domain.object_classmap'] = array();
+        $app['domain.classes'] = array();
+        $app['domain.default_class'] = 'VGMdb\\Component\\DomainObject\\DomainObject';
 
         $app['domain.object_factory'] = $app->share(function ($app) {
-            $serializer = isset($app['serializer']) ? $app['serializer'] : null;
-
-            return new DomainObjectFactory(
-                $app['domain.object_classmap'],
-                $app['dispatcher'],
-                $app['logger'],
-                $serializer
+            $config = array(
+                'classes' => $app['domain.classes'],
+                'default_class' => $app['domain.default_class']
             );
+
+            return new DomainObjectFactory($config, $app['dispatcher'], $app['logger']);
         });
     }
 
