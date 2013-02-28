@@ -7,6 +7,7 @@ use VGMdb\Component\HttpFoundation\Response;
 use VGMdb\Component\HttpFoundation\JsonResponse;
 use VGMdb\Component\HttpFoundation\XmlResponse;
 use VGMdb\Component\HttpFoundation\BeaconResponse;
+use VGMdb\Component\HttpFoundation\QrCodeResponse;
 use VGMdb\Component\Routing\RequestContext;
 use VGMdb\Component\Validator\Constraints\JsonpCallback;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -78,6 +79,11 @@ class RequestFormatListener implements EventSubscriberInterface
             // All beacon handling code must be in after() or finish()
             $event->setResponse(new BeaconResponse());
         }
+
+        if ($request->getRequestFormat() === 'qrcode') {
+            // Short circuits the controller
+            $event->setResponse(new QrCodeResponse($request->getUri()));
+        }
     }
 
     /**
@@ -98,6 +104,9 @@ class RequestFormatListener implements EventSubscriberInterface
                     break;
                 case 'xml':
                     $response = new XmlResponse($response);
+                    break;
+                case 'qrcode':
+                    $response = new QrCodeResponse();
                     break;
                 case 'gif':
                 case 'png':
