@@ -34,6 +34,15 @@ class DomainObjectFactory
             $class = $this->config['default_class'];
         }
 
-        return new $class($data);
+        $object = new $class($data);
+        $object->setDispatcher($this->dispatcher);
+        $object->setLogger($this->logger);
+
+        return $object;
+    }
+
+    public function createCollection($collection, $domain = null)
+    {
+        return $collection;
     }
 }
