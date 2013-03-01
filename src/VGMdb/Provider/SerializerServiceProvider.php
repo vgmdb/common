@@ -45,13 +45,11 @@ class SerializerServiceProvider implements ServiceProviderInterface
         $app['serializer.datetime_handler.default_format'] = \DateTime::ISO8601;
         $app['serializer.datetime_handler.default_timezone'] = 'UTC';
         $app['serializer.disable_external_entities'] = true;
-        $app['serializer.serialize_null'] = false;
         $app['serializer.src_dir'] = '';
         $app['serializer.cache_dir'] = '';
         $app['serializer.config_dirs'] = array();
         $app['serializer.json_serialization_visitor.options'] = array();
         $app['serializer.xml_deserialization_visitor.doctype_whitelist'] = array();
-        $app['serializer.version'] = '1.0';
 
         // listeners
         $app['serializer.doctrine_proxy_subscriber'] = $app->share(function ($app) {
@@ -197,9 +195,6 @@ class SerializerServiceProvider implements ServiceProviderInterface
                     }
                 })
                 ->build();
-
-            $serializer->setSerializeNull($app['serializer.serialize_null']);
-            $serializer->setVersion($app['serializer.version']);
 
             return $serializer;
         });

@@ -5,6 +5,8 @@ namespace VGMdb\Component\Serializer\Debug;
 use Symfony\Component\Stopwatch\Stopwatch;
 use Psr\Log\LoggerInterface;
 use JMS\Serializer\SerializerInterface;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\Exclusion\ExclusionStrategyInterface;
 
 /**
@@ -32,19 +34,9 @@ class TraceableSerializer implements SerializerInterface
         $this->logger = $logger;
     }
 
-    public function setSerializeNull($serializeNull)
-    {
-        $this->serializer->setSerializeNull($serializeNull);
-    }
-
     public function setExclusionStrategy(ExclusionStrategyInterface $exclusionStrategy = null)
     {
         $this->serializer->setExclusionStrategy($exclusionStrategy);
-    }
-
-    public function setVersion($version)
-    {
-        $this->serializer->setVersion($version);
     }
 
     public function setGroups($groups)
@@ -52,11 +44,11 @@ class TraceableSerializer implements SerializerInterface
         $this->serializer->setGroups($groups);
     }
 
-    public function serialize($data, $format)
+    public function serialize($data, $format, SerializationContext $context = null)
     {
         $event = $this->stopwatch->start('serialize', 'serializer');
 
-        $result = $this->serializer->serialize($data, $format);
+        $result = $this->serializer->serialize($data, $format, $context);
 
         $event->stop('Serialize');
 
@@ -68,11 +60,11 @@ class TraceableSerializer implements SerializerInterface
         return $result;
     }
 
-    public function deserialize($data, $type, $format)
+    public function deserialize($data, $type, $format, DeserializationContext $context = null)
     {
         $event = $this->stopwatch->start('deserialize', 'serializer');
 
-        $result = $this->serializer->deserialize($data, $type, $format);
+        $result = $this->serializer->deserialize($data, $type, $format, $context);
 
         $event->stop('Deserialize');
 
