@@ -14,45 +14,41 @@ class DoctrineHandler implements ArrayAccessHandlerInterface
 {
     public function offsetExists($object, $offset)
     {
-        $getter = 'get' . static::classify($offset);
+        $getter = 'get' . self::accessorify($offset);
 
         return method_exists($object, $getter);
     }
 
     public function offsetGet($object, $offset)
     {
-        $getter = 'get' . static::classify($offset);
+        $getter = 'get' . self::accessorify($offset);
 
-        if (!method_exists($object, $getter)) {
-            throw new \InvalidArgumentException('Offset does not exist.');
+        if (method_exists($object, $getter)) {
+            return $object->$getter();
         }
 
-        return $object->$getter();
+        return null;
     }
 
     public function offsetUnset($object, $offset)
     {
-        $setter = 'set' . static::classify($offset);
+        $setter = 'set' . self::accessorify($offset);
 
-        if (!method_exists($object, $setter)) {
-            throw new \InvalidArgumentException('Offset does not exist.');
+        if (method_exists($object, $setter)) {
+            $object->$setter(null);
         }
-
-        $object->$setter(null);
     }
 
     public function offsetSet($object, $offset, $value)
     {
-        $setter = 'set' . static::classify($offset);
+        $setter = 'set' . self::accessorify($offset);
 
-        if (!method_exists($object, $setter)) {
-            throw new \InvalidArgumentException('Offset does not exist.');
+        if (method_exists($object, $setter)) {
+            $object->$setter($value);
         }
-
-        $object->$setter($value);
     }
 
-    protected static function classify($offset)
+    protected static function accessorify($offset)
     {
         static $classified = array();
 

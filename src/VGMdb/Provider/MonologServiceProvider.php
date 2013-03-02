@@ -5,8 +5,8 @@ namespace VGMdb\Provider;
 use Silex\Application;
 use Silex\Provider\MonologServiceProvider as BaseMonologServiceProvider;
 use Symfony\Bridge\Monolog\Handler\ChromePHPHandler;
+use Symfony\Bridge\Monolog\Handler\FirePHPHandler;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Monolog\Handler\FirePHPHandler;
 use Monolog\Handler\NullHandler;
 
 /**

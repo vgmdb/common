@@ -9,7 +9,7 @@ namespace VGMdb\Component\DomainObject;
  */
 interface DomainObjectInterface
 {
-    public function setEntity($entity);
+    public function setEntity($entity, ArrayAccessHandlerInterface $handler);
 
     public function getEntity();
 

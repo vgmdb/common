@@ -13,45 +13,41 @@ class PropelHandler implements ArrayAccessHandlerInterface
 {
     public function offsetExists($object, $offset)
     {
-        $getter = 'get' . static::classify($object, $offset);
+        $getter = 'get' . self::accessorify($object, $offset);
 
         return method_exists($object, $getter);
     }
 
     public function offsetGet($object, $offset)
     {
-        $getter = 'get' . static::classify($object, $offset);
+        $getter = 'get' . self::accessorify($object, $offset);
 
-        if (!method_exists($object, $getter)) {
-            throw new \InvalidArgumentException('Offset does not exist.');
+        if (method_exists($object, $getter)) {
+            return $object->$getter();
         }
 
-        return $object->$getter();
+        return null;
     }
 
     public function offsetUnset($object, $offset)
     {
-        $setter = 'set' . static::classify($object, $offset);
+        $setter = 'set' . self::accessorify($object, $offset);
 
-        if (!method_exists($object, $setter)) {
-            throw new \InvalidArgumentException('Offset does not exist.');
+        if (method_exists($object, $setter)) {
+            $object->$setter(null);
         }
-
-        $object->$setter(null);
     }
 
     public function offsetSet($object, $offset, $value)
     {
-        $setter = 'set' . static::classify($object, $offset);
+        $setter = 'set' . self::accessorify($object, $offset);
 
-        if (!method_exists($object, $setter)) {
-            throw new \InvalidArgumentException('Offset does not exist.');
+        if (method_exists($object, $setter)) {
+            $object->$setter($value);
         }
-
-        $object->$setter($value);
     }
 
-    protected static function classify($object, $offset)
+    protected static function accessorify($object, $offset)
     {
         $peer = $object::PEER;
 

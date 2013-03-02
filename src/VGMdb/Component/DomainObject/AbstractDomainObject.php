@@ -18,6 +18,7 @@ use Psr\Log\LoggerInterface;
 abstract class AbstractDomainObject extends \ArrayObject implements DomainObjectInterface
 {
     protected $entity;
+    protected $handler;
     protected $logger;
     protected $dispatcher;
 
@@ -26,9 +27,10 @@ abstract class AbstractDomainObject extends \ArrayObject implements DomainObject
         parent::__construct($data);
     }
 
-    public function setEntity($entity)
+    public function setEntity($entity, ArrayAccessHandlerInterface $handler = null)
     {
         $this->entity = $entity;
+        $this->handler = $handler;
     }
 
     public function getEntity()
@@ -64,6 +66,24 @@ abstract class AbstractDomainObject extends \ArrayObject implements DomainObject
 
         $event = new DomainObjectEvent($this);
         $this->dispatcher->dispatch(DomainObjectEvents::DELETE, $event);
+    }
+
+    public function offsetUnset($offset)
+    {
+        parent::offsetUnset($offset);
+
+        if (null !== $this->entity && null !== $this->handler) {
+            $this->handler->offsetUnset($this->entity, $offset);
+        }
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        parent::offsetSet($offset, $value);
+
+        if (null !== $this->entity && null !== $this->handler) {
+            $this->handler->offsetSet($this->entity, $offset, $value);
+        }
     }
 
     public function toArray()

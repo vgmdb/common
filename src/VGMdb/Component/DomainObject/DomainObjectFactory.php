@@ -14,12 +14,17 @@ use Psr\Log\LoggerInterface;
 class DomainObjectFactory
 {
     protected $config;
+    protected $handlers;
     protected $dispatcher;
     protected $logger;
 
-    public function __construct(array $config, EventDispatcherInterface $dispatcher, LoggerInterface $logger = null)
+    public function __construct(array $config = array(), array $handlers = array(), EventDispatcherInterface $dispatcher, LoggerInterface $logger = null)
     {
-        $this->config = $config;
+        $this->config = array_replace(array(
+            'classes' => array(),
+            'default_class' => null
+        ), $config);
+        $this->handlers = $handlers;
         $this->dispatcher = $dispatcher;
         $this->logger = $logger;
     }
@@ -44,5 +49,14 @@ class DomainObjectFactory
     public function createCollection($collection, $domain = null)
     {
         return $collection;
+    }
+
+    public function getHandler($provider)
+    {
+        if (isset($this->handlers[$provider])) {
+            return $this->handlers[$provider];
+        }
+
+        return null;
     }
 }

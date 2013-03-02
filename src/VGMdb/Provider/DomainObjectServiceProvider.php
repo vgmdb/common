@@ -3,6 +3,8 @@
 namespace VGMdb\Provider;
 
 use VGMdb\Component\DomainObject\DomainObjectFactory;
+use VGMdb\Component\DomainObject\Handler\DoctrineHandler;
+use VGMdb\Component\DomainObject\Handler\PropelHandler;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
@@ -24,7 +26,14 @@ class DomainObjectServiceProvider implements ServiceProviderInterface
                 'default_class' => $app['domain.default_class']
             );
 
-            return new DomainObjectFactory($config, $app['dispatcher'], $app['logger']);
+            return new DomainObjectFactory($config, $app['domain.object_handlers'], $app['dispatcher'], $app['logger']);
+        });
+
+        $app['domain.object_handlers'] = $app->share(function ($app) {
+            return array(
+                'doctrine' => new DoctrineHandler(),
+                'propel'   => new PropelHandler(),
+            );
         });
     }
 

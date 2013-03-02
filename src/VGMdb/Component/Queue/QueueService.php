@@ -5,6 +5,7 @@ namespace VGMdb\Component\Queue;
 use PHPQueue\Base;
 use PHPQueue\Job;
 use PHPQueue\JobQueue;
+use PHPQueue\Backend\Base as ProviderBase;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -18,10 +19,14 @@ class QueueService extends JobQueue;
     protected $queueProvider;
     protected $logger;
 
-    public function __construct($workerType, $providerType, array $config = array(), LoggerInterface $logger = null)
+    public function __construct($worker, $provider, array $config = array(), LoggerInterface $logger = null)
     {
-        $this->queueWorker = $workerType;
-        $this->queueProvider = Base::backendFactory($providerType, $config);
+        if (!($provider instanceof ProviderBase)) {
+            $provider = Base::backendFactory($provider, $config);
+        }
+
+        $this->queueWorker = $worker;
+        $this->queueProvider = $provider;
         $this->logger = $logger;
     }
 
