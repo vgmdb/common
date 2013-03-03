@@ -4,21 +4,22 @@ namespace VGMdb\Provider;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
-use Elastica\Client;
 
 /**
  * Provides ElasticSearch integration using Elastica.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class ElasticServiceProvider implements ServiceProviderInterface
+class ElasticaServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['elastic'] = $app->share(function ($app) {
-            $elastic = new Client($app['elastic.options']);
+        $app['elastica.client.class'] = 'Elastica\\Client';
 
-            return $elastic;
+        $app['elastica'] = $app->share(function ($app) {
+            $elastica = new $app['elastica.client.class']($app['elastica.options']);
+
+            return $elastica;
         });
     }
 

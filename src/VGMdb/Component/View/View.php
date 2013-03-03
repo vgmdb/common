@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\View;
 
-use VGMdb\Component\View\Logging\ViewLoggerInterface;
+use VGMdb\Component\View\Logger\ViewLoggerInterface;
 
 /**
  * Nestable view container with rendering callback.

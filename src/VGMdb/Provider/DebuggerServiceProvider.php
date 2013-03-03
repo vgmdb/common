@@ -56,7 +56,7 @@ class DebuggerServiceProvider implements ServiceProviderInterface
         }));
 
         // replace view logger with traceable implementation
-        $app['debug.view_logger.class'] = 'VGMdb\\Component\\View\\Logging\\ViewLogger';
+        $app['debug.view_logger.class'] = 'VGMdb\\Component\\View\\Logger\\ViewLogger';
 
         $app['view.logger'] = $app->share(function ($app) {
             return new $app['debug.view_logger.class']($app['logger'], $app['debug.stopwatch']);
@@ -120,6 +120,24 @@ class DebuggerServiceProvider implements ServiceProviderInterface
             $mailer->registerPlugin($app['swiftmailer.plugin.messagelogger']);
 
             return $mailer;
+        }));
+
+        // replace Elastica Client with traceable implementation
+        $app['elastica.client.class'] = 'VGMdb\\Component\\Elastica\\Debug\\TraceableClient';
+
+        // add logger to Elastica
+        $app['elastica.debug_logger.class'] = 'VGMdb\\Component\\Elastica\\Logger\\ElasticaLogger';
+
+        $app['elastica.debug_logger'] = $app->share(function ($app) {
+            return new $app['elastica.debug_logger.class']($app['logger'], $app['debug.stopwatch']);
+        });
+
+        $app['elastica'] = $app->share($app->extend('elastica', function ($elastica) use ($app) {
+            if ($elastica instanceof $app['elastica.client.class']) {
+                $elastica->setLogger($app['elastica.debug_logger']);
+            }
+
+            return $elastica;
         }));
     }
 

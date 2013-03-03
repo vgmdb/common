@@ -44,7 +44,7 @@ class GuzzleRequestListener implements EventSubscriberInterface
     public function onRequestBeforeSend()
     {
         if (null !== $this->stopwatch) {
-            $this->stopwatch->start('Guzzle', 'guzzle');
+            $this->stopwatch->start('guzzle.request', 'guzzle');
         }
     }
 
@@ -54,7 +54,7 @@ class GuzzleRequestListener implements EventSubscriberInterface
     public function onRequestComplete()
     {
         if (null !== $this->stopwatch) {
-            $this->stopwatch->stop('Guzzle', 'guzzle');
+            $this->stopwatch->stop('guzzle.request', 'guzzle');
         }
     }
 }

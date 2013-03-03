@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\View\Logging;
+namespace VGMdb\Component\View\Logger;
 
 use VGMdb\Component\View\ViewInterface;
 

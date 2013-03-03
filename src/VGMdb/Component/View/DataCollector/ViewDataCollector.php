@@ -3,7 +3,7 @@
 namespace VGMdb\Component\View\DataCollector;
 
 use VGMdb\Component\View\AbstractView;
-use VGMdb\Component\View\Logging\ViewLoggerInterface;
+use VGMdb\Component\View\Logger\ViewLoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;

@@ -93,6 +93,9 @@ class ProfilerController extends AbstractController
             if ($name === 'swiftmailer' && !$profile->getCollector('swiftmailer')->getMessageCount()) {
                 continue;
             }
+            if ($name === 'elastica' && !$profile->getCollector('elastica')->getQueryCount()) {
+                continue;
+            }
             if ($name === 'zuora' && !$profile->getCollector('zuora')->hasRequests()) {
                 continue;
             }
@@ -179,6 +182,13 @@ class ProfilerController extends AbstractController
         } elseif ($panel === 'propel') {
             foreach ($panelData['collector']['data']['queries'] as $index => $query) {
                 $panelData['collector']['data']['queries'][$index]['sql_pretty'] = SqlFormatter::format($query['sql']);
+            }
+        } elseif ($panel === 'elastica') {
+            foreach ($panelData['collector']['data']['queries'] as $index => $query) {
+                $panelData['collector']['data']['queries'][$index]['data'] = json_encode($query['data']);
+                $panelData['collector']['data']['queries'][$index]['query'] = count($query['query']) ? json_encode($query['query']) : null;
+                $panelData['collector']['data']['queries'][$index]['response'] = json_encode($query['response']);
+                $panelData['collector']['data']['queries'][$index]['time'] = sprintf('%0.3f', $query['time']);
             }
         } elseif ($panel === 'zuora') {
             foreach ($panelData['collector']['data']['requests'] as $index => $request) {

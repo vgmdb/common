@@ -7,7 +7,7 @@ use VGMdb\Component\View\AbstractView;
 use VGMdb\Component\View\Widget;
 use VGMdb\Component\View\EventListener\LayoutListener;
 use VGMdb\Component\View\EventListener\ViewListener;
-use VGMdb\Component\View\Logging\ViewLogger;
+use VGMdb\Component\View\Logger\ViewLogger;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 

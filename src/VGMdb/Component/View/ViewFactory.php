@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\View;
 
-use VGMdb\Component\View\Logging\ViewLoggerInterface;
+use VGMdb\Component\View\Logger\ViewLoggerInterface;
 use VGMdb\Component\View\Mustache\MustacheView;
 use VGMdb\Component\View\Mustache\Loader\PrefixLoader;
 use VGMdb\Component\View\Smarty\SmartyView;

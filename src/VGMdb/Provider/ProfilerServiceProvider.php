@@ -54,6 +54,7 @@ class ProfilerServiceProvider implements ServiceProviderInterface
         $app['data_collector.propel.class'] = 'VGMdb\\Component\\Propel\\DataCollector\\PropelDataCollector';
         $app['data_collector.guzzle.class'] = 'VGMdb\\Component\\Guzzle\\DataCollector\\GuzzleDataCollector';
         $app['data_collector.swiftmailer.class'] = 'VGMdb\\Component\\Swiftmailer\\DataCollector\\EmailDataCollector';
+        $app['data_collector.elastica.class'] = 'VGMdb\\Component\\Elastica\\DataCollector\\ElasticaDataCollector';
 
         // data collectors. remember to guard against nonexistent providers by returning -1
         $app['data_collector.config'] = $app->share(function ($app) {
@@ -122,6 +123,12 @@ class ProfilerServiceProvider implements ServiceProviderInterface
             }
             return new $app['data_collector.swiftmailer.class']($app, true);
         });
+        $app['data_collector.elastica'] = $app->share(function ($app) {
+            if (!isset($app['elastica'])) {
+                return -1;
+            }
+            return new $app['data_collector.elastica.class']($app['elastica.debug_logger']);
+        });
 
         $priorities = $app['profiler.options']['priorities'];
         $app['data_collector.registry'] = array(
@@ -141,6 +148,7 @@ class ProfilerServiceProvider implements ServiceProviderInterface
             'propel'      => array($priorities['propel'],      '@WebProfiler/collector/propel'),
             'guzzle'      => array($priorities['guzzle'],      '@WebProfiler/collector/guzzle'),
             'swiftmailer' => array($priorities['swiftmailer'], '@WebProfiler/collector/swiftmailer'),
+            'elastica'    => array($priorities['elastica'],    '@WebProfiler/collector/elastica'),
         );
 
         $app['profiler'] = $app->share(function ($app) {

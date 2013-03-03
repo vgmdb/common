@@ -3,7 +3,7 @@
 namespace VGMdb\Component\View\Mustache;
 
 use VGMdb\Component\View\AbstractView;
-use VGMdb\Component\View\Logging\ViewLoggerInterface;
+use VGMdb\Component\View\Logger\ViewLoggerInterface;
 
 /**
  * View with Mustache rendering engine.
