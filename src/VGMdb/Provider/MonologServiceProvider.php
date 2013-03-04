@@ -4,7 +4,7 @@ namespace VGMdb\Provider;
 
 use Silex\Application;
 use Silex\Provider\MonologServiceProvider as BaseMonologServiceProvider;
-use Symfony\Bridge\Monolog\Handler\ChromePHPHandler;
+use Symfony\Bridge\Monolog\Handler\ChromePhpHandler;
 use Symfony\Bridge\Monolog\Handler\FirePHPHandler;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Monolog\Handler\NullHandler;
@@ -26,7 +26,7 @@ class MonologServiceProvider extends BaseMonologServiceProvider
             $handlers = $app['monolog.handlers'];
 
             if (isset($handlers['chromephp']) && $handlers['chromephp'] === true) {
-                return new ChromePHPHandler();
+                return new ChromePhpHandler();
             }
             if (isset($handlers['firephp']) && $handlers['firephp'] === true) {
                 return new FirePHPHandler();
@@ -38,7 +38,7 @@ class MonologServiceProvider extends BaseMonologServiceProvider
 
     public function boot(Application $app)
     {
-        if ($app['monolog.handler'] instanceof ChromePHPHandler || $app['monolog.handler'] instanceof FirePHPHandler) {
+        if ($app['monolog.handler'] instanceof ChromePhpHandler || $app['monolog.handler'] instanceof FirePHPHandler) {
             $app['dispatcher']->addListener(KernelEvents::RESPONSE, array($app['monolog.handler'], 'onKernelResponse'), 0);
         }
     }
