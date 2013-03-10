@@ -20,6 +20,11 @@ class Registry extends AbstractManagerRegistry implements RegistryInterface
     protected $app;
 
     /**
+     * @var array
+     */
+    protected $managerCache;
+
+    /**
      * Construct.
      *
      * @param Application $app
@@ -31,6 +36,7 @@ class Registry extends AbstractManagerRegistry implements RegistryInterface
     public function __construct(Application $app, array $connections, array $entityManagers, $defaultConnection, $defaultEntityManager)
     {
         $this->app = $app;
+        $this->managerCache = array();
 
         parent::__construct('ORM', $connections, $entityManagers, $defaultConnection, $defaultEntityManager, 'Doctrine\ORM\Proxy\Proxy');
     }
@@ -167,6 +173,10 @@ class Registry extends AbstractManagerRegistry implements RegistryInterface
      */
     public function getEntityManagerForClass($class)
     {
-        return $this->getManagerForClass($class);
+        if (isset($this->managerCache[$class]) || array_key_exists($class, $this->managerCache)) {
+            return $this->managerCache[$class];
+        }
+
+        return $this->managerCache[$class] = $this->getManagerForClass($class);
     }
 }

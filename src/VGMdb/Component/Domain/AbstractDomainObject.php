@@ -1,12 +1,10 @@
 <?php
 
-namespace VGMdb\Component\DomainObject;
+namespace VGMdb\Component\Domain;
 
-use VGMdb\Component\DomainObject\DomainObjectEvents;
-use VGMdb\Component\DomainObject\Event\DomainObjectEvent;
-use VGMdb\Component\DomainObject\ArrayAccessHandlerInterface;
-use VGMdb\Component\DomainObject\Handler\ArrayHandler;
-use VGMdb\Component\HttpFoundation\Util\XmlSerializable;
+use VGMdb\Component\Domain\DomainObjectEvents;
+use VGMdb\Component\Domain\Event\DomainObjectEvent;
+use VGMdb\Component\Domain\ArrayAccessHandlerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 
@@ -36,6 +34,11 @@ abstract class AbstractDomainObject extends \ArrayObject implements DomainObject
     public function getEntity()
     {
         return $this->entity;
+    }
+
+    public function getHandler()
+    {
+        return $this->handler;
     }
 
     public function setLogger(LoggerInterface $logger = null)

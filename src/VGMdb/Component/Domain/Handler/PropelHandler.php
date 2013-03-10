@@ -1,8 +1,8 @@
 <?php
 
-namespace VGMdb\Component\DomainObject\Handler;
+namespace VGMdb\Component\Domain\Handler;
 
-use VGMdb\Component\DomainObject\ArrayAccessHandlerInterface;
+use VGMdb\Component\Domain\ArrayAccessHandlerInterface;
 
 /**
  * Handles a Propel object.
@@ -11,6 +11,16 @@ use VGMdb\Component\DomainObject\ArrayAccessHandlerInterface;
  */
 class PropelHandler implements ArrayAccessHandlerInterface
 {
+    public function save($object)
+    {
+        $object->save();
+    }
+
+    public function delete($object)
+    {
+        $object->delete();
+    }
+
     public function offsetExists($object, $offset)
     {
         $getter = 'get' . self::accessorify($object, $offset);

@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\DomainObject;
+namespace VGMdb\Component\Domain;
 
 /**
  * Interface definition for domain objects.
@@ -9,9 +9,11 @@ namespace VGMdb\Component\DomainObject;
  */
 interface DomainObjectInterface
 {
-    public function setEntity($entity, ArrayAccessHandlerInterface $handler);
+    public function setEntity($entity, ArrayAccessHandlerInterface $handler = null);
 
     public function getEntity();
+
+    public function getHandler();
 
     public function save();
 

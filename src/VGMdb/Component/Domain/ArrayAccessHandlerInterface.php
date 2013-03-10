@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\DomainObject;
+namespace VGMdb\Component\Domain;
 
 /**
  * Interface definition for domain object array access handlers.
@@ -9,6 +9,10 @@ namespace VGMdb\Component\DomainObject;
  */
 interface ArrayAccessHandlerInterface
 {
+    public function save($object);
+
+    public function delete($object);
+
     public function offsetExists($object, $offset);
 
     public function offsetGet($object, $offset);

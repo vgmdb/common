@@ -1,8 +1,8 @@
 <?php
 
-namespace VGMdb\Component\DomainObject\Event;
+namespace VGMdb\Component\Domain\Event;
 
-use VGMdb\Component\DomainObject\DomainObjectInterface;
+use VGMdb\Component\Domain\DomainObjectInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**

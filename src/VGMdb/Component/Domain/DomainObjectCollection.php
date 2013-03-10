@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\DomainObject;
+namespace VGMdb\Component\Domain;
 
 /**
  * Collection of domain objects.
