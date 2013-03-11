@@ -171,8 +171,6 @@
                 return event.duration >= threshold && disabledCategories.indexOf(event.category) == -1;
             });
 
-            canvasHeight += gapPerEvent * drawableEvents.length;
-
             // For retina displays so text and boxes will be crisp
             devicePixelRatio  = window.devicePixelRatio          == "undefined" ? 1 : window.devicePixelRatio;
             backingStoreRatio = ctx.webkitBackingStorePixelRatio == "undefined" ? 1 : ctx.webkitBackingStorePixelRatio;

@@ -32,17 +32,19 @@ class DomainObjectFactory
         $this->logger = $logger;
     }
 
-    public function create($data, $domain = null)
+    public function create($domain = null, array $data = array(), $provider = null, $entity = null)
     {
         $class = $this->resolveClass($domain);
         $object = new $class($data);
+
+        $object->setEntity($entity, $this->getHandler($provider));
         $object->setDispatcher($this->dispatcher);
         $object->setLogger($this->logger);
 
         return $object;
     }
 
-    public function createCollection($data, $domain = null)
+    public function createCollection($domain = null, array $data = array())
     {
         $class = $this->resolveCollectionClass($domain);
         $collection = new $class($data);

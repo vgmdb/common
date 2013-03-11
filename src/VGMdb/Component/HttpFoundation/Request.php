@@ -14,7 +14,7 @@ class Request extends BaseRequest
     /**
      * @var array
      */
-    protected static $additionalFormats;
+    protected static $additionalFormats = array();
 
     /**
      * {@inheritDoc}

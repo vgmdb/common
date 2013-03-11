@@ -25,7 +25,7 @@ abstract class AbstractDomainObject extends \ArrayObject implements DomainObject
         parent::__construct($data);
     }
 
-    public function setEntity($entity, ArrayAccessHandlerInterface $handler = null)
+    public function setEntity($entity = null, ArrayAccessHandlerInterface $handler = null)
     {
         $this->entity = $entity;
         $this->handler = $handler;
@@ -76,7 +76,7 @@ abstract class AbstractDomainObject extends \ArrayObject implements DomainObject
         parent::offsetUnset($offset);
 
         if (null !== $this->entity && null !== $this->handler) {
-            $this->handler->offsetUnset($this->entity, $offset);
+            $this->handler->offsetUnset($this->getEntity(), $offset);
         }
     }
 
@@ -85,7 +85,7 @@ abstract class AbstractDomainObject extends \ArrayObject implements DomainObject
         parent::offsetSet($offset, $value);
 
         if (null !== $this->entity && null !== $this->handler) {
-            $this->handler->offsetSet($this->entity, $offset, $value);
+            $this->handler->offsetSet($this->getEntity(), $offset, $value);
         }
     }
 
