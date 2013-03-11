@@ -30,7 +30,7 @@ class MustacheView extends AbstractView
 
         $this->template = $template;
 
-        if ($mustache && !($mustache instanceof \Mustache_Engine)) {
+        if ($mustache && !$mustache instanceof \Mustache_Engine) {
             throw new \InvalidArgumentException('Invalid Mustache object.');
         }
 

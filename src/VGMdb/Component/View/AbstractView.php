@@ -96,7 +96,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
      */
     public function with($data, $value = null)
     {
-        if (!is_array($data) && !($data instanceof \Traversable)) {
+        if (!is_array($data) && !$data instanceof \Traversable) {
             $data = array($data => $value);
         }
 
@@ -142,7 +142,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
      */
     public function wrap($view, $key = 'content')
     {
-        if (!($view instanceof ViewInterface)) {
+        if (!$view instanceof ViewInterface) {
             $view = new View((string) $view);
         }
 
@@ -195,12 +195,12 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
      */
     public function nest($view, $key = 'content')
     {
-        if (!($view instanceof ViewInterface)) {
+        if (!$view instanceof ViewInterface) {
             $view = new static((string) $view);
         }
 
         if (isset($this[$key]) && $this[$key] instanceof ViewInterface) {
-            if (!($this[$key] instanceof ViewCollection)) {
+            if (!$this[$key] instanceof ViewCollection) {
                 $this[$key] = new ViewCollection($this[$key]);
             }
             $this[$key]->nest($view);

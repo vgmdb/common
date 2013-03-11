@@ -30,7 +30,7 @@ class SmartyView extends AbstractView
 
         $this->template = $template;
 
-        if ($smarty && !($smarty instanceof \Smarty)) {
+        if ($smarty && !$smarty instanceof \Smarty) {
             throw new \InvalidArgumentException('Invalid Smarty object.');
         }
 

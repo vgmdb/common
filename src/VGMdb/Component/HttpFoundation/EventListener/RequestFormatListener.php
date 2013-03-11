@@ -96,7 +96,7 @@ class RequestFormatListener implements EventSubscriberInterface
         $request = $event->getRequest();
         $response = $event->getControllerResult();
 
-        if (!($response instanceof Response)) {
+        if (!$response instanceof Response) {
             switch ($format = $request->getRequestFormat()) {
                 case 'json':
                 case 'js':

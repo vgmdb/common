@@ -152,14 +152,14 @@ class UserServiceProvider implements ServiceProviderInterface
         $app['data.user'] = $app->protect(function ($username) use ($app) {
             if ($username === 'me') {
                 $token = $app['security']->getToken();
-                if (!($token instanceof TokenInterface)) {
+                if (!$token instanceof TokenInterface) {
                     throw new TokenNotFoundException('Token not found.');
                 }
                 if ($app['security.trust_resolver']->isAnonymous($token)) {
                     throw new InsufficientAuthenticationException('Not logged in.');
                 }
                 $user = $token->getUser();
-                if (!($user instanceof UserInterface)) {
+                if (!$user instanceof UserInterface) {
                     throw new UnsupportedUserException(sprintf('Expected an instance of %s, got %s instead.', $app['user.model.user_class'], get_class($user)));
                 }
                 $username = $user->getUsername();

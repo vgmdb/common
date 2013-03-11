@@ -36,7 +36,7 @@ class UserManipulator
      */
     protected function checkUser($user)
     {
-        if (!($user instanceof UserInterface)) {
+        if (!$user instanceof UserInterface) {
             $username = $user;
             $user = $this->userManager->findUserByUsername($username);
             if (!$user) {

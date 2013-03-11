@@ -30,13 +30,13 @@ class Widget extends AbstractView
      */
     public function nest($view, $key = 'content')
     {
-        if (!($view instanceof ViewInterface)) {
+        if (!$view instanceof ViewInterface) {
             $view_class = get_class($this->view);
             $view = new $view_class((string) $view);
         }
 
         if (isset($this[$key]) && $this[$key] instanceof ViewInterface) {
-            if (!($this[$key] instanceof ViewCollection)) {
+            if (!$this[$key] instanceof ViewCollection) {
                 $this[$key] = new ViewCollection($this[$key]);
             }
             $this[$key]->nest($view);

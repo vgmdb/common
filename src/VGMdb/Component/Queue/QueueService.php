@@ -21,7 +21,7 @@ class QueueService extends JobQueue;
 
     public function __construct($worker, $provider, array $config = array(), LoggerInterface $logger = null)
     {
-        if (!($provider instanceof ProviderBase)) {
+        if (!$provider instanceof ProviderBase) {
             $provider = Base::backendFactory($provider, $config);
         }
 

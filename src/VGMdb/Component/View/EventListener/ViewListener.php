@@ -44,7 +44,7 @@ class ViewListener implements EventSubscriberInterface
             return;
         }
 
-        if (!($response instanceof ViewInterface)) {
+        if (!$response instanceof ViewInterface) {
             // remove the locale prefix from the route name, if applicable
             $route = $request->attributes->get('_route');
             if (false !== $pos = strpos($route, TranslationRouteLoader::ROUTING_PREFIX)) {

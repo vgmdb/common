@@ -33,7 +33,7 @@ class ViewCollection extends AbstractView
      */
     public function with($data, $value = null)
     {
-        if (!is_array($data) && !($data instanceof \ArrayAccess)) {
+        if (!is_array($data) && !$data instanceof \ArrayAccess) {
             $data = array($data => $value);
         }
 
@@ -51,7 +51,7 @@ class ViewCollection extends AbstractView
      */
     public function nest($view, $key = 'content')
     {
-        if (!($view instanceof ViewInterface)) {
+        if (!$view instanceof ViewInterface) {
             $view = new View((string) $view);
         }
 

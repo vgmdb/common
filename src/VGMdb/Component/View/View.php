@@ -26,7 +26,7 @@ class View extends AbstractView
     {
         $this->template = $template;
 
-        if ($callback && !($callback instanceof \Closure)) {
+        if ($callback && !$callback instanceof \Closure) {
             throw new \InvalidArgumentException('Callback must be a Closure.');
         }
 
