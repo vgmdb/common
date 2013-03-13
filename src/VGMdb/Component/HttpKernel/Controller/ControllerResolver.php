@@ -90,17 +90,21 @@ class ControllerResolver extends BaseControllerResolver
         if (false === strpos($controller, ':')) {
             $action = $request ? $request->attributes->get('_action') : '';
             $action = $action ?: 'index';
-            list($class, $method) = array($controller, $action . 'Action');
+            list($class, $method) = array($controller, $action);
         } else {
             list($class, $method) = explode(':', $controller, 2);
-            $method .= 'Action';
         }
+
+        $method .= 'Action';
 
         if (false !== strpos($class, '\\')) {
             $class = $class;
         } elseif (isset($this->app[$class])) {
             $class = $this->app[$class];
         } elseif (isset($this->app['namespace'])) {
+            if (substr($class, -10) !== 'Controller') {
+                $class .= 'Controller';
+            }
             $class = $this->app['namespace'] . '\\Controllers\\' . $class;
         }
 
