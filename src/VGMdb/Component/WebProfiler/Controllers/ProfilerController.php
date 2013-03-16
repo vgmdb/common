@@ -179,7 +179,7 @@ class ProfilerController extends AbstractController
                 $query['sql'] = $collector->replaceQueryParameters($query['sql'], $query['params']);
                 $panelData['collector']['data']['queries'][$index]['sql_pretty'] = SqlFormatter::format($query['sql']);
             }
-        } elseif ($panel === 'propel') {
+        } elseif ($panel === 'propel1') {
             foreach ($panelData['collector']['data']['queries'] as $index => $query) {
                 $panelData['collector']['data']['queries'][$index]['sql_pretty'] = SqlFormatter::format($query['sql']);
             }

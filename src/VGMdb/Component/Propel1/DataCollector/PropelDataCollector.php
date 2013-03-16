@@ -1,8 +1,8 @@
 <?php
 
-namespace VGMdb\Component\Propel\DataCollector;
+namespace VGMdb\Component\Propel1\DataCollector;
 
-use VGMdb\Component\Propel\Logger\PropelLogger;
+use VGMdb\Component\Propel1\Logger\PropelLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
@@ -58,7 +58,7 @@ class PropelDataCollector extends DataCollector
      */
     public function getName()
     {
-        return 'propel';
+        return 'propel1';
     }
 
     /**

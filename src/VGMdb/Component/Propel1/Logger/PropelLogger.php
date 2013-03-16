@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\Propel\Logger;
+namespace VGMdb\Component\Propel1\Logger;
 
 use Symfony\Component\Stopwatch\Stopwatch;
 use Psr\Log\LoggerInterface;

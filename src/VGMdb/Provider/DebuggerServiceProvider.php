@@ -76,10 +76,10 @@ class DebuggerServiceProvider implements ServiceProviderInterface
         }));
 
         // replace Propel logger with traceable implementation
-        $app['debug.propel_logger.class'] = 'VGMdb\\Component\\Propel\\Logger\\PropelLogger';
+        $app['debug.propel1_logger.class'] = 'VGMdb\\Component\\Propel1\\Logger\\PropelLogger';
 
-        $app['propel.logger'] = $app->share(function ($app) {
-            return new $app['debug.propel_logger.class']($app['logger'], $app['debug.stopwatch']);
+        $app['propel1.logger'] = $app->share(function ($app) {
+            return new $app['debug.propel1_logger.class']($app['logger'], $app['debug.stopwatch']);
         });
 
         // add debug logger and request subscriber to Guzzle

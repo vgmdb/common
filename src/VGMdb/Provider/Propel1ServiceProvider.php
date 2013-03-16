@@ -2,7 +2,7 @@
 
 namespace VGMdb\Provider;
 
-use VGMdb\Component\Propel\Logger\PropelLogger;
+use VGMdb\Component\Propel1\Logger\PropelLogger;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
@@ -11,29 +11,29 @@ use Silex\ServiceProviderInterface;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class PropelServiceProvider implements ServiceProviderInterface
+class Propel1ServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
         // default options
-        $app['propel.instance_pooling'] = false;
-        $app['propel.force_master_connection'] = false;
+        $app['propel1.instance_pooling'] = false;
+        $app['propel1.force_master_connection'] = false;
 
-        $app['propel.connection'] = $app->protect(function ($name = null, $mode = 'write') use ($app) {
+        $app['propel1.connection'] = $app->protect(function ($name = null, $mode = 'write') use ($app) {
             $mode = ($mode === 'write') ? \Propel::CONNECTION_WRITE : \Propel::CONNECTION_READ;
 
             return \Propel::getConnection($name, $mode);
         });
 
-        $app['propel.logger'] = $app->share(function ($app) {
+        $app['propel1.logger'] = $app->share(function ($app) {
             return new PropelLogger($app['logger']);
         });
 
-        $app['propel.configuration'] = $app->share(function ($app) {
-            \Propel::setConfiguration($app['propel.options']);
+        $app['propel1.configuration'] = $app->share(function ($app) {
+            \Propel::setConfiguration($app['propel1.options']);
             $config = \Propel::getConfiguration(\PropelConfiguration::TYPE_OBJECT);
 
-            if ($app['debug'] && isset($app['propel.logger'])) {
+            if ($app['debug'] && isset($app['propel1.logger'])) {
                 // the default character is a pipe " | ", which upsets FirePHP
                 $config->setParameter('debugpdo.logging.outerglue', '] ');
                 $config->setParameter('debugpdo.logging.innerglue', ' [');
@@ -54,13 +54,13 @@ class PropelServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
-        if (!\Propel::isInit() && $app['propel.configuration']) {
-            \Propel::setLogger($app['propel.logger']);
+        if (!\Propel::isInit() && $app['propel1.configuration']) {
+            \Propel::setLogger($app['propel1.logger']);
             \Propel::initialize();
-            if (!$app['propel.instance_pooling']) {
+            if (!$app['propel1.instance_pooling']) {
                 \Propel::disableInstancePooling();
             }
-            \Propel::setForceMasterConnection($app['propel.force_master_connection']);
+            \Propel::setForceMasterConnection($app['propel1.force_master_connection']);
             spl_autoload_unregister(array('Propel', 'autoload')); // get your autoloader out of my framework
         }
     }

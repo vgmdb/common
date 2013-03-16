@@ -51,7 +51,7 @@ class ProfilerServiceProvider implements ServiceProviderInterface
         $app['data_collector.classloader.class'] = 'VGMdb\\Component\\HttpKernel\\DataCollector\\ClassLoaderDataCollector';
         $app['data_collector.view.class'] = 'VGMdb\\Component\\View\\DataCollector\\ViewDataCollector';
         $app['data_collector.doctrine.class'] = 'VGMdb\\Component\\Doctrine\\DataCollector\\DoctrineDataCollector';
-        $app['data_collector.propel.class'] = 'VGMdb\\Component\\Propel\\DataCollector\\PropelDataCollector';
+        $app['data_collector.propel1.class'] = 'VGMdb\\Component\\Propel1\\DataCollector\\PropelDataCollector';
         $app['data_collector.guzzle.class'] = 'VGMdb\\Component\\Guzzle\\DataCollector\\GuzzleDataCollector';
         $app['data_collector.swiftmailer.class'] = 'VGMdb\\Component\\Swiftmailer\\DataCollector\\EmailDataCollector';
         $app['data_collector.elastica.class'] = 'VGMdb\\Component\\Elastica\\DataCollector\\ElasticaDataCollector';
@@ -105,11 +105,11 @@ class ProfilerServiceProvider implements ServiceProviderInterface
 
             return $collector;
         });
-        $app['data_collector.propel'] = $app->share(function ($app) {
-            if (!isset($app['propel.configuration'])) {
+        $app['data_collector.propel1'] = $app->share(function ($app) {
+            if (!isset($app['propel1.configuration'])) {
                 return -1;
             }
-            return new $app['data_collector.propel.class']($app['propel.logger'], $app['propel.configuration']);
+            return new $app['data_collector.propel1.class']($app['propel1.logger'], $app['propel1.configuration']);
         });
         $app['data_collector.guzzle'] = $app->share(function ($app) {
             if (!isset($app['guzzle'])) {
@@ -145,7 +145,7 @@ class ProfilerServiceProvider implements ServiceProviderInterface
             'classloader' => array($priorities['classloader'], '@WebProfiler/collector/classloader'),
             'view'        => array($priorities['view'],        '@WebProfiler/collector/view'),
             'doctrine'    => array($priorities['doctrine'],    '@WebProfiler/collector/doctrine'),
-            'propel'      => array($priorities['propel'],      '@WebProfiler/collector/propel'),
+            'propel1'     => array($priorities['propel1'],     '@WebProfiler/collector/propel'),
             'guzzle'      => array($priorities['guzzle'],      '@WebProfiler/collector/guzzle'),
             'swiftmailer' => array($priorities['swiftmailer'], '@WebProfiler/collector/swiftmailer'),
             'elastica'    => array($priorities['elastica'],    '@WebProfiler/collector/elastica'),
