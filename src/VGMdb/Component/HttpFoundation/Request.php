@@ -84,6 +84,10 @@ class Request extends BaseRequest
         array_pop($parts);
         array_pop($parts);
 
+        if (in_array(end($parts), array('local', 'integration', 'staging'))) {
+            array_pop($parts);
+        }
+
         return implode('.', $parts);
     }
 }
