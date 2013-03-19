@@ -254,9 +254,25 @@ class TraceableEventDispatcher implements EventDispatcherInterface, TraceableEve
             'event' => $eventName,
         );
         if ($listener instanceof \Closure) {
+            try {
+                $r = new \ReflectionFunction($listener);
+                $file = $r->getFileName();
+                $line = $r->getStartLine();
+                $class = str_replace('{closure}', basename($file, '.php'), $r->getName());
+                $pretty = $class.'::{closure}';
+            } catch (\ReflectionException $e) {
+                $class = null;
+                $file = null;
+                $line = null;
+                $pretty = 'Closure';
+            }
             $info += array(
                 'type' => 'Closure',
-                'pretty' => 'closure'
+                'class' => $class,
+                'method' => '{closure}',
+                'file' => $file,
+                'line' => $line,
+                'pretty' => $pretty,
             );
         } elseif (is_string($listener)) {
             try {

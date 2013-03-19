@@ -39,11 +39,23 @@ class PropelLogger
      */
     public function __construct(LoggerInterface $logger = null, Stopwatch $stopwatch = null)
     {
-        $this->logger    = $logger;
-        $this->queries   = array();
+        $this->logger = $logger;
+        $this->queries = array();
         $this->stopwatch = $stopwatch;
         $this->isPrepared = false;
         $this->incrementQuery = false;
+    }
+
+    /**
+     * A convenience function for logging an emergency event.
+     *
+     * @param mixed $message the message to log.
+     */
+    public function log($message, $level)
+    {
+        if (null !== $this->logger) {
+            $this->logger->log($level, $message);
+        }
     }
 
     /**
@@ -66,7 +78,7 @@ class PropelLogger
     public function crit($message)
     {
         if (null !== $this->logger) {
-            $this->logger->crit($message);
+            $this->logger->critical($message);
         }
     }
 
@@ -78,7 +90,7 @@ class PropelLogger
     public function err($message)
     {
         if (null !== $this->logger) {
-            $this->logger->err($message);
+            $this->logger->error($message);
         }
     }
 
@@ -90,7 +102,7 @@ class PropelLogger
     public function warning($message)
     {
         if (null !== $this->logger) {
-            $this->logger->warn($message);
+            $this->logger->warning($message);
         }
     }
 
