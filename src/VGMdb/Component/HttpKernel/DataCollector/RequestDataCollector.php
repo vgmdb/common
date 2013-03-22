@@ -30,6 +30,8 @@ class RequestDataCollector extends BaseRequestDataCollector
     {
         parent::collect($request, $response, $exception);
 
+        unset($this->data['response_headers']['x-chromephp-data']);
+
         $this->data['request_context'] = array(
             'app_name'        => $this->context->getAppName(),
             'app_env'         => $this->context->getEnvironment(),
