@@ -160,7 +160,9 @@ class Application extends BaseApplication
             $controllers = $controllers->connect($this);
         }
 
-        if ($controllers instanceof ControllerCollection) {
+        if ($controllers instanceof RouteCollection) {
+            $controllers->addPrefix($prefix);
+        } elseif ($controllers instanceof ControllerCollection) {
             $controllers = $controllers->flush($prefix);
         }
 
@@ -168,7 +170,7 @@ class Application extends BaseApplication
             throw new \LogicException('The "mount" method takes either a RouteCollection, ControllerCollection or ControllerProviderInterface instance.');
         }
 
-        $this['routes']->addCollection($controllers, $prefix);
+        $this['routes']->addCollection($controllers);
     }
 
     /**
