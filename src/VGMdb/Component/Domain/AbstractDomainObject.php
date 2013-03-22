@@ -71,22 +71,35 @@ abstract class AbstractDomainObject extends \ArrayObject implements DomainObject
         $this->dispatcher->dispatch(DomainObjectEvents::DELETE, $event);
     }
 
-    public function offsetUnset($offset)
+    public function offsetGet($offset)
     {
-        parent::offsetUnset($offset);
+        if (parent::offsetExists($offset)) {
+            return parent::offsetGet($offset);
+        }
 
         if (null !== $this->entity && null !== $this->handler) {
-            $this->handler->offsetUnset($this->getEntity(), $offset);
+            return $this->handler->offsetGet($this, $offset);
         }
+
+        return null;
+    }
+
+    public function offsetUnset($offset)
+    {
+        if (null !== $this->entity && null !== $this->handler) {
+            $this->handler->offsetUnset($this, $offset);
+        }
+
+        parent::offsetUnset($offset);
     }
 
     public function offsetSet($offset, $value)
     {
-        parent::offsetSet($offset, $value);
-
         if (null !== $this->entity && null !== $this->handler) {
-            $this->handler->offsetSet($this->getEntity(), $offset, $value);
+            $this->handler->offsetSet($this, $offset, $value);
         }
+
+        parent::offsetSet($offset, $value);
     }
 
     public function toArray()

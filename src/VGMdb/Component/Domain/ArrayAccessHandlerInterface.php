@@ -9,15 +9,15 @@ namespace VGMdb\Component\Domain;
  */
 interface ArrayAccessHandlerInterface
 {
-    public function save($object);
+    public function save(DomainObjectInterface $object);
 
-    public function delete($object);
+    public function delete(DomainObjectInterface $object);
 
-    public function offsetExists($object, $offset);
+    public function offsetExists(DomainObjectInterface $object, $offset);
 
-    public function offsetGet($object, $offset);
+    public function offsetGet(DomainObjectInterface $object, $offset);
 
-    public function offsetUnset($object, $offset);
+    public function offsetUnset(DomainObjectInterface $object, $offset);
 
-    public function offsetSet($object, $offset, $value);
+    public function offsetSet(DomainObjectInterface $object, $offset, $value);
 }

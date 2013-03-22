@@ -3,6 +3,7 @@
 namespace VGMdb\Component\Domain\Handler;
 
 use VGMdb\Component\Domain\ArrayAccessHandlerInterface;
+use VGMdb\Component\Domain\DomainObjectInterface;
 use VGMdb\Component\Doctrine\RegistryInterface;
 use Doctrine\Common\Util\Inflector;
 
@@ -20,18 +21,18 @@ class DoctrineHandler implements ArrayAccessHandlerInterface
         $this->factory = $factory;
     }
 
-    public function save($object)
+    public function save(DomainObjectInterface $object)
     {
-        if ($manager = $this->getRegistry()->getEntityManagerForClass(get_class($object))) {
-            $manager->persist($object);
+        if ($manager = $this->getRegistry()->getEntityManagerForClass(get_class($entity = $object->getEntity()))) {
+            $manager->persist($entity);
             $manager->flush();
         }
     }
 
-    public function delete($object)
+    public function delete(DomainObjectInterface $object)
     {
-        if ($manager = $this->getRegistry()->getEntityManagerForClass(get_class($object))) {
-            $manager->remove($object);
+        if ($manager = $this->getRegistry()->getEntityManagerForClass(get_class($entity = $object->getEntity()))) {
+            $manager->remove($entity);
             $manager->flush();
         }
     }
@@ -50,39 +51,39 @@ class DoctrineHandler implements ArrayAccessHandlerInterface
         return $registry;
     }
 
-    public function offsetExists($object, $offset)
+    public function offsetExists(DomainObjectInterface $object, $offset)
     {
         $getter = 'get' . self::accessorify($offset);
 
-        return method_exists($object, $getter);
+        return method_exists($object->getEntity(), $getter);
     }
 
-    public function offsetGet($object, $offset)
+    public function offsetGet(DomainObjectInterface $object, $offset)
     {
         $getter = 'get' . self::accessorify($offset);
 
-        if (method_exists($object, $getter)) {
-            return $object->$getter();
+        if (method_exists($entity = $object->getEntity(), $getter)) {
+            return $entity->$getter();
         }
 
         return null;
     }
 
-    public function offsetUnset($object, $offset)
+    public function offsetUnset(DomainObjectInterface $object, $offset)
     {
         $setter = 'set' . self::accessorify($offset);
 
-        if (method_exists($object, $setter)) {
-            $object->$setter(null);
+        if (method_exists($entity = $object->getEntity(), $setter)) {
+            $entity->$setter(null);
         }
     }
 
-    public function offsetSet($object, $offset, $value)
+    public function offsetSet(DomainObjectInterface $object, $offset, $value)
     {
         $setter = 'set' . self::accessorify($offset);
 
-        if (method_exists($object, $setter)) {
-            $object->$setter($value);
+        if (method_exists($entity = $object->getEntity(), $setter)) {
+            $entity->$setter($value);
         }
     }
 

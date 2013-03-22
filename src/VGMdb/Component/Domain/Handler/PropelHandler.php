@@ -3,68 +3,70 @@
 namespace VGMdb\Component\Domain\Handler;
 
 use VGMdb\Component\Domain\ArrayAccessHandlerInterface;
+use VGMdb\Component\Domain\DomainObjectInterface;
+use VGMdb\Component\Propel\Util\PropelInflector;
 
 /**
- * Handles a Propel object.
+ * Handles a Propel or Propel2 object.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
 class PropelHandler implements ArrayAccessHandlerInterface
 {
-    public function save($object)
+    public function save(DomainObjectInterface $object)
     {
-        $object->save();
+        $object->getEntity()->save();
     }
 
-    public function delete($object)
+    public function delete(DomainObjectInterface $object)
     {
-        $object->delete();
+        $object->getEntity()->delete();
     }
 
-    public function offsetExists($object, $offset)
+    public function offsetExists(DomainObjectInterface $object, $offset)
     {
-        $getter = 'get' . self::accessorify($object, $offset);
+        $getter = 'get' . self::accessorify($offset);
 
-        return method_exists($object, $getter);
+        return method_exists($object->getEntity(), $getter);
     }
 
-    public function offsetGet($object, $offset)
+    public function offsetGet(DomainObjectInterface $object, $offset)
     {
-        $getter = 'get' . self::accessorify($object, $offset);
+        $getter = 'get' . self::accessorify($offset);
 
-        if (method_exists($object, $getter)) {
-            return $object->$getter();
+        if (method_exists($entity = $object->getEntity(), $getter)) {
+            return $entity->$getter();
         }
 
         return null;
     }
 
-    public function offsetUnset($object, $offset)
+    public function offsetUnset(DomainObjectInterface $object, $offset)
     {
-        $setter = 'set' . self::accessorify($object, $offset);
+        $setter = 'set' . self::accessorify($offset);
 
-        if (method_exists($object, $setter)) {
-            $object->$setter(null);
+        if (method_exists($entity = $object->getEntity(), $setter)) {
+            $entity->$setter(null);
         }
     }
 
-    public function offsetSet($object, $offset, $value)
+    public function offsetSet(DomainObjectInterface $object, $offset, $value)
     {
-        $setter = 'set' . self::accessorify($object, $offset);
+        $setter = 'set' . self::accessorify($offset);
 
-        if (method_exists($object, $setter)) {
-            $object->$setter($value);
+        if (method_exists($entity = $object->getEntity(), $setter)) {
+            $entity->$setter($value);
         }
     }
 
-    protected static function accessorify($object, $offset)
+    protected static function accessorify($offset)
     {
-        $peer = $object::PEER;
+        static $classified = array();
 
-        try {
-            return $peer::translateFieldName($offset, \BasePeer::TYPE_FIELDNAME, \BasePeer::TYPE_PHPNAME);
-        } catch (\PropelException $e) {
-            return null;
+        if (!isset($classified[$offset])) {
+            $classified[$offset] = PropelInflector::classify($offset);
         }
+
+        return $classified[$offset];
     }
 }
