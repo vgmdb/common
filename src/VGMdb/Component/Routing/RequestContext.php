@@ -22,6 +22,7 @@ class RequestContext extends BaseRequestContext
     private $language;
     private $region;
     private $userAgent;
+    private $ipAddress;
     private $referer;
 
     private $mobileDetector;
@@ -37,6 +38,7 @@ class RequestContext extends BaseRequestContext
         parent::fromRequest($request);
 
         $this->setUserAgent($request->headers->get('User-Agent'));
+        $this->setIpAddress($request->server->get('REMOTE_ADDR'));
         $this->setReferer($request->headers->get('Referer'));
 
         if (null !== $this->mobileDetector) {
@@ -286,6 +288,26 @@ class RequestContext extends BaseRequestContext
         }
 
         $this->isMobile = $this->isTablet = $this->isWeb = null;
+    }
+
+    /**
+     * Gets the IP address.
+     *
+     * @return string The IP address.
+     */
+    public function getIpAddress()
+    {
+        return $this->ipAddress;
+    }
+
+    /**
+     * Sets the IP address.
+     *
+     * @param string $ipAddress The IP address.
+     */
+    public function setIpAddress($ipAddress)
+    {
+        $this->ipAddress = $ipAddress;
     }
 
     /**
