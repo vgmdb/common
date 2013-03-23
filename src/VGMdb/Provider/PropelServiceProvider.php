@@ -33,7 +33,7 @@ class PropelServiceProvider implements ServiceProviderInterface
         });
 
         $app['propel.logger'] = $app->share(function ($app) {
-            return new PropelLogger($app['logger']);
+            return new PropelLogger($app['logger.factory']('propel'));
         });
 
         $app['propel.configuration'] = $app->share(function ($app) {

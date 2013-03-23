@@ -34,6 +34,24 @@ class MonologServiceProvider extends BaseMonologServiceProvider
 
             return new NullHandler();
         });
+
+        $app['logger.factory'] = $app->protect(function ($name = null) use ($app) {
+            static $loggers = array();
+
+            if (!strlen(trim($name))) {
+                $name = $app['monolog.name'];
+            }
+
+            if (!isset($loggers[$name])) {
+                $loggers[$name] = new $app['monolog.logger.class']($name);
+                $loggers[$name]->pushHandler($app['monolog.handler']);
+                if ($app['debug'] && isset($app['monolog.handler.debug'])) {
+                    $loggers[$name]->pushHandler($app['monolog.handler.debug']);
+                }
+            }
+
+            return $loggers[$name];
+        });
     }
 
     public function boot(Application $app)

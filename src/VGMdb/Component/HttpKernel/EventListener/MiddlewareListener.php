@@ -74,25 +74,30 @@ class MiddlewareListener extends BaseMiddlewareListener
      */
     protected function createController($controller, $request = null)
     {
-        if (false === strpos($controller, ':')) {
-            $action = $request ? $request->attributes->get('_action') : '';
-            $action = $action ?: 'index';
-            list($class, $method) = array($controller, $action . 'Action');
-        } else {
+        if (false !== strpos($controller, '::')) {
+            list($class, $method) = explode('::', $controller, 2);
+        } elseif (false !== strpos($controller, ':')) {
             list($class, $method) = explode(':', $controller, 2);
-            $method .= 'Action';
+        } else {
+            list($class, $method) = array($controller, $request ? $request->attributes->get('_action', 'index') : 'index');
         }
 
-        if (false !== strpos($class, '\\')) {
-            $class = $class;
-        } elseif (isset($this->app[$class])) {
+        $method = substr($method, -6) !== 'Action' ? $method . 'Action' : $method;
+
+        if (isset($this->app[$class])) {
             $class = $this->app[$class];
-        } elseif (isset($this->app['namespace'])) {
-            $class = $this->app['namespace'] . '\\Controllers\\' . $class;
+            if ($class instanceof \Closure) {
+                return $class;
+            }
+            if (is_object($class)) {
+                return array($class, $method);
+            }
         }
 
-        if ($class instanceof \Closure) {
-            return $class;
+        $class = substr($class, -10) !== 'Controller' ? $class . 'Controller' : $class;
+
+        if (false === strpos($class, '\\') && isset($this->app['namespace'])) {
+            $class = $this->app['namespace'] . '\\Controllers\\' . $class;
         }
 
         if (!class_exists($class)) {
