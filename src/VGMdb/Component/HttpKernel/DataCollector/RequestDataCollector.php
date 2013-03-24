@@ -51,6 +51,7 @@ class RequestDataCollector extends BaseRequestDataCollector
             'language'        => $this->context->getLanguage(),
             'region'          => $this->context->getRegion(),
             'user_agent'      => $this->context->getUserAgent(),
+            'ip_address'      => $this->context->getIpAddress(),
             'referer'         => $this->context->getReferer(),
             'is_mobile'       => $this->context->isMobile() ? 'true' : 'false',
             'is_tablet'       => $this->context->isTablet() ? 'true' : 'false',

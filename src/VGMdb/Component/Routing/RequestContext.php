@@ -38,7 +38,7 @@ class RequestContext extends BaseRequestContext
         parent::fromRequest($request);
 
         $this->setUserAgent($request->headers->get('User-Agent'));
-        $this->setIpAddress($request->server->get('REMOTE_ADDR'));
+        $this->setIpAddress($request->getClientIp());
         $this->setReferer($request->headers->get('Referer'));
 
         if (null !== $this->mobileDetector) {
