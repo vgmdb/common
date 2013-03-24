@@ -56,7 +56,7 @@ class CachedYamlFileLoader implements LoaderInterface, WarmableInterface
             );
         }
 
-        require_once $cache;
+        require $cache;
 
         return $routes;
     }

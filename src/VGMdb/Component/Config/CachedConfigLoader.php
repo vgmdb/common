@@ -42,7 +42,7 @@ class CachedConfigLoader extends ConfigLoader implements WarmableInterface
             );
         }
 
-        require_once $cache;
+        require $cache;
 
         return $configs;
     }
