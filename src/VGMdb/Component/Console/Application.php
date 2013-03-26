@@ -15,17 +15,16 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Application extends BaseApplication
 {
-    private $app;
-    protected $options;
+    private $container;
 
     /**
      * Constructor.
      *
-     * @param Application $app
+     * @param Silex $container
      */
-    public function __construct(array $options = array(), $name = 'Silex', $version = Silex::VERSION)
+    public function __construct(Silex $container, $name = 'Silex', $version = Silex::VERSION)
     {
-        $this->options = $options;
+        $this->container = $container;
 
         parent::__construct($name, $version);
 
@@ -49,7 +48,7 @@ class Application extends BaseApplication
         $this->registerCommands();
 
         if (true === $input->hasParameterOption(array('--shell', '-s'))) {
-            $class = isset($this->options['shell.class']) ? $this->options['shell.class'] : 'Symfony\\Component\\Console\\Shell';
+            $class = isset($this->container['shell.class']) ? $this->container['shell.class'] : 'Symfony\\Component\\Console\\Shell';
             $shell = new $class($this);
             $shell->setProcessIsolation($input->hasParameterOption(array('--process-isolation')));
             $shell->run();
@@ -60,25 +59,18 @@ class Application extends BaseApplication
         return parent::doRun($input, $output);
     }
 
-    public function getContainer(InputInterface $input = null)
+    public function getContainer()
     {
-        if (null === $this->app) {
-            if (null !== $input) {
-                $debug = !$input->getOption('no-debug');
-                $env = $input->hasOption('env') ? $input->getOption('env') : 'dev';
-                $app_name = $input->hasOption('app') ? $input->getOption('app') : 'project';
-                $cache = $input->getOption('enable-cache');
-            }
-
-            $this->app = require($this->options['app.path']);
-        }
-
-        return $this->app;
+        return $this->container;
     }
 
     protected function registerCommands()
     {
-        foreach ($this->options['command.classmap'] as $namespace => $path) {
+        $this->container->boot();
+
+        // @todo Get Commands from each ServiceProvider that implements SilexBundleInterface
+
+        foreach ($this->container['command.classmap'] as $namespace => $path) {
             $files = glob($path . '/*.php');
             foreach ($files as $file) {
                 $class = $namespace . '\\' . basename($file, '.php');
