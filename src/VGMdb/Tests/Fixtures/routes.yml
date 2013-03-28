@@ -1,0 +1,30 @@
+home:
+    path: /
+    defaults: { _controller: TestController:index, _layout: layouts/%app%/%client%/home, _view: sites/%app%/%client%/index }
+    requirements:
+        _method: GET
+
+sale:
+    path: /property-sale/{page}
+    defaults: { _controller: TestController:sale, _layout: layouts/%app%/%client%/listing, _view: sites/%app%/%client%/listing, page: 1 }
+    requirements:
+        _method: GET|POST
+        page: \d+
+    options:
+        _before_middlewares: [ TestController:canonicalizeUrl ]
+
+rent:
+    path: /property-rent/{page}
+    defaults: { _controller: TestController:rent, _layout: layouts/%app%/%client%/listing, _view: sites/%app%/%client%/listing, page: 1 }
+    requirements:
+        _method: GET|POST
+        page: \d+
+    options:
+        _before_middlewares: [ TestController:canonicalizeUrl ]
+
+listing:
+    path: /listing/{listing_id}
+    defaults: { _controller: TestController:listing, _layout: layouts/static }
+    requirements:
+        _method: GET
+        listing_id: \d+

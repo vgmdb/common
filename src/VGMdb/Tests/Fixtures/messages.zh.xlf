@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:jms="urn:jms:translation" version="1.2">
+  <file date="2013-02-06T01:07:58Z" source-language="en" target-language="zh" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="JMSTranslationBundle" tool-name="JMSTranslationBundle" tool-version="1.1.0-DEV"/>
+      <note>The source node in most cases contains the sample message as written by the developer. If it looks like a dot-delimited string such as "form.label.firstname", then the developer has not provided a default message.</note>
+    </header>
+    <body>
+      <trans-unit id="5d9c92a32b6ca6f9979fdc73253425627bdef3c8" resname="userbox.menu.logout">
+        <source>Logout</source>
+        <target state="new">登出</target>
+        <jms:reference-file line="7" column="83">public/views/common/user.ms</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="275cee46ea7a4851c35ea0fd63410934354f50bd" resname="userbox.menu.login">
+        <source>Sign in</source>
+        <target state="new">登录网站</target>
+        <jms:reference-file line="13" column="126">public/views/common/user.ms</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="a10effaca6ff64a873c4cd47331d828139c9157d" resname="userbox.menu.anonymous">
+        <source>Anonymous</source>
+        <target state="new">无名氏</target>
+        <jms:reference-file line="14" column="65">public/views/common/user.ms</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="406ccae2cd712b577a77d6fa823b35f0e4a57446" resname="userbox.form.username">
+        <source>Username</source>
+        <target state="new"></target>
+        <jms:reference-file line="18" column="135">public/views/common/user.ms</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="ae243bc883704cbafef5e603d76406b2a28786c3" resname="userbox.form.password">
+        <source>Password</source>
+        <target state="new">密码</target>
+        <jms:reference-file line="19" column="122">public/views/common/user.ms</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="5e967c4082ff914529e3913a290e3c3b0c96a26e" resname="userbox.form.login">
+        <source>Sign in</source>
+        <target state="new">登录</target>
+        <jms:reference-file line="20" column="69">public/views/common/user.ms</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="df35e3085f7210d91a30034f6d85cf962cfedd08" resname="userbox.form.login.facebook">
+        <source>Sign in with Facebook</source>
+        <target state="new">使用Facebook登录</target>
+        <jms:reference-file line="24" column="69">public/views/common/user.ms</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="3a25c3f85580d1accb3812af1cbbe8452add3060" resname="userbox.form.login.twitter">
+        <source>Sign in with Twitter</source>
+        <target state="new">使用Twitter登录</target>
+        <jms:reference-file line="28" column="69">public/views/common/user.ms</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="0260d850544c6d760456f1c6acaf0332d5de8bb0" resname="userbox.form.login.google">
+        <source>Sign in with Google</source>
+        <target state="new">使用Google登录</target>
+        <jms:reference-file line="32" column="69">public/views/common/user.ms</jms:reference-file>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
