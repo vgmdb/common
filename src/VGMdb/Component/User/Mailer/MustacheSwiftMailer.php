@@ -4,7 +4,7 @@ namespace VGMdb\Component\User\Mailer;
 
 use VGMdb\Component\User\Model\UserInterface;
 use VGMdb\Component\User\Mailer\MailerInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -15,15 +15,15 @@ use Psr\Log\LoggerInterface;
 class MustacheSwiftMailer implements MailerInterface
 {
     protected $mailer;
-    protected $urlGenerator;
+    protected $router;
     protected $mustache;
     protected $logger;
     protected $parameters;
 
-    public function __construct(\Swift_Mailer $mailer, UrlGeneratorInterface $urlGenerator, \Mustache_Engine $mustache, LoggerInterface $logger = null, array $parameters)
+    public function __construct(\Swift_Mailer $mailer, RouterInterface $router, \Mustache_Engine $mustache, LoggerInterface $logger = null, array $parameters)
     {
         $this->mailer = $mailer;
-        $this->urlGenerator = $urlGenerator;
+        $this->router = $router;
         $this->mustache = $mustache;
         $this->logger = $logger;
         $this->parameters = $parameters;
@@ -35,7 +35,7 @@ class MustacheSwiftMailer implements MailerInterface
     public function sendConfirmationEmail(UserInterface $user)
     {
         $template = $this->parameters['user.mailer.confirmation.template'];
-        $url = $this->urlGenerator->generate('user_registration_confirm', array('token' => $user->getConfirmationToken()), true);
+        $url = $this->router->generate('user_registration_confirm', array('token' => $user->getConfirmationToken()), true);
         $context = array(
             'user' => $user,
             'confirmationUrl' => $url
@@ -54,7 +54,7 @@ class MustacheSwiftMailer implements MailerInterface
     public function sendResetPasswordEmail(UserInterface $user)
     {
         $template = $this->parameters['user.mailer.resetpassword.template'];
-        $url = $this->urlGenerator->generate('login_reset', array('token' => $user->getConfirmationToken()), true);
+        $url = $this->router->generate('login_reset', array('token' => $user->getConfirmationToken()), true);
         $context = array(
             'user' => $user,
             'resetUrl' => $url

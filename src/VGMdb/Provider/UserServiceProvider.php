@@ -142,7 +142,7 @@ class UserServiceProvider implements ServiceProviderInterface
         $app['user.mailer'] = $app->share(function ($app) {
             return new MustacheSwiftMailer(
                 $app['mailer'],
-                $app['url_generator'],
+                $app['router'],
                 $app['mustache'],
                 $app['logger'],
                 $app['user.mailer.config']
