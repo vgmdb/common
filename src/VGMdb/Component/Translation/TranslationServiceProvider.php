@@ -84,17 +84,29 @@ class TranslationServiceProvider extends BaseTranslationServiceProvider
         });
 
         $app['translator'] = $app->share(function ($app) {
-            $translator = new Translator($app['locale'], $app['translator.message_selector']);
+            if ($app['cache']) {
+                $translator = new CachedTranslator(
+                    $app['request_context'],
+                    $app['translator.message_selector'],
+                    $app['translator.loader.classes'],
+                    array(
+                        'cache_dir' => $app['translator.cache_dir'],
+                        'debug' => $app['debug']
+                    )
+                );
+            } else {
+                $translator = new Translator($app['locale'], $app['translator.message_selector']);
+            }
             $translator->setFallbackLocale($app['locale_fallback']);
 
             foreach ($app['translator.loader.classes'] as $format => $class) {
-                $translator->addLoader($format, new $class());
-
-                if (isset($app['translator.formats'][$format])) {
-                    $extension = $app['translator.formats'][$format];
-                } else {
-                    $extension = strtolower($format);
+                if (!$translator instanceof CachedTranslator) {
+                    $translator->addLoader($format, new $class());
                 }
+
+                $extension = isset($app['translator.formats'][$format])
+                    ? $app['translator.formats'][$format]
+                    : strtolower($format);
 
                 foreach (glob($app['translator.base_dir'] . '/*.' . $extension) as $file) {
                     $name = basename($file, '.' . $extension);

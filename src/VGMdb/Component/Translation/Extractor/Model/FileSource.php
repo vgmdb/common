@@ -71,4 +71,14 @@ class FileSource implements SourceInterface
 
         return $str;
     }
+
+    /**
+     * Allows us to rehydrate from var_export.
+     *
+     * @return FileSource
+     */
+    static public function __set_state(array $data)
+    {
+        return new FileSource($data['path'], $data['line'], $data['column']);
+    }
 }

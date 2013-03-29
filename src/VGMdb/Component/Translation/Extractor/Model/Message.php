@@ -358,4 +358,25 @@ class Message
     {
         return strtr($this->getLocaleString(), $this->parameters);
     }
+
+    /**
+     * Allows us to rehydrate from var_export.
+     *
+     * @return Message
+     */
+    static public function __set_state(array $data)
+    {
+        $message = static::create($data['id'], $data['domain'])
+            ->setNew($data['new'])
+            ->setLocaleString($data['localeString'])
+            ->setMeaning($data['meaning'])
+            ->setDesc($data['desc'])
+            ->setParameters($data['parameters']);
+
+        foreach ($data['sources'] as $source) {
+            $message->addSource($source);
+        }
+
+        return $message;
+    }
 }

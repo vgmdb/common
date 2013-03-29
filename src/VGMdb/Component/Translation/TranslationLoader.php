@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * This code was originally part of the Symfony2 FrameworkBundle.
+ *
+ * (c) Fabien Potencier <fabien@symfony.com>
+ */
+
 namespace VGMdb\Component\Translation;
 
 use Symfony\Component\Translation\Loader\LoaderInterface;
