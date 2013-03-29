@@ -35,7 +35,7 @@ class RedirectController extends AbstractController
         $attributes = $this->app['request']->attributes->get('_route_params');
         unset($attributes['route'], $attributes['permanent']);
 
-        return new RedirectResponse($this->app['url_generator']->generate($route, $attributes, true), $permanent ? 301 : 302);
+        return new RedirectResponse($this->app['router']->generate($route, $attributes, true), $permanent ? 301 : 302);
     }
 
     /**

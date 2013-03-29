@@ -68,7 +68,7 @@ class Application extends BaseApplication
     {
         $this->container->boot();
 
-        // @todo Get Commands from each ServiceProvider that implements SilexBundleInterface
+        // @todo Get Commands from each ServiceProvider that implements ResourceProviderInterface
 
         foreach ($this->container['command.classmap'] as $namespace => $path) {
             $files = glob($path . '/*.php');

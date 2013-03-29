@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\WebProfiler\Controllers;
+namespace VGMdb\Component\WebProfiler\Controller;
 
 use VGMdb\Component\HttpKernel\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,7 +34,7 @@ class ProfilerController extends AbstractController
 
         $token = $tokens[0]['token'];
 
-        return new RedirectResponse($this->app['url_generator']->generate('profiler', array('token' => $token)));
+        return new RedirectResponse($this->app['router']->generate('profiler', array('token' => $token)));
     }
 
     /**
@@ -103,7 +103,7 @@ class ProfilerController extends AbstractController
             $toolbar->nest($this->app['view']('@WebProfiler/profiler/menu', array(
                 'name'     => $name,
                 'selected' => ($name === $panel) ? true : false,
-                'url'      => $this->app['url']('profiler', array('token' => $token, 'panel' => $name))
+                'url'      => $this->app['router']->generate('profiler', array('token' => $token, 'panel' => $name))
             ))->nest($this->app['view']($template, array(
                 'token'     => $token,
                 'toolbar'   => true
@@ -121,7 +121,7 @@ class ProfilerController extends AbstractController
             'templates' => $templates,
             'is_ajax'   => $request->isXmlHttpRequest(),
             'urls'      => array(
-                'search' => $this->app['url_generator']->generate('profiler_search', array('limit' => 10))
+                'search' => $this->app['router']->generate('profiler_search', array('limit' => 10))
             )
         );
 
@@ -210,7 +210,7 @@ class ProfilerController extends AbstractController
 
         $searchData = array(
             'urls' => array(
-                'search' => $this->app['url_generator']->generate('profiler_search_results', array('token' => $token))
+                'search' => $this->app['router']->generate('profiler_search_results', array('token' => $token))
             )
         );
 
@@ -290,12 +290,12 @@ class ProfilerController extends AbstractController
         }
 
         if (!empty($token)) {
-            return new RedirectResponse($this->app['url_generator']->generate('profiler', array('token' => $token)));
+            return new RedirectResponse($this->app['router']->generate('profiler', array('token' => $token)));
         }
 
         $tokens = $this->app['profiler']->find($ip, $url, $limit, $method, $start, $end);
 
-        return new RedirectResponse($this->app['url_generator']->generate('profiler_search_results', array(
+        return new RedirectResponse($this->app['router']->generate('profiler_search_results', array(
             'token'  => $tokens ? $tokens[0]['token'] : 'empty',
             'ip'     => $ip,
             'method' => $method,
@@ -330,7 +330,7 @@ class ProfilerController extends AbstractController
         $tokens = $this->app['profiler']->find($ip, $url, $limit, $method, $start, $end);
 
         foreach ($tokens as $index => $result) {
-            $tokens[$index]['link'] = $this->app['url_generator']->generate('profiler', array('token' => $result['token']));
+            $tokens[$index]['link'] = $this->app['router']->generate('profiler', array('token' => $result['token']));
             $tokens[$index]['time'] = date('r', $result['time']);
         }
 

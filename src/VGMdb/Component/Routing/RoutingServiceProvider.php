@@ -102,14 +102,17 @@ class RoutingServiceProvider implements ServiceProviderInterface
         });
 
         $app['routing.resource'] = $app->share(function ($app) {
-            $paths = array();
-            if (substr($app['routing.config_dir'], -4) === '.yml') {
-                $paths[] = $app['routing.config_dir'];
-            } else {
-                $paths = glob($app['routing.config_dir'] . '/*.yml');
+            $resource = array();
+            $config_dirs = (array) $app['routing.config_dirs'];
+            foreach ($config_dirs as $config_dir) {
+                if (substr($config_dir, -4) === '.yml') {
+                    $resource[] = $config_dir;
+                } elseif (false !== $files = glob($config_dir . '/*.yml')) {
+                    $resource += $files;
+                }
             }
 
-            return $paths;
+            return $resource;
         });
 
         $app['routing.translation.extractor'] = $app->share(function ($app) {
@@ -152,10 +155,6 @@ class RoutingServiceProvider implements ServiceProviderInterface
             $app->flush();
 
             return $app['router']->getGenerator();
-        });
-
-        $app['url'] = $app->protect(function ($name, $data = array(), $absolute = false) use ($app) {
-            return $app['url_generator']->generate($name, $data, $absolute);
         });
 
         // make sure the default route collection is attached to the router
