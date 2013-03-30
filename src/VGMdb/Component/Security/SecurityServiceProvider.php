@@ -2,6 +2,9 @@
 
 namespace VGMdb\Component\Security;
 
+use VGMdb\Component\Security\EventListener\FrameOptionsListener;
+use VGMdb\Component\Security\EventListener\XssProtectionListener;
+use VGMdb\Component\Security\EventListener\TransportSecurityListener;
 use VGMdb\Component\Security\Http\Authentication\AuthenticationSuccessHandler;
 use VGMdb\Component\Security\Http\Authentication\AuthenticationFailureHandler;
 use VGMdb\Component\Routing\Generator\LazyUrlGenerator;
@@ -121,16 +124,30 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
                 );
             });
         });
+
+        $app['security.frame_options_listener'] = $app->share(function ($app) {
+            return new FrameOptionsListener($app['security.frame_options']['paths']);
+        });
+
+        $app['security.xss_protection_listener'] = $app->share(function ($app) {
+            return new XssProtectionListener($app['security.xss_protection']['mode']);
+        });
+
+        $app['security.transport_security_listener'] = $app->share(function ($app) {
+            return new TransportSecurityListener(
+                $app['security.transport_security']['max_age'],
+                $app['security.transport_security']['subdomains']
+            );
+        });
     }
 
     public function boot(Application $app)
     {
         $app['dispatcher']->addSubscriber($app['security.firewall']);
-
-        /*foreach ($this->fakeRoutes as $route) {
-            list($method, $pattern, $name) = $route;
-
-            $app->$method($pattern, null)->bind($name);
-        }*/
+        $app['dispatcher']->addSubscriber($app['security.frame_options_listener']);
+        $app['dispatcher']->addSubscriber($app['security.xss_protection_listener']);
+        if ($app['env'] === 'prod') {
+            $app['dispatcher']->addSubscriber($app['security.transport_security_listener']);
+        }
     }
 }
