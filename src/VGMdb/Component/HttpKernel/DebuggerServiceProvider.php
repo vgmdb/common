@@ -69,11 +69,13 @@ class DebuggerServiceProvider implements ServiceProviderInterface
             return new $app['debug.db_logger.class']($app['logger'], $app['debug.stopwatch']);
         });
 
-        $app['db.logger'] = $app->share($app->extend('db.logger', function ($dbLogger) use ($app) {
-            $dbLogger->addLogger($app['db.debug_logger']);
+        if (isset($app['db.logger'])) {
+            $app['db.logger'] = $app->share($app->extend('db.logger', function ($dbLogger) use ($app) {
+                $dbLogger->addLogger($app['db.debug_logger']);
 
-            return $dbLogger;
-        }));
+                return $dbLogger;
+            }));
+        }
 
         // replace Propel logger with traceable implementation
         $app['debug.propel1_logger.class'] = 'VGMdb\\Component\\Propel1\\Logger\\PropelLogger';
@@ -95,19 +97,23 @@ class DebuggerServiceProvider implements ServiceProviderInterface
             return new \VGMdb\Component\Guzzle\EventListener\GuzzleRequestListener($app['debug.stopwatch']);
         });
 
-        $app['guzzle.client'] = $app->share($app->extend('guzzle.client', function ($guzzle) use ($app) {
-            $guzzle->addSubscriber($app['guzzle.debug_logger']);
-            $guzzle->addSubscriber($app['guzzle.request_listener']);
+        if (isset($app['guzzle.client'])) {
+            $app['guzzle.client'] = $app->share($app->extend('guzzle.client', function ($guzzle) use ($app) {
+                $guzzle->addSubscriber($app['guzzle.debug_logger']);
+                $guzzle->addSubscriber($app['guzzle.request_listener']);
 
-            return $guzzle;
-        }));
+                return $guzzle;
+            }));
+        }
 
         // replace Serializer with traceable implementation
         $app['debug.serializer.class'] = 'VGMdb\\Component\\Serializer\\Debug\\TraceableSerializer';
 
-        $app['serializer'] = $app->share($app->extend('serializer', function ($serializer) use ($app) {
-            return new $app['debug.serializer.class']($serializer, $app['debug.stopwatch'], $app['logger']);
-        }));
+        if (isset($app['serializer'])) {
+            $app['serializer'] = $app->share($app->extend('serializer', function ($serializer) use ($app) {
+                return new $app['debug.serializer.class']($serializer, $app['debug.stopwatch'], $app['logger']);
+            }));
+        }
 
         // add logger to Swiftmailer
         $app['swiftmailer.plugin.messagelogger.class'] = 'Swift_Plugins_MessageLogger';
@@ -116,11 +122,13 @@ class DebuggerServiceProvider implements ServiceProviderInterface
             return new $app['swiftmailer.plugin.messagelogger.class']();
         });
 
-        $app['mailer'] = $app->share($app->extend('mailer', function ($mailer) use ($app) {
-            $mailer->registerPlugin($app['swiftmailer.plugin.messagelogger']);
+        if (isset($app['mailer'])) {
+            $app['mailer'] = $app->share($app->extend('mailer', function ($mailer) use ($app) {
+                $mailer->registerPlugin($app['swiftmailer.plugin.messagelogger']);
 
-            return $mailer;
-        }));
+                return $mailer;
+            }));
+        }
 
         // replace Elastica Client with traceable implementation
         $app['elastica.client.class'] = 'VGMdb\\Component\\Elastica\\Debug\\TraceableClient';
@@ -132,13 +140,15 @@ class DebuggerServiceProvider implements ServiceProviderInterface
             return new $app['elastica.debug_logger.class']($app['logger'], $app['debug.stopwatch']);
         });
 
-        $app['elastica'] = $app->share($app->extend('elastica', function ($elastica) use ($app) {
-            if ($elastica instanceof $app['elastica.client.class']) {
-                $elastica->setLogger($app['elastica.debug_logger']);
-            }
+        if (isset($app['elastica'])) {
+            $app['elastica'] = $app->share($app->extend('elastica', function ($elastica) use ($app) {
+                if ($elastica instanceof $app['elastica.client.class']) {
+                    $elastica->setLogger($app['elastica.debug_logger']);
+                }
 
-            return $elastica;
-        }));
+                return $elastica;
+            }));
+        }
     }
 
     public function boot(Application $app)

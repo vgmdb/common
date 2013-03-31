@@ -114,7 +114,7 @@ class LazyRouter extends Router implements WarmableInterface
             }
 
             foreach ($route->getRequirements() as $name => $value) {
-                 $route->setRequirement($name, $this->resolve($value));
+                $route->setRequirement($name, $this->resolve($value));
             }
 
             $route->setPath($this->resolve($route->getPath()));

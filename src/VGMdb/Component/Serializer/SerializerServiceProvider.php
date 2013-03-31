@@ -160,7 +160,6 @@ class SerializerServiceProvider implements ServiceProviderInterface
                 ->setCacheDir($app['serializer.base_cache_dir'])
                 ->addMetadataDirs($app['serializer.config_dirs'])
                 ->setPropertyNamingStrategy($app['serializer.naming_strategy'])
-                ->setObjectConstructor($app['serializer.doctrine_object_constructor'])
                 ->setSerializationVisitor('array', $app['serializer.array_serialization_visitor'])
                 ->setSerializationVisitor('json', $app['serializer.json_serialization_visitor'])
                 ->setSerializationVisitor('xml', $app['serializer.xml_serialization_visitor'])
@@ -168,11 +167,13 @@ class SerializerServiceProvider implements ServiceProviderInterface
                 ->setDeserializationVisitor('json', $app['serializer.json_deserialization_visitor'])
                 ->setDeserializationVisitor('xml', $app['serializer.xml_deserialization_visitor'])
                 ->configureListeners(function ($eventDispatcher) use ($app) {
-                    $subscribers = array(
-                        'serializer.doctrine_proxy_subscriber',
-                        'serializer.thrift_subscriber',
-                        'serializer.data_collector_subscriber'
-                    );
+                    $subscribers = array('serializer.data_collector_subscriber');
+                    if (isset($app['thrift.transport'])) {
+                        $subscribers[] = 'serializer.thrift_subscriber';
+                    }
+                    if (isset($app['entity_manager'])) {
+                        $subscribers[] = 'serializer.doctrine_proxy_subscriber';
+                    }
                     foreach ($subscribers as $subscriber) {
                         if (isset($app[$subscriber])) {
                             $eventDispatcher->addSubscriber($app[$subscriber]);
@@ -193,8 +194,11 @@ class SerializerServiceProvider implements ServiceProviderInterface
                             $handlerRegistry->registerSubscribingHandler($app[$handler]);
                         }
                     }
-                })
-                ->build();
+                });
+            if (isset($app['entity_manager'])) {
+                $serializer->setObjectConstructor($app['serializer.doctrine_object_constructor']);
+            }
+            $serializer = $serializer->build();
 
             return $serializer;
         });
