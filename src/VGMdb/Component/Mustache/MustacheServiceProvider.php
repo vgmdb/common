@@ -14,11 +14,12 @@ class MustacheServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['mustache.loader_class'] = 'VGMdb\\Component\\View\\Mustache\\Loader\\PrefixLoader';
+        $app['mustache.loader_class'] = 'VGMdb\\Component\\Mustache\\Loader\\FilesystemLoader';
         $app['mustache.helpers'] = array();
 
         $app['mustache'] = $app->share(function ($app) {
             $loader = new $app['mustache.loader_class'](
+                $app['resource_locator'],
                 $app['mustache.template_dir'],
                 array('extension' => $app['mustache.extension'])
             );

@@ -11,8 +11,10 @@ use VGMdb\Component\HttpKernel\EventListener\ExceptionListenerWrapper;
 use VGMdb\Component\HttpKernel\EventListener\MiddlewareListener;
 use VGMdb\Component\Routing\RequestContext;
 use VGMdb\Component\Routing\Matcher\RedirectableUrlMatcher;
-use VGMdb\Component\View\ViewInterface;
+use VGMdb\Component\Silex\ResourceLocator;
+use VGMdb\Component\Silex\ResourceProviderInterface;
 use Silex\Application as BaseApplication;
+use Silex\ServiceProviderInterface;
 use Silex\ControllerProviderInterface;
 use Silex\LazyUrlMatcher;
 use Silex\EventListener\LocaleListener;
@@ -32,6 +34,7 @@ class Application extends BaseApplication
     protected $booting;
     protected $booted;
     protected $readonly;
+    protected $resourceProviders;
 
     /**
      * Constructor.
@@ -41,6 +44,7 @@ class Application extends BaseApplication
         $this->booting = false;
         $this->booted = false;
         $this->readonly = array();
+        $this->resourceProviders = array();
 
         // we don't pass $values into the parent constructor; we'll handle it ourselves
         parent::__construct();
@@ -100,6 +104,10 @@ class Application extends BaseApplication
             return $dispatcher;
         });
 
+        $this['resource_locator'] = $this->share(function ($app) {
+            return new ResourceLocator();
+        });
+
         $values = array_replace(array(
             'debug' => false,
             'env' => 'prod',
@@ -111,6 +119,18 @@ class Application extends BaseApplication
         foreach ($values as $key => $value) {
             $this->readonly($key, $value);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function register(ServiceProviderInterface $provider, array $values = array())
+    {
+        if ($provider instanceof ResourceProviderInterface) {
+            $this->resourceProviders[] = $provider;
+        }
+
+        return parent::register($provider, $values);
     }
 
     /**
@@ -201,6 +221,7 @@ class Application extends BaseApplication
     {
         $this->booting = true;
 
+        $this['resource_locator']->initialize($this->resourceProviders);
         parent::boot();
 
         $this->booted = true;

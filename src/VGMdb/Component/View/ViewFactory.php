@@ -4,7 +4,6 @@ namespace VGMdb\Component\View;
 
 use VGMdb\Component\View\Logger\ViewLoggerInterface;
 use VGMdb\Component\View\Mustache\MustacheView;
-use VGMdb\Component\View\Mustache\Loader\PrefixLoader;
 use VGMdb\Component\View\Smarty\SmartyView;
 
 /**
@@ -49,16 +48,5 @@ class ViewFactory
         }
 
         return new View($template, $data, $engine, $this->logger);
-    }
-
-    /**
-     * Adds prefix notation to template loaders.
-     *
-     * @param string $prefix
-     * @param string $prefixDir
-     */
-    public static function addPrefix($prefix, $prefixDir)
-    {
-        PrefixLoader::addPrefix($prefix, $prefixDir);
     }
 }

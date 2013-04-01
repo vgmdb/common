@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\WebProfiler;
 
-use VGMdb\AbstractResourceProvider;
+use VGMdb\Component\Silex\AbstractResourceProvider;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
@@ -11,7 +11,7 @@ use Silex\ServiceProviderInterface;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class WebProfilerServiceProvider implements ServiceProviderInterface
+class WebProfilerServiceProvider extends AbstractResourceProvider implements ServiceProviderInterface
 {
     protected $enabled;
 
@@ -49,7 +49,7 @@ class WebProfilerServiceProvider implements ServiceProviderInterface
         $app['data_collector.router.class'] = 'VGMdb\\Component\\HttpKernel\\DataCollector\\RouterDataCollector';
         $app['data_collector.security.class'] = 'VGMdb\\Component\\Security\\DataCollector\\SecurityDataCollector';
         $app['data_collector.container.class'] = 'VGMdb\\Component\\HttpKernel\\DataCollector\\ContainerDataCollector';
-        $app['data_collector.classloader.class'] = 'VGMdb\\Component\\HttpKernel\\DataCollector\\ClassLoaderDataCollector';
+        $app['data_collector.classloader.class'] = 'VGMdb\\Component\\Composer\\DataCollector\\ClassLoaderDataCollector';
         $app['data_collector.view.class'] = 'VGMdb\\Component\\View\\DataCollector\\ViewDataCollector';
         $app['data_collector.doctrine.class'] = 'VGMdb\\Component\\Doctrine\\DataCollector\\DoctrineDataCollector';
         $app['data_collector.propel1.class'] = 'VGMdb\\Component\\Propel1\\DataCollector\\PropelDataCollector';

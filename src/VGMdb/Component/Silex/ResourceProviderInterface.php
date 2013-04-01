@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb;
+namespace VGMdb\Component\Silex;
 
 /**
  * Interface for resource providers.
@@ -17,25 +17,32 @@ interface ResourceProviderInterface
     public function build();
 
     /**
-     * Returns the resource name (the namespace segment).
+     * Returns the provider name that this provider overrides.
      *
-     * @return string The resource name
+     * @return string The provider name it overrides or null if no parent
+     */
+    public function getParent();
+
+    /**
+     * Returns the provider name (the namespace segment).
+     *
+     * @return string The provider name
      */
     public function getName();
 
     /**
-     * Gets the resource namespace.
+     * Gets the provider namespace.
      *
-     * @return string The resource namespace
+     * @return string The provider namespace
      */
     public function getNamespace();
 
     /**
-     * Gets the resource directory path.
+     * Gets the provider directory path.
      *
      * The path should always be returned as a Unix path (with /).
      *
-     * @return string The resource absolute path
+     * @return string The provider absolute path
      */
     public function getPath();
 }

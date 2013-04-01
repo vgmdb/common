@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb;
+namespace VGMdb\Component\Composer\Debug;
 
 /**
  * Keeps a list of loaded classnames.

@@ -1,8 +1,8 @@
 <?php
 
-namespace VGMdb\Component\HttpKernel\DataCollector;
+namespace VGMdb\Component\Composer\DataCollector;
 
-use VGMdb\TraceableClassLoader;
+use VGMdb\Component\Composer\Debug\TraceableClassLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;

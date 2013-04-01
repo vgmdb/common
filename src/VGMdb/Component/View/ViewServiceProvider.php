@@ -63,10 +63,6 @@ class ViewServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
-        foreach ($app['view.prefix_dirs'] as $prefix => $prefixDir) {
-            ViewFactory::addPrefix($prefix, $prefixDir);
-        }
-
         $app['dispatcher']->addSubscriber(new LayoutListener($app)); // -32
         $app['dispatcher']->addSubscriber(new ViewListener($app));   // -16, -64
     }
