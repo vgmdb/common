@@ -256,4 +256,9 @@ class WebProfilerServiceProvider extends AbstractResourceProvider implements Ser
             $app['dispatcher']->addSubscriber($app['data_collector.router']);
         }
     }
+
+    public function isActive()
+    {
+        return $this->enabled;
+    }
 }

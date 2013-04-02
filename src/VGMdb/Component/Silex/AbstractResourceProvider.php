@@ -25,6 +25,16 @@ abstract class AbstractResourceProvider implements ResourceProviderInterface
     }
 
     /**
+     * Checks if the provider is enabled.
+     *
+     * @return Boolean
+     */
+    public function isActive()
+    {
+        return true;
+    }
+
+    /**
      * Returns the parent provider name.
      *
      * @return string The parent name it overrides or null if no parent

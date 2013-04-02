@@ -51,7 +51,9 @@ class ConfigLoader extends Loader
             }
         }
 
-        $this->replaceConfig($container, $configs, $replacements);
+        $container = $this->replaceConfig($container, $configs, $replacements);
+
+        return $container;
     }
 
     public function getConfig()
@@ -61,6 +63,9 @@ class ConfigLoader extends Loader
 
         $conf = array();
         foreach ($directories as $directory) {
+            if (!$filenames) {
+                $filenames = array_map('basename', glob($directory . '/*.yml'));
+            }
             foreach ($filenames as $filename) {
                 $conf = array_merge($conf, $this->loadConfig($directory . '/' . $filename));
             }

@@ -3,8 +3,8 @@
 namespace VGMdb\Component\View;
 
 use VGMdb\Component\View\Logger\ViewLoggerInterface;
-use VGMdb\Component\View\Mustache\MustacheView;
-use VGMdb\Component\View\Smarty\SmartyView;
+use VGMdb\Component\View\Engine\MustacheView;
+use VGMdb\Component\View\Engine\SmartyView;
 
 /**
  * View factory for creating views based on renderer type.

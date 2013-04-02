@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\View\Mustache\Loader;
+namespace VGMdb\Component\Mustache\Loader;
 
 /**
  * Prefix to directory mapping Loader implementation.

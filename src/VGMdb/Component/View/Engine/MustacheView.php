@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\View\Mustache;
+namespace VGMdb\Component\View\Engine;
 
 use VGMdb\Component\View\AbstractView;
 use VGMdb\Component\View\Logger\ViewLoggerInterface;

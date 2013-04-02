@@ -25,6 +25,9 @@ class CachedConfigLoader extends ConfigLoader implements WarmableInterface
         if (!$cache->isFresh()) {
             $conf = array();
             foreach ($directories as $directory) {
+                if (!$filenames) {
+                    $filenames = array_map('basename', glob($directory . '/*.yml'));
+                }
                 foreach ($filenames as $filename) {
                     $conf = array_merge($conf, $this->loadConfig($directory . '/' . $filename));
                 }

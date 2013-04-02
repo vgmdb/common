@@ -17,6 +17,13 @@ interface ResourceProviderInterface
     public function build();
 
     /**
+     * Checks if the provider is enabled.
+     *
+     * @return Boolean
+     */
+    public function isActive();
+
+    /**
      * Returns the provider name that this provider overrides.
      *
      * @return string The provider name it overrides or null if no parent

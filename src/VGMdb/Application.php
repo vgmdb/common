@@ -126,7 +126,7 @@ class Application extends BaseApplication
      */
     public function register(ServiceProviderInterface $provider, array $values = array())
     {
-        if ($provider instanceof ResourceProviderInterface) {
+        if ($provider instanceof ResourceProviderInterface && $provider->isActive()) {
             $this->resourceProviders[] = $provider;
         }
 

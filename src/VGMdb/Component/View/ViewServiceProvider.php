@@ -2,7 +2,6 @@
 
 namespace VGMdb\Component\View;
 
-use VGMdb\Component\View\EventListener\LayoutListener;
 use VGMdb\Component\View\EventListener\ViewListener;
 use VGMdb\Component\View\Logger\ViewLogger;
 use Silex\Application;
@@ -63,7 +62,6 @@ class ViewServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
-        $app['dispatcher']->addSubscriber(new LayoutListener($app)); // -32
         $app['dispatcher']->addSubscriber(new ViewListener($app));   // -16, -64
     }
 }
