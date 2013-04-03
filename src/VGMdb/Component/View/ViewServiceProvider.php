@@ -51,12 +51,9 @@ class ViewServiceProvider implements ServiceProviderInterface
         });
 
         $app['widget'] = $app->protect(function ($view, $callback = null) use ($app) {
-            static $widgets = array();
-            if (!isset($widgets[$template])) {
-                $widgets[$template] = $widget = new Widget($view, $callback);
-            }
+            $widget = new Widget($view, $callback);
 
-            return $widgets[$template]->with($data);
+            return $widget->with($data);
         });
     }
 

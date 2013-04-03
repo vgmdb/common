@@ -56,6 +56,8 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
                 (array) $app['orm.entity_dir']
             );
 
+            AnnotationReader::addGlobalIgnoredName('implements');
+
             $ref = new \ReflectionClass('Doctrine\\ORM\\Configuration');
             AnnotationRegistry::registerFile(dirname($ref->getFilename()) . '/Mapping/Driver/DoctrineAnnotations.php');
 

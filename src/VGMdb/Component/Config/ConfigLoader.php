@@ -140,7 +140,7 @@ class ConfigLoader extends Loader
         }
 
         if (is_string($value)) {
-            return strtr($value, $this->replacements);
+            return strtr($value, $replacements);
         }
 
         return $value;

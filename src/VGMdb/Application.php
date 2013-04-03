@@ -19,10 +19,12 @@ use Silex\ControllerProviderInterface;
 use Silex\LazyUrlMatcher;
 use Silex\EventListener\LocaleListener;
 use Silex\EventListener\ConverterListener;
+use Symfony\Component\HttpFoundation\Request as BaseRequest;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\EventListener\ResponseListener;
 use Symfony\Component\HttpKernel\EventListener\RouterListener;
+use Symfony\Component\Routing\RouteCollection;
 
 /**
  * The VGMdb application class. Extends the Silex framework with custom methods.
@@ -225,6 +227,18 @@ class Application extends BaseApplication
         parent::boot();
 
         $this->booted = true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function handle(BaseRequest $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true)
+    {
+        if ($this['debug']) {
+            $catch = false;
+        }
+
+        return parent::handle($request, $type, $catch);;
     }
 
     /**

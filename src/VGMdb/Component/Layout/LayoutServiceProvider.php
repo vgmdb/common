@@ -19,6 +19,7 @@ class LayoutServiceProvider implements ServiceProviderInterface
     {
         $app['layout.debug'] = false;
         $app['layout.parameters'] = array();
+        $app['layout.filters'] = array();
 
         $app['layout.config'] = $app->share(function ($app) {
             $options = array(
