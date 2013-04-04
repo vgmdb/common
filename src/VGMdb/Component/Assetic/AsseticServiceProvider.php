@@ -2,6 +2,7 @@
 
 namespace VGMdb\Component\Assetic;
 
+use VGMdb\Component\Silex\AbstractResourceProvider;
 use VGMdb\Component\Assetic\EventListener\AsseticDumperListener;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -21,7 +22,7 @@ use Assetic\Filter\Yui\JsCompressorFilter;
  * @author Michael Heap <m@michaelheap.com>
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class AsseticServiceProvider implements ServiceProviderInterface
+class AsseticServiceProvider extends AbstractResourceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {

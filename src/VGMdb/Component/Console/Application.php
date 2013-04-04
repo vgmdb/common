@@ -68,7 +68,9 @@ class Application extends BaseApplication
     {
         $this->container->boot();
 
-        // @todo Get Commands from each ServiceProvider that implements ResourceProviderInterface
+        foreach ($this->container['resource_locator']->getProviders() as $provider) {
+            $provider->registerCommands($this);
+        }
 
         foreach ($this->container['command.classmap'] as $namespace => $path) {
             $files = glob($path . '/*.php');

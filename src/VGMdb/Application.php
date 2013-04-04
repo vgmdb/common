@@ -11,8 +11,6 @@ use VGMdb\Component\HttpKernel\EventListener\ExceptionListenerWrapper;
 use VGMdb\Component\HttpKernel\EventListener\MiddlewareListener;
 use VGMdb\Component\Routing\RequestContext;
 use VGMdb\Component\Routing\Matcher\RedirectableUrlMatcher;
-use VGMdb\Component\Silex\ResourceLocator;
-use VGMdb\Component\Silex\ResourceProviderInterface;
 use Silex\Application as BaseApplication;
 use Silex\ServiceProviderInterface;
 use Silex\ControllerProviderInterface;
@@ -34,9 +32,7 @@ use Symfony\Component\Routing\RouteCollection;
 class Application extends BaseApplication
 {
     protected $booting;
-    protected $booted;
     protected $readonly;
-    protected $resourceProviders;
 
     /**
      * Constructor.
@@ -44,9 +40,7 @@ class Application extends BaseApplication
     public function __construct(array $values = array())
     {
         $this->booting = false;
-        $this->booted = false;
         $this->readonly = array();
-        $this->resourceProviders = array();
 
         // we don't pass $values into the parent constructor; we'll handle it ourselves
         parent::__construct();
@@ -106,10 +100,6 @@ class Application extends BaseApplication
             return $dispatcher;
         });
 
-        $this['resource_locator'] = $this->share(function ($app) {
-            return new ResourceLocator();
-        });
-
         $values = array_replace(array(
             'debug' => false,
             'env' => 'prod',
@@ -124,15 +114,13 @@ class Application extends BaseApplication
     }
 
     /**
-     * {@inheritdoc}
+     * Returns array of Service Providers.
+     *
+     * @return ServiceProviderInterface[]
      */
-    public function register(ServiceProviderInterface $provider, array $values = array())
+    public function getProviders()
     {
-        if ($provider instanceof ResourceProviderInterface && $provider->isActive()) {
-            $this->resourceProviders[] = $provider;
-        }
-
-        return parent::register($provider, $values);
+        return $this->providers;
     }
 
     /**
@@ -223,10 +211,7 @@ class Application extends BaseApplication
     {
         $this->booting = true;
 
-        $this['resource_locator']->initialize($this->resourceProviders);
         parent::boot();
-
-        $this->booted = true;
     }
 
     /**

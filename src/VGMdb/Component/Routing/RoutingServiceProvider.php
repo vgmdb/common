@@ -2,6 +2,7 @@
 
 namespace VGMdb\Component\Routing;
 
+use VGMdb\Component\Silex\AbstractResourceProvider;
 use VGMdb\Component\Routing\Loader\YamlFileLoader;
 use VGMdb\Component\Routing\Loader\CachedYamlFileLoader;
 use VGMdb\Component\Routing\Loader\ClosureLoaderResolver;
@@ -23,7 +24,7 @@ use Symfony\Component\Config\Loader\DelegatingLoader;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class RoutingServiceProvider implements ServiceProviderInterface
+class RoutingServiceProvider extends AbstractResourceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {

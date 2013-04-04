@@ -2,6 +2,7 @@
 
 namespace VGMdb\Component\Thrift;
 
+use VGMdb\Component\Silex\AbstractResourceProvider;
 use VGMdb\Component\HttpFoundation\Request;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -16,7 +17,7 @@ use Thrift\Transport\TBufferedTransport;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class ThriftServiceProvider implements ServiceProviderInterface
+class ThriftServiceProvider extends AbstractResourceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {

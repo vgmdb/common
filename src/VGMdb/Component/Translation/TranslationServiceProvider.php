@@ -2,8 +2,10 @@
 
 namespace VGMdb\Component\Translation;
 
+use VGMdb\Component\Silex\AbstractResourceProvider;
 use Silex\Application;
-use Silex\Provider\TranslationServiceProvider as BaseTranslationServiceProvider;
+use Silex\ServiceProviderInterface;
+use Symfony\Component\Translation\MessageSelector;
 use Symfony\Component\Translation\Extractor\ChainExtractor;
 use Symfony\Component\Translation\Writer\TranslationWriter;
 use Doctrine\Common\Annotations\AnnotationRegistry;
@@ -14,11 +16,17 @@ use Doctrine\Common\Annotations\DocParser;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class TranslationServiceProvider extends BaseTranslationServiceProvider
+class TranslationServiceProvider extends AbstractResourceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        parent::register($app);
+        $app['translator.domains'] = array();
+        $app['locale_fallback'] = 'en';
+        $app['translator.base_dir'] = __DIR__;
+
+        $app['translator.message_selector'] = $app->share(function () {
+            return new MessageSelector();
+        });
 
         $app['translator.extractor.classes'] = array();
         $app['translator.formats'] = array(
@@ -117,7 +125,9 @@ class TranslationServiceProvider extends BaseTranslationServiceProvider
 
             return $translator;
         });
+    }
 
-        $app['translator.base_dir'] = __DIR__;
+    public function boot(Application $app)
+    {
     }
 }

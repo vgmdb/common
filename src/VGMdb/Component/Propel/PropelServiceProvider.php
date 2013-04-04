@@ -2,6 +2,7 @@
 
 namespace VGMdb\Component\Propel;
 
+use VGMdb\Component\Silex\AbstractResourceProvider;
 use VGMdb\Component\Propel\Logger\PropelLogger;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -15,7 +16,7 @@ use Propel\Runtime\ServiceContainer\ServiceContainerInterface;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class PropelServiceProvider implements ServiceProviderInterface
+class PropelServiceProvider extends AbstractResourceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
