@@ -2,8 +2,9 @@
 
 namespace VGMdb\Component\Routing;
 
+use VGMdb\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext as BaseRequestContext;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Request as BaseRequest;
 
 /**
  * Holds extra information about the current request.
@@ -15,6 +16,7 @@ class RequestContext extends BaseRequestContext
     private $appName;
     private $appEnv;
     private $isDebug;
+    private $subdomain;
     private $format;
     private $version;
     private $locale;
@@ -33,13 +35,17 @@ class RequestContext extends BaseRequestContext
     /**
      * {@inheritDoc}
      */
-    public function fromRequest(Request $request)
+    public function fromRequest(BaseRequest $request)
     {
         parent::fromRequest($request);
 
         $this->setUserAgent($request->headers->get('User-Agent'));
         $this->setIpAddress($request->getClientIp());
         $this->setReferer($request->headers->get('Referer'));
+
+        if ($request instanceof Request) {
+            $this->setSubdomain($request->getSubdomain());
+        }
 
         if (null !== $this->mobileDetector) {
             $headers = array();
@@ -111,6 +117,26 @@ class RequestContext extends BaseRequestContext
     public function setDebug($debug)
     {
         $this->isDebug = (Boolean) $debug;
+    }
+
+    /**
+     * Gets the subdomain.
+     *
+     * @return string The subdomain.
+     */
+    public function getSubdomain()
+    {
+        return $this->subdomain;
+    }
+
+    /**
+     * Sets the subdomain.
+     *
+     * @param string $subdomain The subdomain.
+     */
+    public function setSubdomain($subdomain)
+    {
+        $this->subdomain = $subdomain;
     }
 
     /**
@@ -439,6 +465,7 @@ class RequestContext extends BaseRequestContext
             'app_name'        => $this->getAppName(),
             'app_env'         => $this->getEnvironment(),
             'is_debug'        => (Boolean) $this->isDebug(),
+            'subdomain'       => $this->getSubdomain(),
             'base_url'        => $this->getBaseUrl(),
             'path_info'       => $this->getPathInfo(),
             'method'          => $this->getMethod(),

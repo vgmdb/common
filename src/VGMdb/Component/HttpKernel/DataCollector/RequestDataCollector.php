@@ -36,6 +36,7 @@ class RequestDataCollector extends BaseRequestDataCollector
             'app_name'        => $this->context->getAppName(),
             'app_env'         => $this->context->getEnvironment(),
             'is_debug'        => $this->context->isDebug() ? 'true' : 'false',
+            'subdomain'       => $this->context->getSubdomain(),
             'base_url'        => $this->context->getBaseUrl(),
             'path_info'       => $this->context->getPathInfo(),
             'method'          => $this->context->getMethod(),

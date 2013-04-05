@@ -22,6 +22,14 @@ class RequestContextTest extends \PHPUnit_Framework_TestCase
 
     protected function tearDown() {}
 
+    public function testRequestContextSupportsSubdomain()
+    {
+        $this->context->setSubdomain('m');
+        $expected = 'm';
+        $actual = $this->context->getSubdomain();
+        $this->assertSame($expected, $actual);
+    }
+
     public function testRequestContextSupportsFormat()
     {
         $this->context->setFormat('json');
