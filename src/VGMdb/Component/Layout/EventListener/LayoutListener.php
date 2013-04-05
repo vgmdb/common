@@ -173,7 +173,9 @@ class LayoutListener implements EventSubscriberInterface
             '%s/%s/%s/%s',
             $baseDir,
             $this->app['request_context']->getAppName(),
-            $this->app['request_context']->isMobile() ? 'mobile' : 'web',
+            'm' === $this->app['request_context']->getSubdomain()
+                ? 'mobile'
+                : ($this->app['request_context']->isMobile() ? 'mobile' : 'web'),
             $name
         );
     }
