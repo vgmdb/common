@@ -59,6 +59,6 @@ class ViewServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
-        $app['dispatcher']->addSubscriber(new ViewListener($app));   // -16, -64
+        $app['dispatcher']->addSubscriber(new ViewListener($app)); // -16, -64
     }
 }

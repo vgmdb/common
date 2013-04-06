@@ -37,16 +37,14 @@ class ViewListener implements EventSubscriberInterface
             return;
         }
 
-        $response = $event->getControllerResult();
-        $request = $event->getRequest();
-
-        if ($response instanceof BaseResponse) {
+        $result = $event->getControllerResult();
+        if ($result instanceof BaseResponse) {
             return;
         }
 
-        if (!$response instanceof ViewInterface) {
+        if (!$result instanceof ViewInterface) {
             // remove the locale prefix from the route name, if applicable
-            $route = $request->attributes->get('_route');
+            $route = $event->getRequest()->attributes->get('_route');
             if (false !== $pos = strpos($route, TranslationRouteLoader::ROUTING_PREFIX)) {
                 $route = substr($route, $pos + strlen(TranslationRouteLoader::ROUTING_PREFIX));
             }
@@ -59,10 +57,10 @@ class ViewListener implements EventSubscriberInterface
                     : ($this->app['request_context']->isMobile() ? 'mobile' : 'web'),
                 $route
             );
-            $response = $this->app['view']($view, $response);
+            $result = $this->app['view']($view, $result);
         }
 
-        $event->setResponse(new Response($response));
+        $event->setControllerResult($result);
     }
 
     public function onKernelResponse(FilterResponseEvent $event)

@@ -8,7 +8,6 @@ use VGMdb\Component\HttpFoundation\JsonResponse;
 use VGMdb\Component\HttpFoundation\XmlResponse;
 use VGMdb\Component\HttpFoundation\BeaconResponse;
 use VGMdb\Component\HttpFoundation\QrCodeResponse;
-use VGMdb\Component\Routing\RequestContext;
 use VGMdb\Component\Validator\Constraints\JsonpCallback;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -25,12 +24,10 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class RequestFormatListener implements EventSubscriberInterface
 {
     private $app;
-    private $context;
 
-    public function __construct(Application $app, RequestContext $context)
+    public function __construct(Application $app)
     {
         $this->app = $app;
-        $this->context = $context;
     }
 
     public function onKernelRequest(GetResponseEvent $event)
@@ -57,7 +54,7 @@ class RequestFormatListener implements EventSubscriberInterface
         }
 
         $request->setRequestFormat($format);
-        $this->context->setFormat($format);
+        $this->app['request_context']->setFormat($format);
 
         $version = $this->app['request.format.negotiator']->getVersionForFormat(
             $request,
@@ -66,7 +63,7 @@ class RequestFormatListener implements EventSubscriberInterface
         );
 
         $request->setRequestVersion($version);
-        $this->context->setVersion($version);
+        $this->app['request_context']->setVersion($version);
 
         // decode JSON request body
         if (0 === strpos($request->headers->get('Content-Type'), 'application/json') && is_string($request->getContent())) {
@@ -87,36 +84,49 @@ class RequestFormatListener implements EventSubscriberInterface
     }
 
     /**
-     * Intercepts responses and formats it in the appropriate format.
+     * Intercepts controller responses and wraps it in the appropriate format.
+     *
+     * This replaces Silex's StringToResponseListener.
      *
      * @param GetResponseForControllerResultEvent $event The event to handle
      */
     public function onKernelView(GetResponseForControllerResultEvent $event)
     {
         $request = $event->getRequest();
-        $response = $event->getControllerResult();
+        $result = $event->getControllerResult();
 
-        if (!$response instanceof Response) {
-            switch ($format = $request->getRequestFormat()) {
-                case 'json':
-                case 'js':
-                    $response = new JsonResponse($response);
-                    break;
-                case 'xml':
-                    $response = new XmlResponse($response);
-                    break;
-                case 'qrcode':
-                    $response = new QrCodeResponse();
-                    break;
-                case 'gif':
-                case 'png':
-                case 'jpg':
-                    $response = new BeaconResponse($format);
-                    break;
+        if ($result instanceof Response) {
+            if (!$this->app['request.format.override']) {
+                return $event->setResponse($result);
+            } else {
+                $result = $result->getContent();
             }
         }
 
-        if ($response instanceof Response) {
+        $response = null;
+
+        switch ($format = $request->getRequestFormat()) {
+            case 'html':
+                $response = new Response($result);
+                break;
+            case 'json':
+            case 'js':
+                $response = new JsonResponse($result);
+                break;
+            case 'xml':
+                $response = new XmlResponse($result);
+                break;
+            case 'qrcode':
+                $response = new QrCodeResponse();
+                break;
+            case 'gif':
+            case 'png':
+            case 'jpg':
+                $response = new BeaconResponse($result);
+                break;
+        }
+
+        if (null !== $response) {
             $event->setResponse($response);
         }
     }
@@ -146,7 +156,7 @@ class RequestFormatListener implements EventSubscriberInterface
     {
         return array(
             KernelEvents::REQUEST  => array(array('onKernelRequest', 128)),
-            KernelEvents::VIEW     => array(array('onKernelView', -5)),
+            KernelEvents::VIEW     => array(array('onKernelView', Application::LATE_EVENT)),
             KernelEvents::RESPONSE => array(array('onKernelResponse', -16)),
         );
     }
