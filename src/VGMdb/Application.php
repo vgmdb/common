@@ -31,17 +31,14 @@ use Symfony\Component\Routing\RouteCollection;
  */
 class Application extends BaseApplication
 {
-    protected $booting;
-    protected $readonly;
+    public static $isBooting = false;
+    protected $readonly = array();
 
     /**
      * Constructor.
      */
     public function __construct(array $values = array())
     {
-        $this->booting = false;
-        $this->readonly = array();
-
         // we don't pass $values into the parent constructor; we'll handle it ourselves
         parent::__construct();
 
@@ -186,13 +183,12 @@ class Application extends BaseApplication
     /**
      * {@inheritdoc}
      */
-    public function share(\Closure $callable)
+    public static function share(\Closure $callable)
     {
-        $booting = &$this->booting;
-        return function ($c) use ($callable, &$booting) {
+        return function ($c) use ($callable) {
             static $object;
 
-            if (!$booting) {
+            if (!Application::$isBooting) {
                 throw new \RuntimeException('Cannot instantiate service before application is booted.');
             }
 
@@ -209,7 +205,7 @@ class Application extends BaseApplication
      */
     public function boot()
     {
-        $this->booting = true;
+        self::$isBooting = true;
 
         parent::boot();
     }

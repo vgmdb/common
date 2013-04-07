@@ -91,7 +91,7 @@ class TraceableApplication extends BaseApplication
      */
     public function boot()
     {
-        $this->booting = true;
+        self::$isBooting = true;
 
         if ($this['debug'] && isset($this['debug.stopwatch'])) {
             $start = microtime(true) * 1000;
