@@ -9,6 +9,7 @@
 namespace VGMdb\Component\Cors\EventListener;
 
 use VGMdb\Application;
+use VGMdb\Component\Routing\RequestContext;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
@@ -35,13 +36,15 @@ class CorsListener implements EventSubscriberInterface
     );
 
     protected $dispatcher;
+    protected $context;
     protected $paths;
     protected $defaults;
     protected $options;
 
-    public function __construct(EventDispatcherInterface $dispatcher, array $paths, array $defaults = array())
+    public function __construct(EventDispatcherInterface $dispatcher, RequestContext $context, array $paths, array $defaults = array())
     {
         $this->dispatcher = $dispatcher;
+        $this->context = $context;
         $this->paths = $paths;
         $this->defaults = $defaults;
     }
@@ -60,7 +63,7 @@ class CorsListener implements EventSubscriberInterface
         }
 
         $currentPath = $request->getPathInfo() ?: '/';
-        $currentSubdomain = $request->getSubdomain() ?: 'www';
+        $currentSubdomain = $this->context->getSubdomain() ?: 'www';
 
         if (!isset($this->paths[$currentSubdomain])) {
             return;

@@ -135,6 +135,7 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
 
         $app['security.transport_security_listener'] = $app->share(function ($app) {
             return new TransportSecurityListener(
+                $app['request_context'],
                 $app['security.transport_security']['max_age'],
                 $app['security.transport_security']['subdomains']
             );

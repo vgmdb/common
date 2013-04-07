@@ -8,6 +8,7 @@
 
 namespace VGMdb\Component\Security\EventListener;
 
+use VGMdb\Component\Routing\RequestContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
@@ -23,11 +24,13 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 class TransportSecurityListener implements EventSubscriberInterface
 {
+    private $context;
     private $hstsMaxAge;
     private $hstsSubdomains;
 
-    public function __construct($hstsMaxAge, $hstsSubdomains)
+    public function __construct(RequestContext $context, $hstsMaxAge, $hstsSubdomains)
     {
+        $this->context = $context;
         $this->hstsMaxAge = $hstsMaxAge;
         $this->hstsSubdomains = $hstsSubdomains;
     }
@@ -45,7 +48,7 @@ class TransportSecurityListener implements EventSubscriberInterface
             return;
         }
 
-        if (is_array($this->hstsSubdomains) && !in_array($request->getSubdomain(), $this->hstsSubdomains)) {
+        if (is_array($this->hstsSubdomains) && !in_array($this->context->getSubdomain(), $this->hstsSubdomains)) {
             return;
         }
 
@@ -58,7 +61,7 @@ class TransportSecurityListener implements EventSubscriberInterface
             return;
         }
 
-        if (is_array($this->hstsSubdomains) && !in_array($event->getRequest()->getSubdomain(), $this->hstsSubdomains)) {
+        if (is_array($this->hstsSubdomains) && !in_array($this->context->getSubdomain(), $this->hstsSubdomains)) {
             return;
         }
 

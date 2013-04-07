@@ -50,7 +50,7 @@ class LayoutListener implements EventSubscriberInterface
         $replacements = array(
             '%locale%' => $this->app['request_context']->getLanguage(),
             '%app%' => $this->app['request_context']->getAppName(),
-            '%client%' => $this->app['request_context']->isMobile() ? 'mobile' : 'web',
+            '%client%' => $this->app['request_context']->getClient()
         );
 
         $config = $layoutName && isset($layouts[$layoutName])

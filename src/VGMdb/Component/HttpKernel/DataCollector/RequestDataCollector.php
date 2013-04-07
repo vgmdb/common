@@ -56,7 +56,7 @@ class RequestDataCollector extends BaseRequestDataCollector
             'referer'         => $this->context->getReferer(),
             'is_mobile'       => $this->context->isMobile() ? 'true' : 'false',
             'is_tablet'       => $this->context->isTablet() ? 'true' : 'false',
-            'is_web'          => $this->context->isWeb() ? 'true' : 'false',
+            'is_desktop'      => $this->context->isDesktop() ? 'true' : 'false',
         );
     }
 }

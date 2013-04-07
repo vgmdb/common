@@ -107,9 +107,7 @@ class Layout
             '%s/%s/%s/%s',
             $baseDir,
             $this->app['request_context']->getAppName(),
-            'm' === $this->app['request_context']->getSubdomain()
-                ? 'mobile'
-                : ($this->app['request_context']->isMobile() ? 'mobile' : 'web'),
+            $this->app['request_context']->getClient(),
             $name
         );
     }

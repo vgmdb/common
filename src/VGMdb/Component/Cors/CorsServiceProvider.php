@@ -52,7 +52,7 @@ class CorsServiceProvider implements ServiceProviderInterface
                 }
             }
 
-            return new CorsListener($app['dispatcher'], $config, $defaults);
+            return new CorsListener($app['dispatcher'], $app['request_context'], $config, $defaults);
         });
     }
 

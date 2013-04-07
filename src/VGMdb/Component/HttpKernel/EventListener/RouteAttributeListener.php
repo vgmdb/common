@@ -37,9 +37,7 @@ class RouteAttributeListener implements EventSubscriberInterface
 
         $replacements = array(
             '%app%' => $this->context->getAppName(),
-            '%client%' => 'm' === $this->context->getSubdomain()
-                ? 'mobile'
-                : ($this->context->isMobile() ? 'mobile' : 'web')
+            '%client%' => $this->context->getClient()
         );
 
         $request->attributes->replace($this->doReplacements($attributes, $replacements));

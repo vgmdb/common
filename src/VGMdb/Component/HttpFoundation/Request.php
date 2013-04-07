@@ -68,26 +68,4 @@ class Request extends BaseRequest
     {
         $this->requestUri = $uri;
     }
-
-    /**
-     * Gets the subdomain from the host.
-     */
-    public function getSubdomain()
-    {
-        $host = $this->getHost();
-        $parts = explode('.', $host);
-
-        if (count($parts) <= 2) {
-            return null;
-        }
-
-        array_pop($parts);
-        array_pop($parts);
-
-        if (in_array(end($parts), array('local', 'integration', 'staging'))) {
-            array_pop($parts);
-        }
-
-        return implode('.', $parts);
-    }
 }

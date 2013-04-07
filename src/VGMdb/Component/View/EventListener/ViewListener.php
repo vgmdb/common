@@ -52,9 +52,7 @@ class ViewListener implements EventSubscriberInterface
             $view = sprintf(
                 'sites/%s/%s/%s',
                 $this->app['request_context']->getAppName(),
-                'm' === $this->app['request_context']->getSubdomain()
-                    ? 'mobile'
-                    : ($this->app['request_context']->isMobile() ? 'mobile' : 'web'),
+                $this->app['request_context']->getClient(),
                 $route
             );
             $result = $this->app['view']($view, $result);
