@@ -2,9 +2,8 @@
 
 namespace VGMdb\Component\Routing;
 
-use VGMdb\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext as BaseRequestContext;
-use Symfony\Component\HttpFoundation\Request as BaseRequest;
 
 /**
  * Holds extra information about the current request.
@@ -28,14 +27,15 @@ class RequestContext extends BaseRequestContext
     private $referer;
 
     private $mobileDetector;
+    private $client;
     private $isMobile;
     private $isTablet;
-    private $isWeb;
+    private $isDesktop;
 
     /**
      * {@inheritDoc}
      */
-    public function fromRequest(BaseRequest $request)
+    public function fromRequest(Request $request)
     {
         parent::fromRequest($request);
 
@@ -43,8 +43,9 @@ class RequestContext extends BaseRequestContext
         $this->setIpAddress($request->getClientIp());
         $this->setReferer($request->headers->get('Referer'));
 
-        if ($request instanceof Request) {
-            $this->setSubdomain($request->getSubdomain());
+        // Inject the query string as a parameter for Symfony versions <= 2.2
+        if (!method_exists($this, 'getQueryString') && '' !== $qs = $request->server->get('QUERY_STRING')) {
+            $this->setParameter('QUERY_STRING', $qs);
         }
 
         if (null !== $this->mobileDetector) {
@@ -313,7 +314,7 @@ class RequestContext extends BaseRequestContext
             $this->mobileDetector->setUserAgent($userAgent);
         }
 
-        $this->isMobile = $this->isTablet = $this->isWeb = null;
+        $this->isMobile = $this->isTablet = $this->isDesktop = null;
     }
 
     /**
@@ -347,13 +348,37 @@ class RequestContext extends BaseRequestContext
     }
 
     /**
-     * Gets the HTTP referer.
+     * Sets the HTTP referer.
      *
      * @param string $referer The HTTP referer.
      */
     public function setReferer($referer)
     {
         $this->referer = $referer;
+    }
+
+    /**
+     * Gets the client.
+     *
+     * @return string The client.
+     */
+    public function getClient()
+    {
+        if (null !== $this->client) {
+            return $this->client;
+        }
+
+        return $this->client = $this->isMobile() ? 'mobile' : 'desktop';
+    }
+
+    /**
+     * Sets the client.
+     *
+     * @param string $client The client.
+     */
+    public function setClient($client)
+    {
+        $this->client = $client;
     }
 
     /**
@@ -431,19 +456,19 @@ class RequestContext extends BaseRequestContext
     }
 
     /**
-     * Check whether the client is a web browser.
+     * Check whether the client is a desktop browser.
      *
      * @return Boolean
      */
-    public function isWeb()
+    public function isDesktop()
     {
-        if (null !== $this->isWeb) {
-            return $this->isWeb;
+        if (null !== $this->isDesktop) {
+            return $this->isDesktop;
         }
 
-        $this->isWeb = !$this->isMobile() && !$this->isTablet();
+        $this->isDesktop = !$this->isMobile() && !$this->isTablet();
 
-        return $this->isWeb;
+        return $this->isDesktop;
     }
 
     /**
@@ -482,9 +507,10 @@ class RequestContext extends BaseRequestContext
             'region'          => $this->getRegion(),
             'user_agent'      => $this->getUserAgent(),
             'referer'         => $this->getReferer(),
+            'client'          => $this->getClient(),
             'is_mobile'       => (Boolean) $this->isMobile(),
             'is_tablet'       => (Boolean) $this->isTablet(),
-            'is_web'          => (Boolean) $this->isWeb(),
+            'is_desktop'      => (Boolean) $this->isDesktop(),
         );
 
         return $data;

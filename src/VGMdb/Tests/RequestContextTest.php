@@ -148,12 +148,12 @@ class RequestContextTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider provideWebUserAgent
+     * @dataProvider provideDesktopUserAgent
      */
-    public function testRequestContextDetectsWebBrowser($userAgent)
+    public function testRequestContextDetectsDesktopBrowser($userAgent)
     {
         $this->context->setUserAgent($userAgent);
-        $this->assertTrue($this->context->isWeb());
+        $this->assertTrue($this->context->isDesktop());
     }
 
     /**
@@ -177,13 +177,13 @@ class RequestContextTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider provideWebUserAgent
+     * @dataProvider provideDesktopUserAgent
      */
-    public function testMobileDetectorDetectsWebBrowser($userAgent)
+    public function testMobileDetectorDetectsDesktopBrowser($userAgent)
     {
         $this->context->setMobileDetector($this->detector);
         $this->context->setUserAgent($userAgent);
-        $this->assertTrue($this->context->isWeb());
+        $this->assertTrue($this->context->isDesktop());
     }
 
     public function provideMobileUserAgent()
@@ -206,7 +206,7 @@ class RequestContextTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function provideWebUserAgent()
+    public function provideDesktopUserAgent()
     {
         return array(
             'MSIE 10'          => array('Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Win64; x64; Trident/6.0)'),
