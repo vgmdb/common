@@ -2,15 +2,15 @@
 
 namespace VGMdb;
 
-use VGMdb\Application as BaseApplication;
-use VGMdb\Component\HttpKernel\EventListener\ContainerTraceListener;
+use VGMdb\Application;
+use VGMdb\Component\Silex\EventListener\ContainerTraceListener;
 
 /**
  * The traceable application class. Used for profiling and debugging.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class TraceableApplication extends BaseApplication
+class TraceableApplication extends Application
 {
     private $bootlog;
     private $trace;

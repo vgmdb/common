@@ -12,7 +12,7 @@ use VGMdb\Component\Routing\Translation\PathGenerationStrategy;
 use VGMdb\Component\Routing\Translation\LocaleResolver;
 use VGMdb\Component\Routing\Translation\TranslationRouteLoader;
 use VGMdb\Component\Routing\Translation\Extractor\YamlRouteExtractor;
-use VGMdb\Component\HttpKernel\EventListener\RouteAttributeListener;
+use VGMdb\Component\Routing\EventListener\RouteAttributeListener;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\Config\ConfigCache;

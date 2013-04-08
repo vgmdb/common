@@ -2,8 +2,9 @@
 
 namespace VGMdb\Component\Locale;
 
+use VGMdb\Component\Locale\EventListener\LocaleMappingListener;
+use VGMdb\Component\Locale\EventListener\TimezoneListener;
 use VGMdb\Component\HttpFoundation\Request;
-use VGMdb\Component\HttpKernel\EventListener\LocaleMappingListener;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
@@ -21,6 +22,10 @@ class LocaleServiceProvider implements ServiceProviderInterface
 
         $app['locale.mapping_listener'] = $app->share(function ($app) {
             return new LocaleMappingListener($app['request_context'], $app['locale.mapping']);
+        });
+
+        $app['locale.timezone_listener'] = $app->share(function ($app) {
+            return new TimezoneListener($app['request_context'], $app['locale.timezones']);
         });
 
         $app['locale.formatter.datetime._proto'] = $app->protect(function ($pattern = null) use ($app) {
@@ -71,5 +76,6 @@ class LocaleServiceProvider implements ServiceProviderInterface
     public function boot(Application $app)
     {
         $app['dispatcher']->addSubscriber($app['locale.mapping_listener']);
+        $app['dispatcher']->addSubscriber($app['locale.timezone_listener']);
     }
 }

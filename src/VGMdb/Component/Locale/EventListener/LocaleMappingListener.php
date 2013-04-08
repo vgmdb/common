@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\HttpKernel\EventListener;
+namespace VGMdb\Component\Locale\EventListener;
 
 use VGMdb\Component\Routing\RequestContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

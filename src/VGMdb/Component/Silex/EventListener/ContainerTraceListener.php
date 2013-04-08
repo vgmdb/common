@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\HttpKernel\EventListener;
+namespace VGMdb\Component\Silex\EventListener;
 
 use VGMdb\TraceableApplication;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
