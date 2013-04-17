@@ -11,7 +11,7 @@ use Silex\ServiceProviderInterface;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class ResourceLocatorServiceProvider extends AbstractResourceProvider implements ServiceProviderInterface
+class ResourceLocatorServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {

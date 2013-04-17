@@ -4,7 +4,6 @@ namespace VGMdb\Component\Routing;
 
 use VGMdb\Component\Silex\AbstractResourceProvider;
 use VGMdb\Component\Routing\Loader\YamlFileLoader;
-use VGMdb\Component\Routing\Loader\CachedYamlFileLoader;
 use VGMdb\Component\Routing\Loader\ClosureLoaderResolver;
 use VGMdb\Component\Routing\Translation\TranslationRouter;
 use VGMdb\Component\Routing\Translation\RouteExclusionStrategy;
@@ -13,11 +12,11 @@ use VGMdb\Component\Routing\Translation\LocaleResolver;
 use VGMdb\Component\Routing\Translation\TranslationRouteLoader;
 use VGMdb\Component\Routing\Translation\Extractor\YamlRouteExtractor;
 use VGMdb\Component\Routing\EventListener\RouteAttributeListener;
+use VGMdb\Component\Config\FileLocator;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\Config\ConfigCache;
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\Config\Loader\DelegatingLoader;
+use Symfony\Component\Config\FileLocator as BaseFileLocator;
 
 /**
  * Provides caching for routes loaded from YAML configuration.
@@ -33,7 +32,6 @@ class RoutingServiceProvider extends AbstractResourceProvider implements Service
         $app['routing.matcher_proxy_class'] = 'VGMdb\\Component\\Routing\\Matcher\\RedirectableProxyUrlMatcher';
         $app['routing.matcher_cache_class'] = 'ProjectUrlMatcher';
         $app['routing.generator_cache_class'] = 'ProjectUrlGenerator';
-        $app['routing.loader_cache_class'] = 'ProjectUrlLoader';
         $app['routing.parameters'] = array();
         $app['routing.translation.strategy'] = 'prefix_except_default';
         $app['routing.translation.domain'] = 'routes';
@@ -46,8 +44,8 @@ class RoutingServiceProvider extends AbstractResourceProvider implements Service
             $matcherClass = implode('', array_map('ucfirst', explode('-', $app['routing.matcher_cache_class'])));
 
             $router = new $routerClass(
-                $app['routing.delegating_loader'],
-                $app['routing.resource'],
+                $app['routing.loader'],
+                $app['routing.paths'],
                 array(
                     'cache_dir'             => $app['routing.cache_dir'],
                     'debug'                 => $app['debug'],
@@ -72,48 +70,14 @@ class RoutingServiceProvider extends AbstractResourceProvider implements Service
         });
 
         $app['routing.loader'] = $app->share(function ($app) {
-            $locator = new FileLocator($app['routing.resource']);
-            $loader = new YamlFileLoader($locator);
-            $loader->setReplacements($app['routing.parameters']);
-
-            return $loader;
-        });
-
-        $app['routing.cached_loader'] = $app->share(function ($app) {
-            $loader = new CachedYamlFileLoader($app['routing.loader'], array(
-                'debug' => $app['debug'],
-                'cache_class' => $app['routing.loader_cache_class'],
-                'cache_dir' => $app['routing.cache_dir'],
-                'files' => $app['routing.resource']
-            ));
-
-            return $loader;
-        });
-
-        $app['routing.delegating_loader'] = $app->share(function ($app) {
-            return new DelegatingLoader(
-                new ClosureLoaderResolver(function () use ($app) {
-                    if ($app['cache']) {
-                        return $app['routing.cached_loader'];
-                    } else {
-                        return $app['routing.loader'];
-                    }
-                })
-            );
-        });
-
-        $app['routing.resource'] = $app->share(function ($app) {
-            $resource = array();
-            $config_dirs = (array) $app['routing.config_dirs'];
-            foreach ($config_dirs as $config_dir) {
-                if (substr($config_dir, -4) === '.yml') {
-                    $resource[] = $config_dir;
-                } elseif (false !== $files = glob($config_dir . '/*.yml')) {
-                    $resource += $files;
-                }
+            if (isset($app['resource_locator'])) {
+                $locator = new FileLocator($app['resource_locator'], $app['routing.resource'], $app['routing.paths']);
+            } else {
+                $locator = new BaseFileLocator($app['routing.paths']);
             }
+            $loader = new YamlFileLoader($locator);
 
-            return $resource;
+            return $loader;
         });
 
         $app['routing.translation.extractor'] = $app->share(function ($app) {
@@ -128,7 +92,7 @@ class RoutingServiceProvider extends AbstractResourceProvider implements Service
             return new PathGenerationStrategy(
                 $app['routing.translation.strategy'],
                 $app['translator'],
-                $app['routing.translation.locales'],
+                explode('|', $app['routing.translation.locales']),
                 $app['routing.translation.cache_dir'],
                 $app['routing.translation.domain'],
                 $app['routing.translation.locale']

@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Tests\Fixtures\Controllers;
+namespace VGMdb\Tests\Fixtures\Controller;
 
 class TestController
 {

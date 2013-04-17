@@ -5,12 +5,15 @@ namespace VGMdb;
 use VGMdb\Component\HttpFoundation\Request;
 use VGMdb\Component\HttpFoundation\Response;
 use VGMdb\Component\HttpKernel\Controller\ControllerCollection;
+use VGMdb\Component\HttpKernel\Controller\ControllerNameParser;
 use VGMdb\Component\HttpKernel\Controller\ControllerResolver;
 use VGMdb\Component\HttpKernel\EventListener\ExceptionListener;
 use VGMdb\Component\HttpKernel\EventListener\ExceptionListenerWrapper;
 use VGMdb\Component\HttpKernel\EventListener\MiddlewareListener;
 use VGMdb\Component\Routing\RequestContext;
 use VGMdb\Component\Routing\Matcher\RedirectableUrlMatcher;
+use VGMdb\Component\Silex\ResourceProviderInterface;
+use VGMdb\Component\Silex\ResourceLocator;
 use Silex\Application as BaseApplication;
 use Silex\ServiceProviderInterface;
 use Silex\ControllerProviderInterface;
@@ -51,14 +54,32 @@ class Application extends BaseApplication
             return new ExceptionListener($app['debug']);
         });
 
+        $app['resource_locator'] = $app->share(function ($app) {
+            $providers = array();
+            foreach ($app->getProviders() as $provider) {
+                if ($provider instanceof ResourceProviderInterface && $provider->isActive()) {
+                    $providers[] = $provider;
+                }
+            }
+
+            $locator = new ResourceLocator();
+            $locator->initialize($providers);
+
+            return $locator;
+        });
+
         // replace the controller factory
         $this['controllers_factory'] = function () use ($app) {
             return new ControllerCollection($app['route_factory'], $app['debug']);
         };
 
+        $this['controller_parser'] = $this->share(function ($app) {
+            return new ControllerNameParser($app['resource_locator']);
+        });
+
         // replace the controller resolver
         $this['resolver'] = $this->share(function ($app) {
-            return new ControllerResolver($app, $app['logger']);
+            return new ControllerResolver($app, $app['controller_parser'], $app['logger']);
         });
 
         // replace the request context
@@ -101,7 +122,6 @@ class Application extends BaseApplication
             'debug' => false,
             'env' => 'prod',
             'name' => 'app',
-            'namespace' => 'App',
             'base_dir' => __DIR__
         ), $values);
 

@@ -36,7 +36,7 @@ class WebProfilerServiceProvider extends AbstractResourceProvider implements Ser
         $app['profiler.request_matcher.host'] = null;
         $app['profiler.request_matcher.methods'] = null;
         $app['profiler.request_matcher.ip'] = null;
-        $app['profiler.controller.profiler'] = 'VGMdb\\Component\\WebProfiler\\Controller\\ProfilerController';
+        $app['profiler.controller.profiler.class'] = 'VGMdb\\Component\\WebProfiler\\Controller\\ProfilerController';
 
         // data collector classes
         $app['data_collector.config.class'] = 'VGMdb\\Component\\HttpKernel\\DataCollector\\ConfigDataCollector';
@@ -231,6 +231,10 @@ class WebProfilerServiceProvider extends AbstractResourceProvider implements Ser
                 $app['profiler.request_matcher.methods'],
                 $app['profiler.request_matcher.ip']
             );
+        });
+
+        $app['profiler.controller.profiler'] = $app->share(function ($app) {
+            return new $app['profiler.controller.profiler.class']($app);
         });
     }
 
