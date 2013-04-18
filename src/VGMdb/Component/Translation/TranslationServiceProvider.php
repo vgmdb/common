@@ -21,7 +21,7 @@ class TranslationServiceProvider extends AbstractResourceProvider implements Ser
     public function register(Application $app)
     {
         $app['translator.domains'] = array();
-        $app['locale_fallback'] = 'en';
+        $app['translator.locale_fallback'] = 'en';
         $app['translator.base_dir'] = __DIR__;
 
         $app['translator.message_selector'] = $app->share(function () {
@@ -105,7 +105,7 @@ class TranslationServiceProvider extends AbstractResourceProvider implements Ser
             } else {
                 $translator = new Translator($app['locale'], $app['translator.message_selector']);
             }
-            $translator->setFallbackLocale($app['locale_fallback']);
+            $translator->setFallbackLocale($app['translator.locale_fallback']);
 
             foreach ($app['translator.loader.classes'] as $format => $class) {
                 if (!$translator instanceof CachedTranslator) {

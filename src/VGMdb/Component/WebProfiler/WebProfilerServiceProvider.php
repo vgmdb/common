@@ -13,19 +13,8 @@ use Silex\ServiceProviderInterface;
  */
 class WebProfilerServiceProvider extends AbstractResourceProvider implements ServiceProviderInterface
 {
-    protected $enabled;
-
-    public function __construct($enabled = true)
-    {
-        $this->enabled = (Boolean) $enabled;
-    }
-
     public function register(Application $app)
     {
-        if (!$this->enabled) {
-            return;
-        }
-
         // defaults
         $app['profiler.class'] = 'Symfony\\Component\\HttpKernel\\Profiler\\Profiler';
         $app['profiler_listener.class'] = 'Symfony\\Component\\HttpKernel\\EventListener\\ProfilerListener';
@@ -37,6 +26,26 @@ class WebProfilerServiceProvider extends AbstractResourceProvider implements Ser
         $app['profiler.request_matcher.methods'] = null;
         $app['profiler.request_matcher.ip'] = null;
         $app['profiler.controller.profiler.class'] = 'VGMdb\\Component\\WebProfiler\\Controller\\ProfilerController';
+
+        $app['profiler.priorities'] = array(
+            'config'      => -1,
+            'request'     => -1,
+            'exception'   => -1,
+            'events'      => -1,
+            'logger'      => -1,
+            'time'        => -1,
+            'memory'      => -1,
+            'router'      => -1,
+            'security'    => -1,
+            'container'   => -1,
+            'classloader' => -1,
+            'view'        => -1,
+            'doctrine'    => -1,
+            'propel1'     => -1,
+            'guzzle'      => -1,
+            'swiftmailer' => -1,
+            'elastica'    => -1,
+        );
 
         // data collector classes
         $app['data_collector.config.class'] = 'VGMdb\\Component\\HttpKernel\\DataCollector\\ConfigDataCollector';
@@ -131,26 +140,30 @@ class WebProfilerServiceProvider extends AbstractResourceProvider implements Ser
             return new $app['data_collector.elastica.class']($app['elastica.debug_logger']);
         });
 
-        $priorities = $app['profiler.options']['priorities'];
-        $app['data_collector.registry'] = array(
-            'config'      => array($priorities['config'],      '@WebProfiler/collector/config'),
-            'request'     => array($priorities['request'],     '@WebProfiler/collector/request'),
-            'exception'   => array($priorities['exception'],   '@WebProfiler/collector/exception'),
-            'events'      => array($priorities['events'],      '@WebProfiler/collector/events'),
-            'logger'      => array($priorities['logger'],      '@WebProfiler/collector/logger'),
-            'time'        => array($priorities['time'],        '@WebProfiler/collector/time'),
-            'memory'      => array($priorities['memory'],       null),
-            'router'      => array($priorities['router'],      '@WebProfiler/collector/router'),
-            'security'    => array($priorities['security'],    '@WebProfiler/collector/security'),
-            'container'   => array($priorities['container'],   '@WebProfiler/collector/container'),
-            'classloader' => array($priorities['classloader'], '@WebProfiler/collector/classloader'),
-            'view'        => array($priorities['view'],        '@WebProfiler/collector/view'),
-            'doctrine'    => array($priorities['doctrine'],    '@WebProfiler/collector/doctrine'),
-            'propel1'     => array($priorities['propel1'],     '@WebProfiler/collector/propel'),
-            'guzzle'      => array($priorities['guzzle'],      '@WebProfiler/collector/guzzle'),
-            'swiftmailer' => array($priorities['swiftmailer'], '@WebProfiler/collector/swiftmailer'),
-            'elastica'    => array($priorities['elastica'],    '@WebProfiler/collector/elastica'),
-        );
+        $app['data_collector.registry'] = $app->share(function ($app) {
+            $priorities = $app['profiler.priorities'];
+            $registry = array(
+                'config'      => array($priorities['config'],      '@WebProfiler/collector/config'),
+                'request'     => array($priorities['request'],     '@WebProfiler/collector/request'),
+                'exception'   => array($priorities['exception'],   '@WebProfiler/collector/exception'),
+                'events'      => array($priorities['events'],      '@WebProfiler/collector/events'),
+                'logger'      => array($priorities['logger'],      '@WebProfiler/collector/logger'),
+                'time'        => array($priorities['time'],        '@WebProfiler/collector/time'),
+                'memory'      => array($priorities['memory'],       null),
+                'router'      => array($priorities['router'],      '@WebProfiler/collector/router'),
+                'security'    => array($priorities['security'],    '@WebProfiler/collector/security'),
+                'container'   => array($priorities['container'],   '@WebProfiler/collector/container'),
+                'classloader' => array($priorities['classloader'], '@WebProfiler/collector/classloader'),
+                'view'        => array($priorities['view'],        '@WebProfiler/collector/view'),
+                'doctrine'    => array($priorities['doctrine'],    '@WebProfiler/collector/doctrine'),
+                'propel1'     => array($priorities['propel1'],     '@WebProfiler/collector/propel'),
+                'guzzle'      => array($priorities['guzzle'],      '@WebProfiler/collector/guzzle'),
+                'swiftmailer' => array($priorities['swiftmailer'], '@WebProfiler/collector/swiftmailer'),
+                'elastica'    => array($priorities['elastica'],    '@WebProfiler/collector/elastica'),
+            );
+
+            return $registry;
+        });
 
         $app['profiler'] = $app->share(function ($app) {
             $profiler = new $app['profiler.class']($app['profiler.storage'], $app['logger']);
@@ -240,10 +253,6 @@ class WebProfilerServiceProvider extends AbstractResourceProvider implements Ser
 
     public function boot(Application $app)
     {
-        if (!$this->enabled) {
-            return;
-        }
-
         if (!method_exists($app['dispatcher'], 'setProfiler')) {
             throw new \RuntimeException('TraceableEventDispatcher not loaded. Please ensure that DebugServiceProvider is registered.');
         }
@@ -259,10 +268,5 @@ class WebProfilerServiceProvider extends AbstractResourceProvider implements Ser
         if (isset($app['data_collector.router']) && isset($app['data_collector.registry']['router'])) {
             $app['dispatcher']->addSubscriber($app['data_collector.router']);
         }
-    }
-
-    public function isActive()
-    {
-        return $this->enabled;
     }
 }

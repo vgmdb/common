@@ -2,7 +2,6 @@
 
 namespace VGMdb\Component\Silex;
 
-use VGMdb\Component\Silex\AbstractResourceProvider;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
@@ -11,7 +10,7 @@ use Silex\ServiceProviderInterface;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class ResourceLocatorServiceProvider implements ServiceProviderInterface
+class ResourceLocatorServiceProvider extends AbstractResourceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {

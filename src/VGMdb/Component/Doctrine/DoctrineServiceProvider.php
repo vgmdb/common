@@ -27,33 +27,37 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
     {
         parent::register($app);
 
+        $app['dbs.options'] = $app->share(function ($app) {
+            return $app['doctrine.dbs.options'];
+        });
+
         $app['entity_managers'] = $app->share(function ($app) {
             $entityManagers = array();
 
-            if (!isset($app['orm.cache_dir'])) {
-                throw new \RuntimeException('The orm.cache_dir path is not set.');
+            if (!isset($app['doctrine.orm.cache_dir'])) {
+                throw new \RuntimeException('The doctrine.orm.cache_dir path is not set.');
             }
-            if (!isset($app['orm.entity_dir'])) {
-                throw new \RuntimeException('The orm.entity_dir path is not set.');
+            if (!isset($app['doctrine.orm.entity_dir'])) {
+                throw new \RuntimeException('The doctrine.orm.entity_dir path is not set.');
             }
-            if (!isset($app['orm.proxy_dir'])) {
-                throw new \RuntimeException('The orm.proxy_dir path is not set.');
+            if (!isset($app['doctrine.orm.proxy_dir'])) {
+                throw new \RuntimeException('The doctrine.orm.proxy_dir path is not set.');
             }
-            if (!isset($app['orm.proxy_namespace'])) {
-                throw new \RuntimeException('The orm.proxy_namespace path is not set.');
+            if (!isset($app['doctrine.orm.proxy_namespace'])) {
+                throw new \RuntimeException('The doctrine.orm.proxy_namespace path is not set.');
             }
 
             $metadataCache = ($app['debug'] || !extension_loaded('apc'))
-                ? new FilesystemCache($app['orm.cache_dir'])
+                ? new FilesystemCache($app['doctrine.orm.cache_dir'])
                 : new ApcCache();
 
             $queryCache = ($app['debug'] || !extension_loaded('apc'))
-                ? new FilesystemCache($app['orm.cache_dir'])
+                ? new FilesystemCache($app['doctrine.orm.cache_dir'])
                 : new ApcCache();
 
             $driver = new AnnotationDriver(
-                new FileCacheReader(new AnnotationReader(), $app['orm.cache_dir'], $app['debug']),
-                (array) $app['orm.entity_dir']
+                new FileCacheReader(new AnnotationReader(), $app['doctrine.orm.cache_dir'], $app['debug']),
+                (array) $app['doctrine.orm.entity_dir']
             );
 
             AnnotationReader::addGlobalIgnoredName('implements');
@@ -61,14 +65,14 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
             $ref = new \ReflectionClass('Doctrine\\ORM\\Configuration');
             AnnotationRegistry::registerFile(dirname($ref->getFilename()) . '/Mapping/Driver/DoctrineAnnotations.php');
 
-            foreach ($app['orm.entity_managers'] as $name => $options) {
+            foreach ($app['doctrine.orm.entity_managers'] as $name => $options) {
                 $app['entity_manager.' . $name] = $app->share(function ($app) use ($options, $metadataCache, $queryCache, $driver) {
                     $config = new Configuration();
                     $config->setMetadataCacheImpl($metadataCache);
                     $config->setMetadataDriverImpl($driver);
                     $config->setQueryCacheImpl($queryCache);
-                    $config->setProxyDir($app['orm.proxy_dir']);
-                    $config->setProxyNamespace($app['orm.proxy_namespace']);
+                    $config->setProxyDir($app['doctrine.orm.proxy_dir']);
+                    $config->setProxyNamespace($app['doctrine.orm.proxy_namespace']);
                     $config->setAutoGenerateProxyClasses($app['debug']);
 
                     $connections = $app['dbs'];
@@ -102,8 +106,8 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
                 $app,
                 $connections,
                 $app['entity_managers'],
-                $app['dbal.default_connection'],
-                $app['orm.default_entity_manager']
+                $app['doctrine.dbal.default_connection'],
+                $app['doctrine.orm.default_entity_manager']
             );
         });
 
@@ -116,14 +120,14 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
     {
         // force Doctrine annotations to be loaded
         // should be removed when a better solution is found in Doctrine
-        if (isset($app['orm.entity_dir'])) {
+        if (isset($app['doctrine.orm.entity_dir'])) {
             class_exists('Doctrine\\ORM\\Mapping\\Driver\\AnnotationDriver');
         }
 
         // autoload Doctrine proxies. Not PSR-0 compliant!
-        if (isset($app['orm.proxy_dir'])) {
-            $namespace = $app['orm.proxy_namespace'];
-            $dir = $app['orm.proxy_dir'];
+        if (isset($app['doctrine.orm.proxy_dir'])) {
+            $namespace = $app['doctrine.orm.proxy_namespace'];
+            $dir = $app['doctrine.orm.proxy_dir'];
             spl_autoload_register(function ($class) use ($namespace, $dir) {
                 if (0 === strpos($class, $namespace)) {
                     $className = str_replace('\\', '', substr($class, strlen($namespace) + 1));

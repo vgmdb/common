@@ -56,7 +56,7 @@ EOF
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $realCacheDir = $this->app['config.options']['cache_dir'];
+        $realCacheDir = $this->app['cache_dir'];
 
         if (!$this->filesystem->exists($realCacheDir)) {
             $this->filesystem->mkdir($realCacheDir);

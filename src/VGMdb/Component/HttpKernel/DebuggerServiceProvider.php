@@ -12,19 +12,8 @@ use Silex\ServiceProviderInterface;
  */
 class DebuggerServiceProvider implements ServiceProviderInterface
 {
-    protected $enabled;
-
-    public function __construct($enabled = true)
-    {
-        $this->enabled = (Boolean) $enabled;
-    }
-
     public function register(Application $app)
     {
-        if (!$this->enabled) {
-            return;
-        }
-
         // stopwatch
         $app['debug.stopwatch.class'] = 'Symfony\\Component\\Stopwatch\\Stopwatch';
 
@@ -160,10 +149,6 @@ class DebuggerServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
-        if (!$this->enabled) {
-            return;
-        }
-
         $app['dispatcher']->addSubscriber($app['debug.deprecation_logger_listener']);
     }
 }
