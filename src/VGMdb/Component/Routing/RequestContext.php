@@ -506,6 +506,7 @@ class RequestContext extends BaseRequestContext
             'language'        => $this->getLanguage(),
             'region'          => $this->getRegion(),
             'user_agent'      => $this->getUserAgent(),
+            'ip_address'      => $this->getIpAddress(),
             'referer'         => $this->getReferer(),
             'client'          => $this->getClient(),
             'is_mobile'       => (Boolean) $this->isMobile(),
