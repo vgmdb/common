@@ -2,6 +2,7 @@
 
 namespace VGMdb\Component\Silex\Loader;
 
+use Silex\Application;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\Yaml\Yaml;
 
@@ -12,8 +13,6 @@ use Symfony\Component\Yaml\Yaml;
  */
 class YamlFileLoader extends FileLoader
 {
-    protected $replacements = array();
-
     /**
      * Loads a Yaml file.
      *
@@ -22,11 +21,14 @@ class YamlFileLoader extends FileLoader
      */
     public function load($file, $type = null)
     {
+        $this->loadConfig($file, $type);
+    }
+
+    public function loadConfig($file, $type = null)
+    {
         $path = $this->locator->locate($file);
 
         $content = $this->loadFile($path);
-
-        //$this->container->addResource(new FileResource($path));
 
         // empty file
         if (null === $content) {
@@ -65,17 +67,20 @@ class YamlFileLoader extends FileLoader
      * @param array  $content
      * @param string $file
      */
-    private function parseImports($content, $file)
+    protected function parseImports($content, $file)
     {
         if (!isset($content['imports'])) {
             return;
         }
 
+        $ret = array();
         foreach ($content['imports'] as $import) {
             $resource = $this->doReplacements($import['resource'], $this->replacements);
             //$this->setCurrentDir(dirname($file));
-            $this->import($resource, null, isset($import['ignore_errors']) ? (Boolean) $import['ignore_errors'] : false, $file);
+            $ret[] = $this->import($resource, null, isset($import['ignore_errors']) ? (Boolean) $import['ignore_errors'] : false, $file);
         }
+
+        return $ret;
     }
 
     /**
@@ -83,7 +88,7 @@ class YamlFileLoader extends FileLoader
      *
      * @param array $content
      */
-    private function parseParameters($content)
+    protected function parseParameters($content)
     {
         if (!isset($content['parameters'])) {
             return;
@@ -104,7 +109,7 @@ class YamlFileLoader extends FileLoader
      * @param array  $content
      * @param string $file
      */
-    private function parseDefinitions($content, $file)
+    protected function parseDefinitions($content, $file)
     {
         if (!isset($content['services'])) {
             return;
@@ -124,7 +129,7 @@ class YamlFileLoader extends FileLoader
      *
      * @throws InvalidArgumentException When tags are invalid
      */
-    private function parseDefinition($id, $service, $file)
+    protected function parseDefinition($id, $service, $file)
     {
         $class = null;
 
@@ -138,10 +143,10 @@ class YamlFileLoader extends FileLoader
             $parameters[$id . '.' . $key] = $this->doReplacements($value, $this->replacements);
         }
 
-        if (null !== $class) {
-            $this->app->register(new $class(), $parameters);
+        if (null !== $class && $this->container instanceof Application) {
+            $this->container->register(new $class(), $parameters);
         } else {
-            $this->replaceConfig($this->app, $parameters, array());
+            $this->replaceConfig($this->container, $parameters, array());
         }
     }
 
@@ -150,13 +155,13 @@ class YamlFileLoader extends FileLoader
      *
      * @param array $content
      */
-    private function loadFromExtensions($content)
+    protected function loadFromExtensions($content)
     {
         unset($content['imports']);
         unset($content['parameters']);
         unset($content['services']);
 
-        $this->replaceConfig($this->app, $content, $this->replacements);
+        $this->replaceConfig($this->container, $content, $this->replacements);
     }
 
     /**

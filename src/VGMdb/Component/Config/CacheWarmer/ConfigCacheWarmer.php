@@ -14,13 +14,18 @@ use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 class ConfigCacheWarmer implements CacheWarmerInterface
 {
     protected $loader;
+    protected $subDir;
 
     /**
      * Constructor.
+     *
+     * @param LoaderInterface $loader A Loader instance
+     * @param string          $subDir Subdirectory
      */
-    public function __construct(LoaderInterface $loader)
+    public function __construct(LoaderInterface $loader, $subDir = null)
     {
         $this->loader = $loader;
+        $this->subDir = $subDir;
     }
 
     /**
@@ -31,7 +36,7 @@ class ConfigCacheWarmer implements CacheWarmerInterface
     public function warmUp($cacheDir)
     {
         if ($this->loader instanceof WarmableInterface) {
-            $this->loader->warmUp($cacheDir);
+            $this->loader->warmUp($cacheDir . '/' . $this->subDir);
         }
     }
 

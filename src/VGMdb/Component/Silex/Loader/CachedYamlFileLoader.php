@@ -13,47 +13,68 @@ use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
  */
 class CachedYamlFileLoader extends YamlFileLoader implements WarmableInterface
 {
-    /**
-     * Loads a Yaml file.
-     *
-     * @param mixed  $file The resource
-     * @param string $type The resource type
-     */
+    protected $resources = array();
+
     public function load($file, $type = null)
     {
-        $filenames = (array) $this->options['files'];
-        $directories = (array) $this->options['base_dirs'];
-
         $cacheClass = implode('', array_map('ucfirst', explode('-', $this->options['cache_class'])));
         $cacheFile = $this->options['cache_dir'] . '/' . $cacheClass . '.php';
         $cache = new ConfigCache($cacheFile, $this->options['debug']);
 
         if (!$cache->isFresh()) {
-            $conf = array();
-            foreach ($directories as $directory) {
-                if (!$filenames) {
-                    $filenames = array_map('basename', glob($directory . '/*.yml'));
-                }
-                foreach ($filenames as $filename) {
-                    $conf = array_merge($conf, $this->loadConfig($directory . '/' . $filename));
-                }
-            }
+            $configs = $this->loadConfig($file, $type);
+            unset($configs['imports']);
 
-            $configs = $resources = array();
-            foreach ($conf as $path => $config) {
-                $resources[] = new FileResource($path);
-                $configs = array_replace_recursive($configs, $config);
-            }
+            $this->parseParameters($configs);
+            unset($configs['parameters']);
+
+            $configs = $this->doReplacements($configs, $this->replacements);
 
             $cache->write(
                 '<?php' . PHP_EOL . '$configs = ' . var_export($configs, true) . ';',
-                $resources
+                array_unique($this->resources)
             );
         }
 
         require $cache;
 
-        return $configs;
+        $this->replacements = array();
+
+        $this->parseConfig($configs);
+    }
+
+    public function loadConfig($file, $type = null)
+    {
+        $path = $this->locator->locate($file);
+
+        $content = $this->loadFile($path);
+
+        $this->resources[] = new FileResource($path);
+
+        // empty file
+        if (null === $content) {
+            return;
+        }
+
+        // imports
+        $configs = (array) $this->parseImports($content, $file);
+
+        $ret = array();
+        $configs[] = $content;
+        foreach ($configs as $config) {
+            $ret = array_replace_recursive($ret, (array) $config);
+        }
+
+        return $ret;
+    }
+
+    protected function parseConfig($configs = array())
+    {
+        // services
+        $this->parseDefinitions($configs, null);
+
+        // extensions
+        $this->loadFromExtensions($configs);
     }
 
     /**
@@ -64,7 +85,8 @@ class CachedYamlFileLoader extends YamlFileLoader implements WarmableInterface
     public function warmUp($cacheDir)
     {
         $this->setOption('cache_dir', $cacheDir);
+        $this->setOption('parse', false);
 
-        $this->getConfig();
+        $this->load($this->options['config_file']);
     }
 }
