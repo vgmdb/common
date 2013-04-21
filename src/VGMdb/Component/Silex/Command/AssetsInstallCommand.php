@@ -2,13 +2,15 @@
 
 namespace VGMdb\Component\Silex\Command;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
-class AssetsInstallCommand extends ContainerAwareCommand
+class AssetsInstallCommand extends Command
 {
     /**
      * {@inheritdoc}
@@ -63,14 +65,15 @@ EOT
             throw new \InvalidArgumentException('The symlink() function is not available on your system. You need to install the assets without the --symlink option.');
         }
 
-        $filesystem = $this->getContainer()->get('filesystem');
+        $app = $this->getApplication()->getContainer($input);
+        $filesystem = new Filesystem();
 
         // Create the bundles directory otherwise symlink will fail.
         $filesystem->mkdir($targetArg.'/assets/', 0777);
 
         $output->writeln(sprintf("Installing assets using the <comment>%s</comment> option", $input->getOption('symlink') ? 'symlink' : 'hard copy'));
 
-        foreach ($this->getContainer()->get('kernel')->getBundles() as $provider) {
+        foreach ($app['resource_locator']->getProviders() as $provider) {
             if (is_dir($originDir = $provider->getPath().'/Resources/public')) {
                 $assetsDir = $targetArg.'/assets/';
                 $targetDir  = $assetsDir.strtolower($provider->getName());
