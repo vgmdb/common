@@ -75,6 +75,7 @@ EOT
         $filesystem->chmod($directories, 0777);
 
         if (!file_exists($baseDir . '/public/css/lib.css')) {
+            $filesystem->mkdir($baseDir . '/public/css/', 0777);
             $filesystem->touch($baseDir . '/public/css/lib.css');
         }
         $filesystem->chmod($baseDir . '/public/css/lib.css', 0777);
