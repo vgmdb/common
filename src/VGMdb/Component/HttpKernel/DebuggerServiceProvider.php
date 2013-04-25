@@ -130,6 +130,13 @@ class DebuggerServiceProvider implements ServiceProviderInterface
             }));
         }
 
+        // add logger to New Relic monitor
+        $app['newrelic.monitor_logger.class'] = 'VGMdb\\Component\\NewRelic\\Monitor\\LoggableMonitor';
+
+        $app['newrelic.monitor'] = $app->share($app->extend('newrelic.monitor', function ($monitor) use ($app) {
+            return new $app['newrelic.monitor_logger.class']($monitor, $app['logger']);
+        }));
+
         // replace Elastica Client with traceable implementation
         $app['elastica.client.class'] = 'VGMdb\\Component\\Elastica\\Debug\\TraceableClient';
 
