@@ -232,7 +232,7 @@ class TranslationRouter extends LazyRouter
             }
 
             return array(
-                '_controller' => 'VGMdb\\Component\\HttpKernel\\Controller\\RedirectController:urlRedirect',
+                '_controller' => 'VGMdb\\Component\\HttpKernel\\Controller\\RedirectController::urlRedirectAction',
                 'path'        => $url,
                 'host'        => $host,
                 'permanent'   => true,

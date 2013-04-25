@@ -28,7 +28,7 @@ class RedirectableProxyUrlMatcherTest extends \PHPUnit_Framework_TestCase
         $matcher = new RedirectableProxyUrlMatcher(new UrlMatcher($routes, $context));
 
         $expected = array(
-            '_controller' => 'VGMdb\\Component\\HttpKernel\\Controller\\RedirectController:urlRedirect',
+            '_controller' => 'VGMdb\\Component\\HttpKernel\\Controller\\RedirectController::urlRedirectAction',
             'path'        => '/foo',
             'permanent'   => true,
             'scheme'      => null,
