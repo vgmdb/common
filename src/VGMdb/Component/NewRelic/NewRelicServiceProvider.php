@@ -29,7 +29,7 @@ class NewRelicServiceProvider extends AbstractResourceProvider implements Servic
         });
 
         $app['newrelic.transaction_listener'] = $app->share(function ($app) {
-            return new TransactionListener($app['newrelic.monitor'], $app['request_context'], $app['newrelic.apps']);
+            return new TransactionListener($app['newrelic.monitor']);
         });
 
         $app['newrelic.rum_injection_listener'] = $app->share(function ($app) {
@@ -43,6 +43,11 @@ class NewRelicServiceProvider extends AbstractResourceProvider implements Servic
 
     public function boot(Application $app)
     {
+        $appName = array_key_exists($app['name'], $app['newrelic.apps'])
+            ? $app['newrelic.apps'][$app['name']]
+            : $app['name'];
+        $app['newrelic.monitor']->setApplicationName($appName);
+
         $app['dispatcher']->addSubscriber($app['newrelic.transaction_listener']);
         $app['dispatcher']->addSubscriber($app['newrelic.rum_injection_listener']);
         $app['dispatcher']->addSubscriber($app['newrelic.exception_listener']);

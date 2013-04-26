@@ -3,7 +3,6 @@
 namespace VGMdb\Component\NewRelic\EventListener;
 
 use VGMdb\Component\NewRelic\MonitorInterface;
-use VGMdb\Component\Routing\RequestContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -17,14 +16,10 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class TransactionListener implements EventSubscriberInterface
 {
     protected $monitor;
-    protected $context;
-    protected $apps;
 
-    public function __construct(MonitorInterface $monitor, RequestContext $context, array $apps = array())
+    public function __construct(MonitorInterface $monitor)
     {
         $this->monitor = $monitor;
-        $this->context = $context;
-        $this->apps = $apps;
     }
 
     public function onKernelController(FilterControllerEvent $event)
@@ -37,20 +32,7 @@ class TransactionListener implements EventSubscriberInterface
             $this->monitor->disableAutoRum();
         }
 
-        $applicationName = $this->getApplicationName($this->context->getAppName());
-        $transactionName = $this->getTransactionName($event);
-
-        $this->monitor->setApplicationName($applicationName);
-        $this->monitor->setTransactionName($transactionName);
-    }
-
-    protected function getApplicationName($appName)
-    {
-        if (isset($this->apps[$appName])) {
-            return $this->apps[$appName];
-        }
-
-        return $appName;
+        $this->monitor->setTransactionName($this->getTransactionName($event));
     }
 
     protected function getTransactionName(FilterControllerEvent $event)
