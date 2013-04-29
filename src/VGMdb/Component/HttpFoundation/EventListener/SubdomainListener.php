@@ -14,13 +14,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class SubdomainListener implements EventSubscriberInterface
 {
-    private $app;
-    private $domains;
+    protected $app;
+    protected $subdomains;
 
-    public function __construct(Application $app, array $domains)
+    public function __construct(Application $app, array $subdomains)
     {
         $this->app = $app;
-        $this->domains = $domains;
+        $this->subdomains = $subdomains;
     }
 
     public function onKernelRequest(GetResponseEvent $event)
@@ -49,10 +49,11 @@ class SubdomainListener implements EventSubscriberInterface
      */
     protected function getSubdomain($host)
     {
-        foreach ($this->domains as $domain) {
-            if (preg_match('#^(?P<subdomain>.*).' . $domain . '$#s', $host, $matches)) {
-                return $matches['subdomain'];
-            }
+        $segments = explode('.', $host);
+        $subdomain = array_shift($segments);
+
+        if (in_array($subdomain, $this->subdomains)) {
+            return $subdomain;
         }
 
         return null;
