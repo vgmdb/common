@@ -7,6 +7,8 @@ use Silex\Provider\MonologServiceProvider as BaseMonologServiceProvider;
 use Symfony\Bridge\Monolog\Handler\ChromePhpHandler;
 use Symfony\Bridge\Monolog\Handler\FirePHPHandler;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Filesystem\Filesystem;
+use Monolog\Handler\StreamHandler;
 use Monolog\Handler\NullHandler;
 
 /**
@@ -25,6 +27,14 @@ class MonologServiceProvider extends BaseMonologServiceProvider
         $app['monolog.handler'] = $app->share(function ($app) {
             $handlers = $app['monolog.handlers'];
 
+            if (isset($app['monolog.logfile']) && strlen($app['monolog.logfile'])) {
+                if (!file_exists($app['monolog.logfile'])) {
+                    $filesystem = new Filesystem();
+                    $filesystem->mkdir(dirname($app['monolog.logfile']), 0777);
+                    $filesystem->touch($app['monolog.logfile']);
+                }
+                return new StreamHandler($app['monolog.logfile'], $app['monolog.level']);
+            }
             if (isset($handlers['chromephp']) && $handlers['chromephp'] === true) {
                 return new ChromePhpHandler();
             }
