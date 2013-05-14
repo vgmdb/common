@@ -9,7 +9,7 @@ use Psr\Log\LoggerInterface;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class QueueServiceFactory
+class QueueFactory
 {
     protected $configs;
     protected $logger;
@@ -34,7 +34,7 @@ class QueueServiceFactory
 
         $config = $this->configs[$name];
 
-        $this->queues[$name] = new QueueService(
+        $this->queues[$name] = new Queue(
             $name,
             $config['provider'],
             $config['options'],

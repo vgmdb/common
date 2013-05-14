@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class QueueService extends JobQueue;
+class Queue extends JobQueue;
 {
     protected $queueWorker;
     protected $queueProvider;
@@ -67,5 +67,15 @@ class QueueService extends JobQueue;
     public function releaseJob($jobId = null)
     {
         $this->queueProvider->release($jobId);
+    }
+
+    public function popJob()
+    {
+        $job = $this->getJob();
+        if ($job instanceof Job) {
+            $this->clearJob($job->job_id);
+        }
+
+        return $job;
     }
 }
