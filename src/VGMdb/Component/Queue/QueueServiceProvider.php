@@ -14,8 +14,14 @@ class QueueServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['queue.service_factory'] = $app->protect(function ($worker, $provider, array $config) use ($app) {
-            return new QueueService($worker, $provider, $config, $app['logger']);
+        $app['queue.configs'] = array();
+
+        $app['queue'] = $app->share(function($app) {
+            return new QueueServiceFactory($app['queue.configs'], $app['logger']);
+        });
+
+        $app['queue.service'] = $app->protect(function ($worker, $provider, array $options) use ($app) {
+            return new QueueService($worker, $provider, $options, $app['logger']);
         });
     }
 
