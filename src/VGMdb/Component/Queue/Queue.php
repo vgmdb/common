@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class Queue extends JobQueue;
+class Queue extends JobQueue
 {
     protected $queueWorker;
     protected $queueProvider;
@@ -40,7 +40,7 @@ class Queue extends JobQueue;
         return $this->queueProvider->add($data);
     }
 
-    public function getJob()
+    public function getJob($jobId = null)
     {
         $data = $this->queueProvider->get();
         if (!is_array($data)) {
