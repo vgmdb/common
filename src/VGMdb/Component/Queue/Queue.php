@@ -21,7 +21,7 @@ class Queue extends JobQueue
 
     public function __construct($worker, $provider, array $config = array(), LoggerInterface $logger = null)
     {
-        if (!$provider instanceof ProviderBase) {
+        if (is_string($provider)) {
             $provider = Base::backendFactory($provider, $config);
         }
 
@@ -61,12 +61,12 @@ class Queue extends JobQueue
 
     public function clearJob($jobId = null)
     {
-        $this->queueProvider->clear($jobId);
+        return $this->queueProvider->clear($jobId);
     }
 
     public function releaseJob($jobId = null)
     {
-        $this->queueProvider->release($jobId);
+        return $this->queueProvider->release($jobId);
     }
 
     public function popJob()
