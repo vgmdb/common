@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class QueueService extends JobQueue;
+class QueueService extends JobQueue
 {
     protected $queueWorker;
     protected $queueProvider;
