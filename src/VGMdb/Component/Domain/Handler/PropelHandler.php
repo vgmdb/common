@@ -59,6 +59,15 @@ class PropelHandler implements ArrayAccessHandlerInterface
         }
     }
 
+    public function proxy(DomainObjectInterface $object, $method, $arguments)
+    {
+        if (method_exists($entity = $object->getEntity(), $method)) {
+            return call_user_func_array(array($entity, $method), $arguments);
+        }
+
+        return null;
+    }
+
     protected static function accessorify($offset)
     {
         static $classified = array();

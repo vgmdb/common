@@ -18,13 +18,25 @@ class FormatNegotiatorProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['request.format.extensions'] = array('json', 'xml', 'gif', 'qrcode');
-        $app['request.format.default_version'] = '1.0';
-        $app['request.format.override'] = false;
-        $app['request.hosts'] = array();
+        $app['accept.format.extensions'] = array('json', 'xml', 'gif', 'qrcode');
+        $app['accept.format.default_version'] = '1.0';
+        $app['accept.format.override'] = false;
+        $app['accept.hosts'] = array();
 
-        $app['request.format.negotiator'] = $app->share(function ($app) {
+        $app['accept.format.negotiator'] = $app->share(function ($app) {
             return new AcceptNegotiator();
+        });
+
+        $app['accept.subdomain_listener'] = $app->share(function ($app) {
+            return new SubdomainListener($app, $app['accept.subdomains']);
+        });
+
+        $app['accept.extension_listener'] = $app->share(function ($app) {
+            return new ExtensionListener($app);
+        });
+
+        $app['accept.request_format_listener'] = $app->share(function ($app) {
+            return new RequestFormatListener($app, $app['request_context']);
         });
 
         Request::addFormat('gif', array('image/gif'));
@@ -33,8 +45,8 @@ class FormatNegotiatorProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
-        $app['dispatcher']->addSubscriber(new SubdomainListener($app, $app['request.hosts'])); // 512
-        $app['dispatcher']->addSubscriber(new ExtensionListener($app)); // 256
-        $app['dispatcher']->addSubscriber(new RequestFormatListener($app, $app['request_context'])); // 128, -512, -16
+        $app['dispatcher']->addSubscriber($app['accept.subdomain_listener']); // 512
+        $app['dispatcher']->addSubscriber($app['accept.extension_listener']); // 256
+        $app['dispatcher']->addSubscriber($app['accept.request_format_listener']); // 128, -512, -16
     }
 }

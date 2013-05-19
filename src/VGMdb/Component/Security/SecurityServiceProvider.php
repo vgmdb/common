@@ -12,6 +12,7 @@ use Silex\Application;
 use Silex\LazyUrlMatcher;
 use Silex\Provider\SecurityServiceProvider as BaseSecurityServiceProvider;
 use Symfony\Component\Security\Core\Util\SecureRandom;
+use Symfony\Component\Security\Http\Firewall;
 use Symfony\Component\Security\Http\Firewall\ExceptionListener;
 use Symfony\Component\Security\Http\Firewall\LogoutListener;
 use Symfony\Component\Security\Http\Logout\SessionLogoutHandler;
@@ -29,6 +30,16 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
         parent::register($app);
 
         $that = $this;
+
+        $app['security.firewall'] = $app->share(function ($app) {
+            foreach ($app['security.firewalls'] as $name => $firewall) {
+                $app['security.user_provider.'.$name] = $app->share(function ($app) {
+                    return $app['user_provider'];
+                });
+            }
+
+            return new Firewall($app['security.firewall_map'], $app['dispatcher']);
+        });
 
         // replace HttpUtils so that it loads UrlGenerator and UrlMatcher lazily
         $app['security.http_utils'] = $app->share(function ($app) {

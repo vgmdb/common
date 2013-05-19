@@ -20,15 +20,18 @@ use Symfony\Component\Routing\RouterInterface;
 class RouterCacheWarmer implements CacheWarmerInterface
 {
     protected $router;
+    protected $subDir;
 
     /**
      * Constructor.
      *
      * @param RouterInterface $router A Router instance
+     * @param string          $subDir Subdirectory
      */
-    public function __construct(RouterInterface $router)
+    public function __construct(RouterInterface $router, $subDir = null)
     {
         $this->router = $router;
+        $this->subDir = $subDir;
     }
 
     /**
@@ -39,7 +42,7 @@ class RouterCacheWarmer implements CacheWarmerInterface
     public function warmUp($cacheDir)
     {
         if ($this->router instanceof WarmableInterface) {
-            $this->router->warmUp($cacheDir);
+            $this->router->warmUp($cacheDir . '/' . $this->subDir);
         }
     }
 

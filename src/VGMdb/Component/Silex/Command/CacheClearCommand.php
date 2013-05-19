@@ -56,7 +56,7 @@ EOF
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $realCacheDir = $this->app['config.options']['cache_dir'];
+        $realCacheDir = $this->app['cache_dir'];
 
         if (!$this->filesystem->exists($realCacheDir)) {
             $this->filesystem->mkdir($realCacheDir);
@@ -100,9 +100,8 @@ EOF
     protected function warmUp($warmupDir, $enableOptionalWarmers = true)
     {
         $warmer = new CacheWarmerAggregate(array(
-            new ConfigCacheWarmer($this->app['config.cached_loader']),
-            new ConfigCacheWarmer($this->app['routing.cached_loader']),
-            new RouterCacheWarmer($this->app['router']),
+            new ConfigCacheWarmer($this->app['framework.loader.cache'], 'configs'),
+            new RouterCacheWarmer($this->app['router'], 'configs'),
             new ProxyCacheWarmer($this->app['doctrine'])
         ));
 

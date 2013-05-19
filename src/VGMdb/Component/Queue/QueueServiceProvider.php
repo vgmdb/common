@@ -2,6 +2,7 @@
 
 namespace VGMdb\Component\Queue;
 
+use VGMdb\Component\Silex\AbstractResourceProvider;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
@@ -10,12 +11,18 @@ use Silex\ServiceProviderInterface;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class QueueServiceProvider implements ServiceProviderInterface
+class QueueServiceProvider extends AbstractResourceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['queue.service_factory'] = $app->protect(function ($worker, $provider, array $config) use ($app) {
-            return new QueueService($worker, $provider, $config, $app['logger']);
+        $app['queue.configs'] = array();
+
+        $app['queue'] = $app->share(function($app) {
+            return new QueueFactory($app['queue.configs'], $app['logger']);
+        });
+
+        $app['queue.proto'] = $app->protect(function ($worker, $provider, array $options) use ($app) {
+            return new Queue($worker, $provider, $options, $app['logger']);
         });
     }
 

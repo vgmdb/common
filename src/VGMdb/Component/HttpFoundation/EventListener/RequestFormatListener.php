@@ -35,15 +35,15 @@ class RequestFormatListener implements EventSubscriberInterface
         $request = $event->getRequest();
         $format = null;
 
-        if (!empty($this->app['request.format.priorities'])) {
-            $format = $this->app['request.format.negotiator']->getBestFormat(
+        if (!empty($this->app['accept.format.priorities'])) {
+            $format = $this->app['accept.format.negotiator']->getBestFormat(
                 $request,
-                $this->app['request.format.priorities'],
-                $this->app['request.format.prefer_extension']
+                $this->app['accept.format.priorities'],
+                $this->app['accept.format.prefer_extension']
             );
         }
         if ($format === null) {
-            $format = $this->app['request.format.fallback'];
+            $format = $this->app['accept.format.fallback'];
         }
         if ($format === null) {
             if (HttpKernelInterface::MASTER_REQUEST === $event->getRequestType()) {
@@ -56,10 +56,10 @@ class RequestFormatListener implements EventSubscriberInterface
         $request->setRequestFormat($format);
         $this->app['request_context']->setFormat($format);
 
-        $version = $this->app['request.format.negotiator']->getVersionForFormat(
+        $version = $this->app['accept.format.negotiator']->getVersionForFormat(
             $request,
             $format,
-            $this->app['request.format.default_version']
+            $this->app['accept.format.default_version']
         );
 
         $request->setRequestVersion($version);
@@ -96,7 +96,7 @@ class RequestFormatListener implements EventSubscriberInterface
         $result = $event->getControllerResult();
 
         if ($result instanceof Response) {
-            if (!$this->app['request.format.override']) {
+            if (!$this->app['accept.format.override']) {
                 return $event->setResponse($result);
             } else {
                 $result = $result->getContent();

@@ -1,0 +1,47 @@
+profiler_search:
+    path: /profiler/search
+    defaults: { _controller: profiler.controller.profiler:search, _layout: @WebProfiler/layouts/base }
+    options:
+        _translate: false
+
+profiler_search_bar:
+    path: /profiler/searchbar
+    defaults: { _controller: profiler.controller.profiler:searchBar, _layout: @WebProfiler/layouts/base }
+    options:
+        _translate: false
+
+profiler_purge:
+    path: /profiler/purge
+    defaults: { _controller: profiler.controller.profiler:purge, _layout: @WebProfiler/layouts/base }
+    options:
+        _translate: false
+
+profiler_export:
+    path: /profiler/export/{token}.txt
+    defaults: { _controller: profiler.controller.profiler:export, _layout: @WebProfiler/layouts/base }
+    options:
+        _translate: false
+
+profiler_search_results:
+    path: /profiler/{token}/search/results
+    defaults: { _controller: profiler.controller.profiler:searchResults, _layout: @WebProfiler/layouts/base }
+    options:
+        _translate: false
+
+profiler:
+    path: /profiler/{token}
+    defaults: { _controller: profiler.controller.profiler:panel, _layout: @WebProfiler/layouts/base }
+    options:
+        _translate: false
+
+profiler_landing:
+    path: /profiler
+    defaults: { _controller: profiler.controller.profiler:index }
+    options:
+        _translate: false
+
+debug_phpinfo:
+    path: /phpinfo
+    defaults: { _controller: profiler.controller.profiler:phpinfo }
+    options:
+        _translate: false

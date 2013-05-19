@@ -14,13 +14,19 @@ use Psr\Log\LoggerInterface;
  */
 class ControllerResolver extends BaseControllerResolver
 {
+    protected $parser;
     protected $logger;
 
     /**
-     * {@inheritDoc}
+     * Constructor.
+     *
+     * @param Application          $app    An Application instance
+     * @param ControllerNameParser $parser A ControllerNameParser instance
+     * @param LoggerInterface      $logger A LoggerInterface instance
      */
-    public function __construct(Application $app, LoggerInterface $logger = null)
+    public function __construct(Application $app, ControllerNameParser $parser, LoggerInterface $logger = null)
     {
+        $this->parser = $parser;
         $this->logger = $logger;
 
         parent::__construct($app, $logger);
@@ -51,7 +57,7 @@ class ControllerResolver extends BaseControllerResolver
             }
         }
 
-        $callable = $this->createController($controller, $request);
+        $callable = $this->createController($controller);
 
         if ($callable instanceof \Closure) {
             return $callable;
@@ -80,44 +86,60 @@ class ControllerResolver extends BaseControllerResolver
     /**
      * Returns a callable for the given controller.
      *
-     * @param string  $controller A Controller string
-     * @param Request $request    The request object
+     * @param string $controller A Controller string
      *
      * @return mixed A PHP callable
+     *
+     * @throws \LogicException           When the name could not be parsed
+     * @throws \InvalidArgumentException When the controller class does not exist
      */
-    protected function createController($controller, $request = null)
+    protected function createController($controller)
     {
-        if (false !== strpos($controller, '::')) {
-            list($class, $method) = explode('::', $controller, 2);
-        } elseif (false !== strpos($controller, ':')) {
-            list($class, $method) = explode(':', $controller, 2);
-        } else {
-            list($class, $method) = array($controller, $request ? $request->attributes->get('_action', 'index') : 'index');
-        }
+        if (false === strpos($controller, '::')) {
+            $count = substr_count($controller, ':');
+            if (2 == $count) {
+                // controller in the a:b:c notation then
+                $controller = $this->parser->parse($controller);
+            } elseif (1 == $count) {
+                // controller in the service:method notation
+                list($service, $method) = explode(':', $controller, 2);
 
-        $method = substr($method, -6) !== 'Action' ? $method . 'Action' : $method;
+                if (isset($this->app[$service])) {
+                    $controller = $this->app[$service];
+                    if (is_string($controller)) {
+                        $controller = new $controller();
+                    }
+                    if ($controller instanceof AbstractController) {
+                        $controller->setContainer($this->app);
+                    }
 
-        if (isset($this->app[$class])) {
-            $class = $this->app[$class];
-            if ($class instanceof \Closure) {
-                return $class;
+                    return array($controller, $method.'Action');
+                }
+
+                throw new \LogicException(sprintf('Unable to parse the controller service "%s".', $service));
+            } else {
+                if (isset($this->app[$controller])) {
+                    $controller = $this->app[$controller];
+
+                    if ($controller instanceof \Closure) {
+                        return $controller;
+                    }
+                }
+
+                throw new \LogicException(sprintf('Unable to parse the controller name "%s".', $controller));
             }
-            if (is_object($class)) {
-                return array($class, $method);
-            }
         }
 
-        $class = substr($class, -10) !== 'Controller' ? $class . 'Controller' : $class;
-
-        if (false === strpos($class, '\\') && isset($this->app['namespace'])) {
-            $class = $this->app['namespace'] . '\\Controllers\\' . $class;
-        }
+        list($class, $method) = explode('::', $controller, 2);
 
         if (!class_exists($class)) {
             throw new \InvalidArgumentException(sprintf('Class "%s" does not exist.', $class));
         }
 
-        $controller = new $class($this->app);
+        $controller = new $class();
+        if ($controller instanceof AbstractController) {
+            $controller->setContainer($this->app);
+        }
 
         return array($controller, $method);
     }

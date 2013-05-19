@@ -12,19 +12,8 @@ use Silex\ServiceProviderInterface;
  */
 class DebuggerServiceProvider implements ServiceProviderInterface
 {
-    protected $enabled;
-
-    public function __construct($enabled = true)
-    {
-        $this->enabled = (Boolean) $enabled;
-    }
-
     public function register(Application $app)
     {
-        if (!$this->enabled) {
-            return;
-        }
-
         // stopwatch
         $app['debug.stopwatch.class'] = 'Symfony\\Component\\Stopwatch\\Stopwatch';
 
@@ -133,9 +122,11 @@ class DebuggerServiceProvider implements ServiceProviderInterface
         // add logger to New Relic monitor
         $app['newrelic.monitor_logger.class'] = 'VGMdb\\Component\\NewRelic\\Monitor\\LoggableMonitor';
 
-        $app['newrelic.monitor'] = $app->share($app->extend('newrelic.monitor', function ($monitor) use ($app) {
-            return new $app['newrelic.monitor_logger.class']($monitor, $app['logger']);
-        }));
+        if (isset($app['newrelic.monitor'])) {
+            $app['newrelic.monitor'] = $app->share($app->extend('newrelic.monitor', function ($monitor) use ($app) {
+                return new $app['newrelic.monitor_logger.class']($monitor, $app['logger']);
+            }));
+        }
 
         // replace Elastica Client with traceable implementation
         $app['elastica.client.class'] = 'VGMdb\\Component\\Elastica\\Debug\\TraceableClient';
@@ -160,10 +151,6 @@ class DebuggerServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
-        if (!$this->enabled) {
-            return;
-        }
-
         $app['dispatcher']->addSubscriber($app['debug.deprecation_logger_listener']);
     }
 }

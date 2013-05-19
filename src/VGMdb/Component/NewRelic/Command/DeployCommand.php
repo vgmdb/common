@@ -3,6 +3,8 @@
 namespace VGMdb\Component\NewRelic\Command;
 
 use VGMdb\Component\NewRelic\MonitorInterface;
+use Guzzle\Http\Client;
+use Guzzle\Http\Exception\BadResponseException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -49,14 +51,15 @@ EOT
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $app = $this->getApplication()->getContainer($input);
-        $monitor = $app['newrelic.monitor'];
+        $app->boot();
+        $appName = $app['newrelic.monitor']->getApplicationName();
 
-        $status = $this->performRequest($app['newrelic.api_key'], $this->createPayload($monitor, $input));
+        $status = $this->performRequest($app['newrelic.api_host'], $app['newrelic.api_key'], $appName, $input);
 
         switch ($status) {
             case 200:
             case 201:
-                $output->writeln(sprintf("Recorded deployment to '%s' (%s)", $monitor->getApplicationName(), ($input->getOption('description') ? $input->getOption('description') : date('r'))));
+                $output->writeln(sprintf("Recorded deployment to '%s' (%s)", $appName, ($input->getOption('description') ? $input->getOption('description') : date('r'))));
                 break;
             case 403:
                 $output->writeln('<error>Deployment not recorded: API key invalid</error>');
@@ -69,53 +72,36 @@ EOT
         }
     }
 
-    public function performRequest($apiKey, $payload)
+    public function performRequest($apiHost, $apiKey, $appName, InputInterface $input)
     {
-        /**
-         * @todo Refactor this to use Guzzle!
-         */
+        $client = new Client($apiHost);
+        $request = $client->post('/deployments.xml');
+        $request->addHeader('x-api-key', $apiKey);
 
-        $headers = array(
-            sprintf('x-api-key: %s', $apiKey),
-            'Content-type: application/x-www-form-urlencoded'
-        );
-
-        $context = array(
-            'http' => array(
-                'method' => 'POST',
-                'header' => implode("\r\n", $headers),
-                'content' => $payload,
-                'ignore_errors' => true,
-            )
-        );
-
-        $content = file_get_contents('https://api.newrelic.com/deployments.xml', 0, stream_context_create($context));
-
-        return 200;
-    }
-
-    protected function createPayload(MonitorInterface $monitor, InputInterface $input)
-    {
-        $content_array = array(
-            'deployment[app_name]' => $monitor->getApplicationName()
-        );
+        $request->addPostFields(array('deployment[app_name]' => $appName));
 
         if (($user = $input->getOption('user'))) {
-            $content_array['deployment[user]'] = $user;
+            $request->addPostFields(array('deployment[user]' => $user));
         }
-
         if (($revision = $input->getOption('revision'))) {
-            $content_array['deployment[revision]'] = $revision;
+            $request->addPostFields(array('deployment[revision]' => $revision));
         }
-
         if (($changelog = $input->getOption('changelog'))) {
-            $content_array['deployment[changelog]'] = $changelog;
+            $request->addPostFields(array('deployment[changelog]' => $changelog));
         }
-
         if (($description = $input->getOption('description'))) {
-            $content_array['deployment[description]'] = $description;
+            $request->addPostFields(array('deployment[description]' => $description));
+        }
+        if (($environment = $input->getOption('env'))) {
+            $request->addPostFields(array('deployment[environment]' => $environment));
         }
 
-        return http_build_query($content_array);
+        try {
+            $response = $request->send();
+        } catch (BadResponseException $exception) {
+            $response = $exception->getResponse();
+        }
+
+        return $response->getStatusCode();
     }
 }

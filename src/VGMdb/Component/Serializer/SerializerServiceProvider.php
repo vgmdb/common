@@ -18,7 +18,7 @@ use JMS\Serializer\JsonDeserializationVisitor;
 use JMS\Serializer\XmlSerializationVisitor;
 use JMS\Serializer\XmlDeserializationVisitor;
 use JMS\Serializer\YamlSerializationVisitor;
-//use JMS\Serializer\Construction\DoctrineObjectConstructor; // overridden to avoid ManagerRegistry
+use JMS\Serializer\Construction\DoctrineObjectConstructor as BaseDoctrineObjectConstructor;
 use JMS\Serializer\Construction\UnserializeObjectConstructor;
 use JMS\Serializer\EventDispatcher\Subscriber\DoctrineProxySubscriber;
 //use JMS\Serializer\Handler\DateHandler; // overridden to add array format
@@ -115,6 +115,10 @@ class SerializerServiceProvider implements ServiceProviderInterface
             return new UnserializeObjectConstructor();
         });
 
+        $app['serializer.base_doctrine_object_constructor'] = $app->share(function ($app) {
+            return new BaseDoctrineObjectConstructor($app['doctrine'], $app['serializer.object_constructor']);
+        });
+
         $app['serializer.doctrine_object_constructor'] = $app->share(function ($app) {
             return new DoctrineObjectConstructor($app['entity_manager'], $app['serializer.object_constructor']);
         });
@@ -158,7 +162,6 @@ class SerializerServiceProvider implements ServiceProviderInterface
             $serializer = SerializerBuilder::create()
                 ->setDebug($app['debug'])
                 ->setCacheDir($app['serializer.base_cache_dir'])
-                ->addMetadataDirs($app['serializer.config_dirs'])
                 ->setPropertyNamingStrategy($app['serializer.naming_strategy'])
                 ->setSerializationVisitor('array', $app['serializer.array_serialization_visitor'])
                 ->setSerializationVisitor('json', $app['serializer.json_serialization_visitor'])
@@ -171,7 +174,7 @@ class SerializerServiceProvider implements ServiceProviderInterface
                     if (isset($app['thrift.transport'])) {
                         $subscribers[] = 'serializer.thrift_subscriber';
                     }
-                    if (isset($app['entity_manager'])) {
+                    if (isset($app['doctrine']) || isset($app['entity_manager'])) {
                         $subscribers[] = 'serializer.doctrine_proxy_subscriber';
                     }
                     foreach ($subscribers as $subscriber) {
@@ -195,9 +198,19 @@ class SerializerServiceProvider implements ServiceProviderInterface
                         }
                     }
                 });
-            if (isset($app['entity_manager'])) {
+
+            foreach ($app['serializer.config_dirs'] as $prefix => $dir) {
+                if (is_dir($dir)) {
+                    $serializer->addMetadataDir($dir, $prefix);
+                }
+            }
+
+            if (isset($app['doctrine'])) {
+                $serializer->setObjectConstructor($app['serializer.base_doctrine_object_constructor']);
+            } elseif (isset($app['entity_manager'])) {
                 $serializer->setObjectConstructor($app['serializer.doctrine_object_constructor']);
             }
+
             $serializer = $serializer->build();
 
             return $serializer;

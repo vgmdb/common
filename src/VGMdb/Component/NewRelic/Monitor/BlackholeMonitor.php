@@ -7,10 +7,16 @@ use VGMdb\Component\NewRelic\MonitorInterface;
 class BlackholeMonitor implements MonitorInterface
 {
     /**
+     * @var string
+     */
+    protected $name;
+
+    /**
      * {@inheritdoc}
      */
     public function setApplicationName($name)
     {
+        $this->name = $name;
     }
 
     /**
@@ -18,7 +24,7 @@ class BlackholeMonitor implements MonitorInterface
      */
     public function getApplicationName()
     {
-        return '';
+        return $this->name;
     }
 
     /**
