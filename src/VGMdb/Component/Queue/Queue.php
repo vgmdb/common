@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class QueueService extends JobQueue;
+class Queue extends JobQueue
 {
     protected $queueWorker;
     protected $queueProvider;
@@ -21,7 +21,7 @@ class QueueService extends JobQueue;
 
     public function __construct($worker, $provider, array $config = array(), LoggerInterface $logger = null)
     {
-        if (!$provider instanceof ProviderBase) {
+        if (is_string($provider)) {
             $provider = Base::backendFactory($provider, $config);
         }
 
@@ -40,7 +40,7 @@ class QueueService extends JobQueue;
         return $this->queueProvider->add($data);
     }
 
-    public function getJob()
+    public function getJob($jobId = null)
     {
         $data = $this->queueProvider->get();
         if (!is_array($data)) {
@@ -61,11 +61,21 @@ class QueueService extends JobQueue;
 
     public function clearJob($jobId = null)
     {
-        $this->queueProvider->clear($jobId);
+        return $this->queueProvider->clear($jobId);
     }
 
     public function releaseJob($jobId = null)
     {
-        $this->queueProvider->release($jobId);
+        return $this->queueProvider->release($jobId);
+    }
+
+    public function popJob()
+    {
+        $job = $this->getJob();
+        if ($job instanceof Job) {
+            $this->clearJob($job->job_id);
+        }
+
+        return $job;
     }
 }

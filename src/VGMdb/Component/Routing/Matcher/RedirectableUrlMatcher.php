@@ -48,7 +48,7 @@ class RedirectableUrlMatcher extends BaseRedirectableUrlMatcher
     public function redirect($path, $route, $scheme = null)
     {
         return array(
-            '_controller' => 'VGMdb\\Component\\HttpKernel\\Controller\\RedirectController:urlRedirect',
+            '_controller' => 'VGMdb\\Component\\HttpKernel\\Controller\\RedirectController::urlRedirectAction',
             'path'        => $path,
             'permanent'   => true,
             'scheme'      => $scheme,

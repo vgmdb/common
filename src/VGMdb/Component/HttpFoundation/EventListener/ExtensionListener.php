@@ -30,7 +30,7 @@ class ExtensionListener implements EventSubscriberInterface
             return;
         }
 
-        $formats = $this->app['request.format.extensions'];
+        $formats = $this->app['accept.format.extensions'];
         if (!is_array($formats)) {
             throw new \InvalidArgumentException('No valid file extensions specified.');
         }

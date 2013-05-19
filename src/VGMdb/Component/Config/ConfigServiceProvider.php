@@ -2,8 +2,10 @@
 
 namespace VGMdb\Component\Config;
 
-use VGMdb\Component\Config\ConfigLoader;
-use VGMdb\Component\Config\CachedConfigLoader;
+use VGMdb\Component\Silex\Loader\YamlFileLoader;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Config\Loader\DelegatingLoader;
+use Symfony\Component\Config\Loader\LoaderResolver;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
@@ -23,22 +25,40 @@ class ConfigServiceProvider implements ServiceProviderInterface
 
     public function register(Application $app)
     {
-        $app['config.options'] = array(
+        $options = array(
             'debug'       => isset($this->options['config.debug']) ? (Boolean) $this->options['config.debug'] : false,
             'cache_dir'   => $this->options['config.cache_dir'],
             'cache_class' => $this->options['config.cache_class'],
             'base_dirs'   => $this->options['config.base_dirs'],
             'files'       => $this->options['config.files'],
-            'parameters'  => isset($this->options['config.parameters']) ? $this->options['config.parameters'] : array()
+            'parameters'  => array_merge(
+                array(
+                    'app.base_dir'  => $app['base_dir'],
+                    'app.env'       => $app['env'],
+                    'app.debug'     => $app['debug'],
+                    'app.name'      => $app['name'],
+                    'app.cache_dir' => $app['cache_dir'],
+                    'app.log_dir'   => $app['log_dir']
+                ),
+                isset($this->options['config.parameters']) ? $this->options['config.parameters'] : array()
+            )
         );
 
-        $app['config.cached_loader'] = new CachedConfigLoader($app['config.options']);
-        $app['config.loader'] = new ConfigLoader($app['config.options']);
+        $app['config.locator'] = new FileLocator($this->options['config.base_dirs']);
 
-        if ($app['cache']) {
-            $app['config.cached_loader']->load($app);
-        } else {
-            $app['config.loader']->load($app);
+        $app['config.loader'] = new DelegatingLoader(new LoaderResolver(array(
+            new YamlFileLoader($app, $app['config.locator'], $options)
+        )));
+
+        foreach ($this->options['config.base_dirs'] as $dir) {
+            foreach ($this->options['config.files'] as $file) {
+                if (file_exists($dir . '/' . $file . '.dist')) {
+                    $app['config.loader']->load($dir . '/' . $file . '.dist');
+                }
+                if (file_exists($dir . '/' . $file)) {
+                    $app['config.loader']->load($dir . '/' . $file);
+                }
+            }
         }
     }
 

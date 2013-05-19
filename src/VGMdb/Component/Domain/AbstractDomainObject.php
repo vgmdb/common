@@ -102,6 +102,11 @@ abstract class AbstractDomainObject extends \ArrayObject implements DomainObject
         parent::offsetSet($offset, $value);
     }
 
+    public function __call($method, $arguments)
+    {
+        $this->handler->proxy($this, $method, $arguments);
+    }
+
     public function toArray()
     {
         return parent::getArrayCopy();

@@ -41,7 +41,6 @@ class ConfigDataCollector extends BaseConfigDataCollector
             'symfony_version'  => Kernel::VERSION,
             'silex_version'    => Application::VERSION,
             'name'             => isset($this->app) && isset($this->app['name'])      ? $this->app['name'] : 'n/a',
-            'namespace'        => isset($this->app) && isset($this->app['namespace']) ? $this->app['namespace'] : 'n/a',
             'env'              => isset($this->app) && isset($this->app['env'])       ? $this->app['env'] : 'n/a',
             'debug'            => isset($this->app) && isset($this->app['debug'])     ? $this->app['debug'] : 'n/a',
             'php_version'      => PHP_VERSION,

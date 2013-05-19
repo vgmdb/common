@@ -22,11 +22,11 @@ class FileLocator extends BaseFileLocator
      * @param string                   $path    The path the global resource directory
      * @param string|array             $paths   A path or an array of paths where to look for resources
      */
-    public function __construct(ResourceLocatorInterface $locator, $path = null, array $paths = array())
+    public function __construct(ResourceLocatorInterface $locator, $path = null, $paths = array())
     {
         $this->locator = $locator;
         $this->path = $path;
-        $paths[] = $path;
+        $paths = array_merge((array) $paths, (array) $path);
 
         parent::__construct($paths);
     }

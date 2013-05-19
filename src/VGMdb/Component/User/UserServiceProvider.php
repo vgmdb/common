@@ -12,7 +12,6 @@ use VGMdb\Component\User\Model\Doctrine\UserManager;
 use VGMdb\Component\User\Provider\UserProvider;
 use VGMdb\Component\User\Security\LoginManager;
 use VGMdb\Component\User\Security\InteractiveLoginListener;
-use VGMdb\Component\User\Security\Core\Encoder\BlowfishPasswordEncoder;
 use VGMdb\Component\User\Security\Core\Authentication\Provider\DaoAuthenticationProvider;
 use VGMdb\Component\User\Util\Canonicalizer;
 use VGMdb\Component\User\Util\EmailCanonicalizer;
@@ -23,6 +22,8 @@ use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Encoder\EncoderFactory;
+use Symfony\Component\Security\Core\Encoder\BCryptPasswordEncoder;
+use Symfony\Component\Security\Core\Encoder\Pbkdf2PasswordEncoder;
 use Symfony\Component\Security\Core\Exception\TokenNotFoundException;
 use Symfony\Component\Security\Core\Exception\InsufficientAuthenticationException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -56,13 +57,17 @@ class UserServiceProvider implements ServiceProviderInterface
 
         $app['security.encoder_factory'] = $app->share(function ($app) {
             return new EncoderFactory(array(
-                'Symfony\\Component\\Security\\Core\\User\\UserInterface' => $app['security.encoder.bcrypt'],
-                'VGMdb\\Component\\User\\Model\\UserInterface' => $app['security.encoder.bcrypt']
+                'Symfony\\Component\\Security\\Core\\User\\UserInterface' => $app['security.encoder'],
+                'VGMdb\\Component\\User\\Model\\UserInterface' => $app['security.encoder']
             ));
         });
 
-        $app['security.encoder.bcrypt'] = $app->share(function ($app) {
-            return new BlowfishPasswordEncoder($app['security.secure_random'], $app['user.security.bcrypt.work_factor']);
+        $app['security.encoder'] = $app->share(function ($app) {
+            if (isset($app['security.secure_random'])) {
+                return new BCryptPasswordEncoder($app['security.secure_random'], $app['user.security.bcrypt.work_factor']);
+            }
+
+            return new Pbkdf2PasswordEncoder();
         });
 
         $app['user.util.username_canonicalizer'] = $app->share(function ($app) {
