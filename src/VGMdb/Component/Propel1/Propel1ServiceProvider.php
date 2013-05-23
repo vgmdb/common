@@ -62,6 +62,8 @@ class Propel1ServiceProvider implements ServiceProviderInterface
             }
             \Propel::setForceMasterConnection($app['propel1.force_master_connection']);
             spl_autoload_unregister(array('Propel', 'autoload')); // get your autoloader out of my framework
+
+            class_alias('VGMdb\\Component\\Propel1\\BasePeer', 'BasePeer');
         }
     }
 }
