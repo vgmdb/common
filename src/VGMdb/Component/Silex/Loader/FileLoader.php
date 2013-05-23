@@ -18,6 +18,7 @@ abstract class FileLoader extends BaseFileLoader
     protected $container;
     protected $options = array();
     protected $replacements = array();
+    protected $compilers = array();
 
     /**
      * Constructor.
@@ -72,6 +73,20 @@ abstract class FileLoader extends BaseFileLoader
                 throw new FileLoaderLoadException($resource, $sourceResource, null, $e);
             }
         }
+    }
+
+    public function process(array $config)
+    {
+        foreach ($this->compilers as $compiler) {
+            $config = $compiler->process($config);
+        }
+
+        return $config;
+    }
+
+    public function addConfigPass(ConfigPassInterface $configPass)
+    {
+        $this->compilers[] = $configPass;
     }
 
     public function setOptions(array $options = array())

@@ -21,7 +21,16 @@ class YamlFileLoader extends FileLoader
      */
     public function load($file, $type = null)
     {
-        $this->loadConfig($file, $type);
+        $configs = $this->loadConfig($file, $type);
+        unset($configs['imports']);
+
+        $this->parseParameters($configs);
+        unset($configs['parameters']);
+
+        $configs = $this->doReplacements($configs, $this->replacements);
+        $configs = $this->process($configs);
+
+        $this->parseConfig($configs);
     }
 
     public function loadConfig($file, $type = null)
@@ -30,22 +39,23 @@ class YamlFileLoader extends FileLoader
 
         $content = $this->loadFile($path);
 
+        $this->resources[] = new FileResource($path);
+
         // empty file
         if (null === $content) {
             return;
         }
 
         // imports
-        $this->parseImports($content, $file);
+        $configs = (array) $this->parseImports($content, $file);
 
-        // parameters
-        $this->parseParameters($content);
+        $ret = array();
+        $configs[] = $content;
+        foreach ($configs as $config) {
+            $ret = array_replace_recursive($ret, (array) $config);
+        }
 
-        // services
-        $this->parseDefinitions($content, $file);
-
-        // extensions
-        $this->loadFromExtensions($content);
+        return $ret;
     }
 
     /**
@@ -59,6 +69,15 @@ class YamlFileLoader extends FileLoader
     public function supports($resource, $type = null)
     {
         return true;
+    }
+
+    protected function parseConfig($configs = array())
+    {
+        // services
+        $this->parseDefinitions($configs, null);
+
+        // extensions
+        $this->loadFromExtensions($configs);
     }
 
     /**
