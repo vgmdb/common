@@ -1,5 +1,6 @@
 {{#profile}}
 <div id="resume">
+  <a id="resume-view-latest" href="{{urls.latest}}">View latest</a>
   <a id="resume-view-all" href="{{urls.search}}">View last 10</a>
   <strong>Profile for:</strong>
   {{method}}

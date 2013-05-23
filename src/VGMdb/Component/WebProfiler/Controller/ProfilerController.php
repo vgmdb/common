@@ -34,7 +34,10 @@ class ProfilerController extends AbstractController
 
         $token = $tokens[0]['token'];
 
-        return new RedirectResponse($this->app['router']->generate('profiler', array('token' => $token)));
+        $request = $this->app['request'];
+        $panel = $request->query->get('panel', 'request');
+
+        return new RedirectResponse($this->app['router']->generate('profiler', array('token' => $token, 'panel' => $panel)));
     }
 
     /**
@@ -121,6 +124,7 @@ class ProfilerController extends AbstractController
             'templates' => $templates,
             'is_ajax'   => $request->isXmlHttpRequest(),
             'urls'      => array(
+                'latest' => $this->app['router']->generate('profiler_landing', array('panel' => $panel)),
                 'search' => $this->app['router']->generate('profiler_search', array('limit' => 10))
             )
         );

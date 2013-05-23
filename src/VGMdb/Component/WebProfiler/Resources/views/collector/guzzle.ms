@@ -21,6 +21,11 @@
       <td>{{#.}}<div>{{.}}</div>{{/.}}</td>
     </tr>
     {{/request}}
+    <tr>
+      <td colspan="2">
+        <pre class="hidden" style="white-space: pre-wrap; white-space: -moz-pre-wrap !important; white-space: -pre-wrap; white-space: -o-pre-wrap; word-wrap: break-word;">{{requestBody}}</pre>
+      </td>
+    </tr>
   </tbody>
 </table>
 <h3>Response</h3>

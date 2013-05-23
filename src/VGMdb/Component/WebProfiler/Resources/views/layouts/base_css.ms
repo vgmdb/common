@@ -318,7 +318,7 @@ li {
     transition-duration: .1s;
     transition-timing-function: ease-in-out;
 }
-a#resume-view-all {
+a#resume-view-all, a#resume-view-latest {
     display: inline-block;
     padding: 0.2em 0.7em;
     margin-right: 0.5em;

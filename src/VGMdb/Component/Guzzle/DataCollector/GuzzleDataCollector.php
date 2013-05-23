@@ -31,6 +31,7 @@ class GuzzleDataCollector extends DataCollector
                              . strtoupper(str_replace('https', 'http', $log['extras']['request']->getScheme()))
                              . '/' . $log['extras']['request']->getProtocolVersion()
             ) + $log['extras']['request']->getHeaders()->toArray();
+            $datum['requestBody'] = (string) $log['extras']['request']->getBody();
             $datum['response'] = array(
                 'Status' => 'HTTP/1.1 ' . $log['extras']['response']->getStatusCode() . ' '
                             . $log['extras']['response']->getReasonPhrase()
