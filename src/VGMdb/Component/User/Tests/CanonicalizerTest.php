@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Tests;
+namespace VGMdb\Component\User\Tests;
 
 use VGMdb\Component\User\Util\EmailCanonicalizer;
 

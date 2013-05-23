@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Tests;
+namespace VGMdb\Component\Translation\Tests;
 
 use VGMdb\Component\Translation\TranslationLoader;
 use VGMdb\Component\Translation\MessageCatalogue;

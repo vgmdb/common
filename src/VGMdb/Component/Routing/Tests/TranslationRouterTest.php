@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Tests;
+namespace VGMdb\Component\Routing\Tests;
 
 use VGMdb\Application;
 use VGMdb\Component\Routing\Loader\YamlFileLoader;

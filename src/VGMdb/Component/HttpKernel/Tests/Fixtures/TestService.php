@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Tests\Fixtures;
+namespace VGMdb\Component\HttpKernel\Tests\Fixtures;
 
 use VGMdb\Component\Silex\AbstractResourceProvider;
 

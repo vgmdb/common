@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Tests;
+namespace VGMdb\Component\Security\Tests;
 
 use VGMdb\Component\User\Security\Core\Encoder\BlowfishPasswordEncoder;
 

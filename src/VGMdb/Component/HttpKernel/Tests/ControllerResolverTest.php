@@ -1,9 +1,9 @@
 <?php
 
-namespace VGMdb\Tests;
+namespace VGMdb\Component\HttpKernel\Tests;
 
-use VGMdb\Tests\Fixtures\Controller\TestController;
-use VGMdb\Tests\Fixtures\TestService;
+use VGMdb\Component\HttpKernel\Tests\Fixtures\Controller\TestController;
+use VGMdb\Component\HttpKernel\Tests\Fixtures\TestService;
 use VGMdb\Component\Silex\ResourceLocator;
 use VGMdb\Component\HttpKernel\Controller\ControllerNameParser;
 use VGMdb\Component\HttpKernel\Controller\ControllerResolver;
@@ -24,7 +24,7 @@ class ControllerResolverTest extends \PHPUnit_Framework_TestCase
     {
         $app = new Application();
 
-        $app['controller.test'] = 'VGMdb\\Tests\\Fixtures\\Controller\\TestController';
+        $app['controller.test'] = 'VGMdb\\Component\\HttpKernel\\Tests\\Fixtures\\Controller\\TestController';
         $app['controller.test.object'] = $app->share(function ($app) {
             return new TestController();
         });
@@ -49,7 +49,7 @@ class ControllerResolverTest extends \PHPUnit_Framework_TestCase
 
         $this->request->attributes->set('_controller', 'TestService:Test');
         $controller = $this->resolver->getController($this->request);
-        $this->assertInstanceOf('VGMdb\\Tests\\Fixtures\\Controller\\TestController', $controller[0]);
+        $this->assertInstanceOf('VGMdb\\Component\\HttpKernel\\Tests\\Fixtures\\Controller\\TestController', $controller[0]);
         $this->assertEquals('indexAction', $controller[1]);
     }
 
@@ -60,7 +60,7 @@ class ControllerResolverTest extends \PHPUnit_Framework_TestCase
         $this->request->attributes->set('_controller', 'TestService:Test');
         $this->request->attributes->set('_action', 'foo');
         $controller = $this->resolver->getController($this->request);
-        $this->assertInstanceOf('VGMdb\\Tests\\Fixtures\\Controller\\TestController', $controller[0]);
+        $this->assertInstanceOf('VGMdb\\Component\\HttpKernel\\Tests\\Fixtures\\Controller\\TestController', $controller[0]);
         $this->assertEquals('fooAction', $controller[1]);
     }
 
@@ -68,7 +68,7 @@ class ControllerResolverTest extends \PHPUnit_Framework_TestCase
     {
         $this->request->attributes->set('_controller', 'TestService:Test:foo');
         $controller = $this->resolver->getController($this->request);
-        $this->assertInstanceOf('VGMdb\\Tests\\Fixtures\\Controller\\TestController', $controller[0]);
+        $this->assertInstanceOf('VGMdb\\Component\\HttpKernel\\Tests\\Fixtures\\Controller\\TestController', $controller[0]);
         $this->assertEquals('fooAction', $controller[1]);
     }
 
@@ -101,15 +101,15 @@ class ControllerResolverTest extends \PHPUnit_Framework_TestCase
 
         $this->request->attributes->set('_controller', 'TestService:TestController:fooAction');
         $controller = $this->resolver->getController($this->request);
-        $this->assertInstanceOf('VGMdb\\Tests\\Fixtures\\Controller\\TestController', $controller[0]);
+        $this->assertInstanceOf('VGMdb\\Component\\HttpKernel\\Tests\\Fixtures\\Controller\\TestController', $controller[0]);
         $this->assertEquals('fooAction', $controller[1]);
     }
 
     public function testGetController_givenFullClassAndMethod_shouldReturnCallable()
     {
-        $this->request->attributes->set('_controller', 'VGMdb\\Tests\\Fixtures\\Controller\\TestController::fooAction');
+        $this->request->attributes->set('_controller', 'VGMdb\\Component\\HttpKernel\\Tests\\Fixtures\\Controller\\TestController::fooAction');
         $controller = $this->resolver->getController($this->request);
-        $this->assertInstanceOf('VGMdb\\Tests\\Fixtures\\Controller\\TestController', $controller[0]);
+        $this->assertInstanceOf('VGMdb\\Component\\HttpKernel\\Tests\\Fixtures\\Controller\\TestController', $controller[0]);
         $this->assertEquals('fooAction', $controller[1]);
     }
 
@@ -117,7 +117,7 @@ class ControllerResolverTest extends \PHPUnit_Framework_TestCase
     {
         $this->request->attributes->set('_controller', 'controller.test:foo');
         $controller = $this->resolver->getController($this->request);
-        $this->assertInstanceOf('VGMdb\\Tests\\Fixtures\\Controller\\TestController', $controller[0]);
+        $this->assertInstanceOf('VGMdb\\Component\\HttpKernel\\Tests\\Fixtures\\Controller\\TestController', $controller[0]);
         $this->assertEquals('fooAction', $controller[1]);
     }
 
@@ -125,7 +125,7 @@ class ControllerResolverTest extends \PHPUnit_Framework_TestCase
     {
         $this->request->attributes->set('_controller', 'controller.test.object:foo');
         $controller = $this->resolver->getController($this->request);
-        $this->assertInstanceOf('VGMdb\\Tests\\Fixtures\\Controller\\TestController', $controller[0]);
+        $this->assertInstanceOf('VGMdb\\Component\\HttpKernel\\Tests\\Fixtures\\Controller\\TestController', $controller[0]);
         $this->assertEquals('fooAction', $controller[1]);
     }
 

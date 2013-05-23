@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Tests;
+namespace VGMdb\Component\Routing\Tests;
 
 use VGMdb\Component\Routing\Matcher\RedirectableProxyUrlMatcher;
 use Symfony\Component\Routing\Route;

@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Tests;
+namespace VGMdb\Component\HttpKernel\Tests;
 
 use VGMdb\Component\HttpKernel\Controller\ControllerCollection;
 use Silex\Route;

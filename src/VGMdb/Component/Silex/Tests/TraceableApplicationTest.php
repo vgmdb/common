@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Tests;
+namespace VGMdb\Component\Silex\Tests;
 
 use VGMdb\TraceableApplication;
 
