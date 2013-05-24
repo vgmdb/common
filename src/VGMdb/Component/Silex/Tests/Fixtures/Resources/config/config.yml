@@ -1,0 +1,8 @@
+imports:
+    - { resource: foo.yml }
+
+services:
+    test:
+        foo: %foo%
+
+baz: foo

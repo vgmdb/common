@@ -1,0 +1,12 @@
+imports:
+    - { resource: bar.yml }
+
+parameters:
+    foo: bar
+
+services:
+    test:
+        provider: VGMdb\Component\Silex\Tests\Fixtures\TestService
+        foo: baz
+
+foo: baz
