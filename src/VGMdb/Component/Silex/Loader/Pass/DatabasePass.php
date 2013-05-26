@@ -11,16 +11,9 @@ use VGMdb\Component\Silex\Loader\ConfigPassInterface;
  */
 class DatabasePass implements ConfigPassInterface
 {
-    protected $debug;
-
-    public function __construct($debug = false)
-    {
-        $this->debug = (Boolean) $debug;
-    }
-
     public function process(array $config)
     {
-        if (!is_array($config['services'])) {
+        if (!isset($config['services']) || !is_array($config['services'])) {
             return $config;
         }
 
@@ -38,7 +31,7 @@ class DatabasePass implements ConfigPassInterface
                             . ($params['port'] != 3306 ? 'port=' . $params['port'] . ';' : '')
                             . ($params['dbname'] ? 'dbname=' . $params['dbname'] . ';' : '')
                             . ($params['charset'] ? 'charset=' . $params['charset'] . ';' : ''),
-                        'classname' => $this->debug ? 'DebugPDO' : null,
+                        'classname' => $config['services']['propel1']['connection_class'],
                         'user' => $params['user'],
                         'password' => $params['password']
                     )
@@ -61,7 +54,7 @@ class DatabasePass implements ConfigPassInterface
                         . ($params['port'] != 3306 ? 'port=' . $params['port'] . ';' : '')
                         . ($params['dbname'] ? 'dbname=' . $params['dbname'] . ';' : '')
                         . ($params['charset'] ? 'charset=' . $params['charset'] . ';' : ''),
-                    'classname' => $this->debug ? 'VGMdb\\Component\\Propel\\Connection\\ProfilerConnectionWrapper' : null,
+                    'classname' => $config['services']['propel']['connection_class'],
                     'user' => $params['user'],
                     'password' => $params['password']
                 );

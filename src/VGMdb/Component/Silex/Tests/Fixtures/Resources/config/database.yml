@@ -1,0 +1,38 @@
+services:
+    propel1:
+        options:
+            propel:
+                datasources:
+                    default: foo
+        connection_class: ~
+    propel:
+        options:
+            dbal:
+                default_connection: bar
+                connections: []
+        connection_class: ~
+    doctrine:
+        dbs.options: []
+
+app.database:
+    driver:   mysql
+    host:     127.0.0.1
+    port:     3306
+    dbname:   ~
+    user:     ~
+    password: ~
+    charset:  UTF8
+    path:     ~
+    memory:   ~
+
+app.databases:
+    foo:
+        host:     foo.example.org
+        user:     user
+        password: password
+    bar:
+        host:     bar.example.org
+        port:     3333
+    profiler:
+        driver:   sqlite
+        path:     /tmp

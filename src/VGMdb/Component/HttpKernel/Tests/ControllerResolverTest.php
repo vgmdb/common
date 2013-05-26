@@ -43,27 +43,6 @@ class ControllerResolverTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->resolver->getController($this->request), '->getController() returns false when the request has no _controller attribute');
     }
 
-    public function testGetController_givenControllerAttribute_shouldReturnCallableWithDefaultMethod()
-    {
-        $this->markTestSkipped('Default method removed.');
-
-        $this->request->attributes->set('_controller', 'TestService:Test');
-        $controller = $this->resolver->getController($this->request);
-        $this->assertInstanceOf('VGMdb\\Component\\HttpKernel\\Tests\\Fixtures\\Controller\\TestController', $controller[0]);
-        $this->assertEquals('indexAction', $controller[1]);
-    }
-
-    public function testGetController_givenControllerAndActionAttributes_shouldReturnCallable()
-    {
-        $this->markTestSkipped('Action attribute not yet implemented.');
-
-        $this->request->attributes->set('_controller', 'TestService:Test');
-        $this->request->attributes->set('_action', 'foo');
-        $controller = $this->resolver->getController($this->request);
-        $this->assertInstanceOf('VGMdb\\Component\\HttpKernel\\Tests\\Fixtures\\Controller\\TestController', $controller[0]);
-        $this->assertEquals('fooAction', $controller[1]);
-    }
-
     public function testGetController_givenControllerAttributeWithInlineMethod_shouldReturnCallable()
     {
         $this->request->attributes->set('_controller', 'TestService:Test:foo');
@@ -93,16 +72,6 @@ class ControllerResolverTest extends \PHPUnit_Framework_TestCase
         $this->request->setMethod('POST');
         $controller = $this->resolver->getController($this->request);
         $this->assertEquals('barAction', $controller[1]);
-    }
-
-    public function testGetController_shouldHandleOptionalSuffixes()
-    {
-        $this->markTestSkipped('Optional suffixes removed.');
-
-        $this->request->attributes->set('_controller', 'TestService:TestController:fooAction');
-        $controller = $this->resolver->getController($this->request);
-        $this->assertInstanceOf('VGMdb\\Component\\HttpKernel\\Tests\\Fixtures\\Controller\\TestController', $controller[0]);
-        $this->assertEquals('fooAction', $controller[1]);
     }
 
     public function testGetController_givenFullClassAndMethod_shouldReturnCallable()

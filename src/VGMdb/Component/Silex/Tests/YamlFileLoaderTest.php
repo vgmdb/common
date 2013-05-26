@@ -3,6 +3,7 @@
 namespace VGMdb\Component\Silex\Tests;
 
 use VGMdb\Component\Silex\Loader\YamlFileLoader;
+use VGMdb\Component\Silex\Loader\Pass\DatabasePass;
 use Silex\Application;
 use Symfony\Component\Config\FileLocator;
 
@@ -16,6 +17,7 @@ class YamlFileLoaderTest extends \PHPUnit_Framework_TestCase
     private $app;
     private $loader;
     private $loaderOverride;
+    private $databasePass;
 
     protected function setUp()
     {
@@ -30,6 +32,7 @@ class YamlFileLoaderTest extends \PHPUnit_Framework_TestCase
         $this->app = new Application();
         $this->loader = new YamlFileLoader($this->app, $locator, $options);
         $this->loaderOverride = new YamlFileLoader($this->app, $locatorOverride, $options);
+        $this->databasePass = new DatabasePass();
     }
 
     public function testLoadConfig()
@@ -74,5 +77,108 @@ class YamlFileLoaderTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('baz', $this->app['test.foo']);
         $this->assertEquals('baz', $this->app['test']);
+    }
+
+    public function testDatabasePass()
+    {
+        $this->loader->addConfigPass($this->databasePass);
+        $this->loader->load('database.yml');
+
+        $propel1Options = $this->app['propel1.options'];
+        $propel1DataSource = array(
+            'default' => 'foo',
+            'foo' => array(
+                'adapter' => 'mysql',
+                'connection' => array(
+                    'dsn' => 'mysql:host=foo.example.org;charset=UTF8;',
+                    'classname' => null,
+                    'user' => 'user',
+                    'password' => 'password'
+                )
+            ),
+            'bar' => array(
+                'adapter' => 'mysql',
+                'connection' => array(
+                    'dsn' => 'mysql:host=bar.example.org;port=3333;charset=UTF8;',
+                    'classname' => null,
+                    'user' => null,
+                    'password' => null
+                )
+            ),
+            'profiler' => array(
+                'adapter' => 'sqlite',
+                'connection' => array(
+                    'dsn' => 'sqlite:host=127.0.0.1;charset=UTF8;',
+                    'classname' => null,
+                    'user' => null,
+                    'password' => null
+                )
+            )
+        );
+        $this->assertEquals($propel1DataSource, $propel1Options['propel']['datasources']);
+
+        $propelOptions = $this->app['propel.options'];
+        $propelDataSource = array(
+            'foo' => array(
+                'driver' => 'mysql',
+                'dsn' => 'mysql:host=foo.example.org;charset=UTF8;',
+                'classname' => null,
+                'user' => 'user',
+                'password' => 'password'
+            ),
+            'bar' => array(
+                'driver' => 'mysql',
+                'dsn' => 'mysql:host=bar.example.org;port=3333;charset=UTF8;',
+                'classname' => null,
+                'user' => null,
+                'password' => null
+            ),
+            'profiler' => array(
+                'driver' => 'sqlite',
+                'dsn' => 'sqlite:host=127.0.0.1;charset=UTF8;',
+                'classname' => null,
+                'user' => null,
+                'password' => null
+            )
+        );
+        $this->assertEquals($propelDataSource, $propelOptions['dbal']['connections']);
+
+        $doctrineOptions = $this->app['doctrine.dbs.options'];
+        $doctrineDataSource = array(
+            'foo' => array(
+                'driver' => 'pdo_mysql',
+                'user' => 'user',
+                'password' => 'password',
+                'host' => 'foo.example.org',
+                'port' => 3306,
+                'dbname' => null,
+                'charset' => 'UTF8',
+                'path' => null,
+                'memory' => null
+            ),
+            'bar' => array(
+                'driver' => 'pdo_mysql',
+                'user' => null,
+                'password' => null,
+                'host' => 'bar.example.org',
+                'port' => 3333,
+                'dbname' => null,
+                'charset' => 'UTF8',
+                'path' => null,
+                'memory' => null
+            ),
+            'profiler' => array(
+                'driver' => 'pdo_sqlite',
+                'user' => null,
+                'password' => null,
+                'host' => '127.0.0.1',
+                'port' => 3306,
+                'dbname' => null,
+                'charset' => 'UTF8',
+                'path' => '/tmp',
+                'memory' => null
+            )
+        );
+        $this->assertEquals($doctrineDataSource, $doctrineOptions);
     }
 }
