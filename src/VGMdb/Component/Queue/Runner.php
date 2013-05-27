@@ -22,6 +22,11 @@ class Runner
         $this->counter = null;
     }
 
+    public function getWorker()
+    {
+        return $this->worker;
+    }
+
     public function run($counter = null)
     {
         $this->counter = intval($counter) ?: null;
