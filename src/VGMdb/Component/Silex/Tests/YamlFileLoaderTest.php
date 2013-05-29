@@ -4,6 +4,7 @@ namespace VGMdb\Component\Silex\Tests;
 
 use VGMdb\Component\Silex\Loader\YamlFileLoader;
 use VGMdb\Component\Silex\Loader\Pass\DatabasePass;
+use VGMdb\Component\Silex\Loader\Pass\QueuePass;
 use Silex\Application;
 use Symfony\Component\Config\FileLocator;
 
@@ -18,6 +19,7 @@ class YamlFileLoaderTest extends \PHPUnit_Framework_TestCase
     private $loader;
     private $loaderOverride;
     private $databasePass;
+    private $queuePass;
 
     protected function setUp()
     {
@@ -33,6 +35,7 @@ class YamlFileLoaderTest extends \PHPUnit_Framework_TestCase
         $this->loader = new YamlFileLoader($this->app, $locator, $options);
         $this->loaderOverride = new YamlFileLoader($this->app, $locatorOverride, $options);
         $this->databasePass = new DatabasePass();
+        $this->queuePass = new QueuePass();
     }
 
     public function testLoadConfig()
@@ -180,5 +183,36 @@ class YamlFileLoaderTest extends \PHPUnit_Framework_TestCase
             )
         );
         $this->assertEquals($doctrineDataSource, $doctrineOptions);
+    }
+
+    public function testQueuePass()
+    {
+        $this->loader->addConfigPass($this->queuePass);
+        $this->loader->load('queue.yml');
+
+        $queueConfigs = $this->app['queue.configs'];
+        $queueSources = array(
+            'foo' => array(
+                'provider' => 'AmazonSQS',
+                'options' => array(
+                    'queue' => 'https://foo.example.org',
+                    'sqs_options' => array(
+                        'key' => 'foo',
+                        'secret' => 'bar'
+                    )
+                )
+            ),
+            'bar' => array(
+                'provider' => 'AmazonSQS',
+                'options' => array(
+                    'queue' => 'https://bar.example.org',
+                    'sqs_options' => array(
+                        'key' => 'bar',
+                        'secret' => 'baz'
+                    )
+                )
+            )
+        );
+        $this->assertEquals($queueSources, $queueConfigs);
     }
 }

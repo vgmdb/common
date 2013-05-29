@@ -1,0 +1,18 @@
+services:
+    queue:
+        configs: []
+
+app.queue:
+    provider: AmazonSQS
+    url:      https://foo.example.org
+    key:      ~
+    secret:   ~
+
+app.queues:
+    foo:
+        key:    foo
+        secret: bar
+    bar:
+        url:    https://bar.example.org
+        key:    bar
+        secret: baz
