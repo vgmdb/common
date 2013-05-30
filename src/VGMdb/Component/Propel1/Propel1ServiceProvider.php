@@ -20,6 +20,7 @@ class Propel1ServiceProvider implements ServiceProviderInterface
         $app['propel1.force_master_connection'] = false;
 
         $app['propel1.connection'] = $app->protect(function ($name = null, $mode = 'write') use ($app) {
+            $config = $app['propel1.configuration'];
             $mode = ($mode === 'write') ? \Propel::CONNECTION_WRITE : \Propel::CONNECTION_READ;
 
             return \Propel::getConnection($name, $mode);
