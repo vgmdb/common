@@ -24,7 +24,16 @@ class TranslationServiceProvider extends AbstractResourceProvider implements Ser
         $app['translator.locale_fallback'] = 'en';
         $app['translator.base_dir'] = __DIR__;
 
-        $app['translator.message_selector'] = $app->share(function () {
+        $app['translator.base_dirs'] = $app->share(function ($app) {
+            $directories = array($app['translator.base_dir']);
+            foreach ($app['resource_locator']->getProviders() as $provider) {
+                $directories[] = $provider->getPath() . '/Resources/config/translations';
+            }
+
+            return $directories;
+        });
+
+        $app['translator.message_selector'] = $app->share(function ($app) {
             return new MessageSelector();
         });
 
@@ -116,10 +125,12 @@ class TranslationServiceProvider extends AbstractResourceProvider implements Ser
                     ? $app['translator.formats'][$format]
                     : strtolower($format);
 
-                foreach (glob($app['translator.base_dir'] . '/*.' . $extension) as $file) {
-                    $name = basename($file, '.' . $extension);
-                    list($domain, $locale) = explode('.', $name);
-                    $translator->addResource($format, $file, $locale, $domain);
+                foreach ($app['translator.base_dirs'] as $baseDir) {
+                    foreach (glob($baseDir . '/*.' . $extension) as $file) {
+                        $name = basename($file, '.' . $extension);
+                        list($domain, $locale) = explode('.', $name);
+                        $translator->addResource($format, $file, $locale, $domain);
+                    }
                 }
             }
 
