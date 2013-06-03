@@ -27,7 +27,7 @@ class TranslationServiceProvider extends AbstractResourceProvider implements Ser
         $app['translator.base_dirs'] = $app->share(function ($app) {
             $directories = array($app['translator.base_dir']);
             foreach ($app['resource_locator']->getProviders() as $provider) {
-                $directories[] = $provider->getPath() . '/Resources/config/translations';
+                $directories[] = $provider->getPath() . '/Resources/translations';
             }
 
             return $directories;
