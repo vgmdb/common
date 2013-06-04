@@ -43,9 +43,15 @@ class UserManager extends AbstractUserManager
         $this->userRepository = $om->getRepository($userClass);
         $this->authRepository = $om->getRepository($authClass);
 
-        $metadata = $om->getClassMetadata($userClass);
-        $this->userClass = $metadata->getName();
+        $this->userClass = $userClass;
+        if ($metadata = $om->getClassMetadata($userClass)) {
+            $this->userClass = $metadata->getName();
+        }
+
         $this->authClass = $authClass;
+        if ($metadata = $om->getClassMetadata($authClass)) {
+            $this->authClass = $metadata->getName();
+        }
     }
 
     /**
