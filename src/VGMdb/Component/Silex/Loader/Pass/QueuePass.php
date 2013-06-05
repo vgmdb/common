@@ -28,7 +28,8 @@ class QueuePass implements ConfigPassInterface
                         'sqs_options' => array(
                             'key' => $params['key'],
                             'secret' => $params['secret']
-                        )
+                        ),
+                        'region' => $params['region']
                     )
                 );
             }
