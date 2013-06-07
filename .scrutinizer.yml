@@ -7,7 +7,7 @@ tools:
             - php
         command: phpcs
         filter:
-            paths: [src]
+            paths: [src/*]
             excluded_paths: ["*/Tests/*"]
         config:
             standard: PSR2
@@ -20,7 +20,7 @@ tools:
     php_analyzer:
         enabled: true
         filter:
-            paths: [src]
+            paths: [src/*]
             excluded_paths: ["*/Tests/*"]
     php_code_coverage:
         enabled: true
@@ -28,7 +28,7 @@ tools:
         test_command: phpunit
         only_changesets: false
         filter:
-            paths: [src]
+            paths: [src/*]
             excluded_paths: ["*/Tests/*"]
     php_cs_fixer: false
     php_mess_detector: false
