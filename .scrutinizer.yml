@@ -1,5 +1,5 @@
 before_commands:
-    - composer install --dev --prefer-dist
+    - composer install
 tools:
     php_code_sniffer:
         enabled: true

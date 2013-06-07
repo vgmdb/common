@@ -17,7 +17,7 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "silex/silex": "1.0.*@dev",
+        "silex/silex": "1.0.0",
         "pimple/pimple": "1.0.2",
         "symfony/config": "2.2.1",
         "symfony/console": "2.2.1",
@@ -39,11 +39,11 @@
         "symfony/translation": "2.2.1",
         "symfony/validator": "2.2.1",
         "symfony/yaml": "2.2.1",
-        "mobiledetect/mobiledetectlib": "dev-master"
+        "mobiledetect/mobiledetectlib": "dev-master",
+        "mustache/mustache": "dev-master"
     },
     "require-dev": {
-        "phpunit/phpunit": "3.7.*",
-        "mustache/mustache": "dev-master"
+        "phpunit/phpunit": "3.7.*"
     },
     "autoload": {
         "psr-0": {
