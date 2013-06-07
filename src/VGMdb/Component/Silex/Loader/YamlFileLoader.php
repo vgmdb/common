@@ -2,6 +2,7 @@
 
 namespace VGMdb\Component\Silex\Loader;
 
+use VGMdb\Component\Silex\ResourceProviderInterface;
 use Silex\Application;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\Yaml\Yaml;
@@ -9,19 +10,26 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * YamlFileLoader loads YAML files service definitions.
  *
- * @author Fabien Potencier <fabien@symfony.com>
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class YamlFileLoader extends FileLoader
 {
     /**
-     * Loads a Yaml file.
+     * Loads and parses YAML configuration.
      *
      * @param mixed  $file The resource
      * @param string $type The resource type
+     *
+     * @return array
      */
     public function load($file, $type = null)
     {
-        $configs = $this->loadConfig($file, $type);
+        try {
+            $configs = $this->loadConfig($file, $type);
+        } catch (\Exception $e) {
+            return null;
+        }
+
         unset($configs['imports']);
 
         $this->parseParameters($configs);
@@ -29,10 +37,19 @@ class YamlFileLoader extends FileLoader
 
         $configs = $this->doReplacements($configs, $this->replacements);
         $configs = $this->process($configs);
+        $configs = $this->loadFromExtensions($configs);
 
-        $this->parseConfig($configs);
+        return $configs;
     }
 
+    /**
+     * Loads a YAML file and its imports.
+     *
+     * @param mixed  $file The resource
+     * @param string $type The resource type
+     *
+     * @return array
+     */
     public function loadConfig($file, $type = null)
     {
         $path = $this->locator->locate($file);
@@ -71,13 +88,21 @@ class YamlFileLoader extends FileLoader
         return true;
     }
 
-    protected function parseConfig($configs = array())
+    /**
+     * Loads the config into the container.
+     *
+     * @param array $content
+     */
+    public function apply($content = array())
     {
         // services
-        $this->parseDefinitions($configs, null);
+        $this->parseDefinitions($content);
 
-        // extensions
-        $this->loadFromExtensions($configs);
+        unset($content['imports']);
+        unset($content['parameters']);
+        unset($content['services']);
+
+        $this->replaceConfig($this->container, $content, $this->replacements);
     }
 
     /**
@@ -123,19 +148,63 @@ class YamlFileLoader extends FileLoader
     }
 
     /**
+     * Loads from Extensions
+     *
+     * @param array $content
+     *
+     * @return array
+     */
+    protected function loadFromExtensions($content)
+    {
+        if (!isset($content['services'])) {
+            return $content;
+        }
+
+        foreach ($content['services'] as $id => $service) {
+            $config = (array) $this->loadFromExtension($service);
+            $content = array_replace_recursive($config, $content);
+        }
+
+        return $content;
+    }
+
+    /**
+     * Loads from an Extension
+     *
+     * @param array $service
+     *
+     * @return array
+     */
+    protected function loadFromExtension($service)
+    {
+        if (!isset($service['provider'])) {
+            return;
+        }
+
+        $class = $service['provider'];
+        $config = array();
+        $provider = new $class();
+
+        if ($provider instanceof ResourceProviderInterface) {
+            $config = $provider->load($this->container);
+        }
+
+        return $config;
+    }
+
+    /**
      * Parses definitions
      *
-     * @param array  $content
-     * @param string $file
+     * @param array $content
      */
-    protected function parseDefinitions($content, $file)
+    protected function parseDefinitions($content)
     {
         if (!isset($content['services'])) {
             return;
         }
 
         foreach ($content['services'] as $id => $service) {
-            $this->parseDefinition($id, $service, $file);
+            $this->parseDefinition($id, $service);
         }
     }
 
@@ -144,11 +213,10 @@ class YamlFileLoader extends FileLoader
      *
      * @param string $id
      * @param array  $service
-     * @param string $file
      *
      * @throws InvalidArgumentException When tags are invalid
      */
-    protected function parseDefinition($id, $service, $file)
+    protected function parseDefinition($id, $service)
     {
         $class = null;
 
@@ -167,20 +235,6 @@ class YamlFileLoader extends FileLoader
         } else {
             $this->replaceConfig($this->container, $parameters, array());
         }
-    }
-
-    /**
-     * Loads from Extensions
-     *
-     * @param array $content
-     */
-    protected function loadFromExtensions($content)
-    {
-        unset($content['imports']);
-        unset($content['parameters']);
-        unset($content['services']);
-
-        $this->replaceConfig($this->container, $content, $this->replacements);
     }
 
     /**

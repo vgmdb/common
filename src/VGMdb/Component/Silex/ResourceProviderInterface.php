@@ -2,6 +2,8 @@
 
 namespace VGMdb\Component\Silex;
 
+use Silex\Application;
+
 /**
  * Interface for resource providers.
  *
@@ -10,11 +12,13 @@ namespace VGMdb\Component\Silex;
 interface ResourceProviderInterface
 {
     /**
-     * Builds the resource.
+     * Loads a specific configuration.
      *
-     * It is only ever called once when the cache is empty.
+     * @param Application $app An application instance
+     *
+     * @return array
      */
-    public function build();
+    public function load(Application $app);
 
     /**
      * Checks if the provider is enabled.
@@ -22,6 +26,13 @@ interface ResourceProviderInterface
      * @return Boolean
      */
     public function isActive();
+
+    /**
+     * Checks if the provider should be autoloaded.
+     *
+     * @return Boolean
+     */
+    public function isAutoload();
 
     /**
      * Returns the provider name that this provider overrides.

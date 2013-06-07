@@ -40,35 +40,35 @@ class YamlFileLoaderTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadConfig()
     {
-        $this->loader->load('config.yml');
+        $this->loader->apply($this->loader->load('config.yml'));
 
         $this->assertEquals('foo', $this->app['baz']);
     }
 
     public function testConfigImportsFoo()
     {
-        $this->loader->load('config.yml');
+        $this->loader->apply($this->loader->load('config.yml'));
 
         $this->assertEquals('baz', $this->app['foo']);
     }
 
     public function testFooImportsBar()
     {
-        $this->loader->load('config.yml');
+        $this->loader->apply($this->loader->load('config.yml'));
 
         $this->assertEquals('foo', $this->app['bar']);
     }
 
     public function testFooImportsBarWithOverride()
     {
-        $this->loaderOverride->load('config.yml');
+        $this->loaderOverride->apply($this->loaderOverride->load('config.yml'));
 
         $this->assertEquals('baz', $this->app['bar']);
     }
 
     public function testRegisterServiceWithIdentifier()
     {
-        $this->loader->load('config.yml');
+        $this->loader->apply($this->loader->load('config.yml'));
 
         $this->assertEquals('bar', $this->app['test.foo']);
         $this->assertEquals('bar', $this->app['test']);
@@ -76,16 +76,25 @@ class YamlFileLoaderTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadFoo()
     {
-        $this->loader->load('foo.yml');
+        $this->loader->apply($this->loader->load('foo.yml'));
 
         $this->assertEquals('baz', $this->app['test.foo']);
         $this->assertEquals('baz', $this->app['test']);
     }
 
+    public function testLoadExternal()
+    {
+        $this->loader->apply($this->loader->load('external.yml'));
+
+        $this->assertEquals('foobar', $this->app['baz']);
+        $this->assertEquals('bar', $this->app['test']);
+        $this->assertEquals('foo', $this->app['test.bar']);
+    }
+
     public function testDatabasePass()
     {
         $this->loader->addConfigPass($this->databasePass);
-        $this->loader->load('database.yml');
+        $this->loader->apply($this->loader->load('database.yml'));
 
         $propel1Options = $this->app['propel1.options'];
         $propel1DataSource = array(
@@ -188,7 +197,7 @@ class YamlFileLoaderTest extends \PHPUnit_Framework_TestCase
     public function testQueuePass()
     {
         $this->loader->addConfigPass($this->queuePass);
-        $this->loader->load('queue.yml');
+        $this->loader->apply($this->loader->load('queue.yml'));
 
         $queueConfigs = $this->app['queue.configs'];
         $queueSources = array(
@@ -199,7 +208,8 @@ class YamlFileLoaderTest extends \PHPUnit_Framework_TestCase
                     'sqs_options' => array(
                         'key' => 'foo',
                         'secret' => 'bar'
-                    )
+                    ),
+                    'region' => 'foo'
                 )
             ),
             'bar' => array(
@@ -209,7 +219,8 @@ class YamlFileLoaderTest extends \PHPUnit_Framework_TestCase
                     'sqs_options' => array(
                         'key' => 'bar',
                         'secret' => 'baz'
-                    )
+                    ),
+                    'region' => 'bar'
                 )
             )
         );

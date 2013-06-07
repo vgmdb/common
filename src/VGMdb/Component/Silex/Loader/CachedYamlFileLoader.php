@@ -22,14 +22,7 @@ class CachedYamlFileLoader extends YamlFileLoader implements WarmableInterface
         $cache = new ConfigCache($cacheFile, $this->options['debug']);
 
         if (!$cache->isFresh()) {
-            $configs = $this->loadConfig($file, $type);
-            unset($configs['imports']);
-
-            $this->parseParameters($configs);
-            unset($configs['parameters']);
-
-            $configs = $this->doReplacements($configs, $this->replacements);
-            $configs = $this->process($configs);
+            $configs = parent::load($file, $type);
 
             $cache->write(
                 '<?php' . PHP_EOL . '$configs = ' . var_export($configs, true) . ';',
@@ -41,7 +34,7 @@ class CachedYamlFileLoader extends YamlFileLoader implements WarmableInterface
 
         $this->replacements = array();
 
-        $this->parseConfig($configs);
+        return $configs;
     }
 
     /**

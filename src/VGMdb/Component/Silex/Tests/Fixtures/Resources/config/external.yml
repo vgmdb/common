@@ -1,0 +1,7 @@
+services:
+    foobar:
+        provider: VGMdb\Component\Silex\Tests\Fixtures\Component\Foobar\FoobarResourceProvider
+    test:
+        bar: foo
+
+baz: foobar

@@ -2,7 +2,11 @@
 
 namespace VGMdb\Component\Silex;
 
-use Symfony\Component\Console\Application;
+use VGMdb\Component\Silex\Loader\YamlFileLoader;
+use VGMdb\Component\Silex\Loader\CachedYamlFileLoader;
+use Silex\Application;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Console\Application as ConsoleApplication;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -16,12 +20,30 @@ abstract class AbstractResourceProvider implements ResourceProviderInterface
     protected $reflected;
 
     /**
-     * Builds the resource.
+     * Loads a specific configuration.
      *
-     * It is only ever called once when the cache is empty.
+     * @param Application $app An application instance
+     *
+     * @return array
      */
-    public function build()
+    public function load(Application $app)
     {
+        $options = array(
+            'parameters' => array(
+                'app.base_dir'  => isset($app['base_dir']) ? $app['base_dir'] : null,
+                'app.cache_dir' => isset($app['cache_dir']) ? $app['cache_dir'] : null,
+                'app.log_dir'   => isset($app['log_dir']) ? $app['log_dir'] : null,
+                'app.env'       => isset($app['env']) ? $app['env'] : null,
+                'app.debug'     => isset($app['debug']) ? $app['debug'] : null,
+                'app.name'      => isset($app['name']) ? $app['name'] : null
+            )
+        );
+
+        $paths = array($this->getPath() . '/Resources/config');
+
+        $loader = new YamlFileLoader($app, new FileLocator($paths), $options);
+
+        return $loader->load('config.yml');
     }
 
     /**
@@ -32,6 +54,16 @@ abstract class AbstractResourceProvider implements ResourceProviderInterface
     public function isActive()
     {
         return true;
+    }
+
+    /**
+     * Checks if the provider should be autoloaded.
+     *
+     * @return Boolean
+     */
+    public function isAutoload()
+    {
+        return false;
     }
 
     /**
@@ -97,9 +129,9 @@ abstract class AbstractResourceProvider implements ResourceProviderInterface
      * * Commands are in the 'Command' sub-directory
      * * Commands extend Symfony\Component\Console\Command\Command
      *
-     * @param Application $application An Application instance
+     * @param ConsoleApplication $application A ConsoleApplication instance
      */
-    public function registerCommands(Application $application)
+    public function registerCommands(ConsoleApplication $application)
     {
         if (!is_dir($dir = $this->getPath().'/Command')) {
             return;

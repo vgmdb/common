@@ -1,0 +1,5 @@
+services:
+    test:
+        provider: VGMdb\Component\Silex\Tests\Fixtures\TestService
+        foo: baz
+        bar: baz

@@ -11,8 +11,8 @@
     ],
     "repositories": [
         {
-            "type": "vcs",
-            "url": "https://github.com/gigablah/mustache.php"
+            "type": "git",
+            "url": "git://github.com/gigablah/mustache.php.git"
         }
     ],
     "require": {

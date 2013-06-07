@@ -122,7 +122,9 @@ class Application extends BaseApplication
             'debug' => false,
             'env' => 'prod',
             'name' => 'app',
-            'base_dir' => __DIR__
+            'base_dir' => getcwd(),
+            'cache_dir' => getcwd() . '/cache',
+            'log_dir' => getcwd() . '/logs'
         ), $values);
 
         foreach ($values as $key => $value) {
@@ -218,6 +220,20 @@ class Application extends BaseApplication
 
             return $object;
         };
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function register(ServiceProviderInterface $provider, array $values = array())
+    {
+        parent::register($provider, $values);
+
+        if ($provider instanceof ResourceProviderInterface && $provider->isAutoload()) {
+            $provider->load($this);
+        }
+
+        return $this;
     }
 
     /**
