@@ -46,19 +46,24 @@ class Layout
             }
         }
 
-        if (isset($config['layout']['template'])) {
-            $template = $this->getDefaultTemplate($config['layout']['template'], 'layouts');
-            $view = $this->wrapLayout($view, $template, $layoutData);
+        if (isset($config['layout'])) {
+            $view = $this->wrapLayout($view, $config['layout'], $layoutData);
         }
 
         return $view;
     }
 
-    protected function wrapLayout(ViewInterface $view, $template, array $data = array())
+    protected function wrapLayout(ViewInterface $view, array $config = array(), array $data = array())
     {
-        $layout = $this->app['view']($template, $data);
+        if (!isset($config['template'])) {
+            $config['template'] = 'default';
+        }
 
-        return $view->wrap($layout);
+        $template = $this->getDefaultTemplate($config['template'], 'layouts');
+
+        $parentView = $this->onLayout($this->app['view']($template, $data), $config, $data);
+
+        return $view->wrap($parentView);
     }
 
     protected function nestView(ViewInterface $view, array $config = array(), array $data = array())
