@@ -15,7 +15,7 @@ class CachedConfigLoader extends ConfigLoader implements WarmableInterface
 {
     public function getConfig()
     {
-        $filenames = (array) $this->options['files'];
+        $files = $this->options['files'];
         $directories = (array) $this->options['base_dirs'];
 
         $cacheClass = implode('', array_map('ucfirst', explode('-', $this->options['cache_class'])));
@@ -25,11 +25,8 @@ class CachedConfigLoader extends ConfigLoader implements WarmableInterface
         if (!$cache->isFresh()) {
             $conf = array();
             foreach ($directories as $directory) {
-                if (!$filenames) {
-                    $filenames = array_map('basename', glob($directory . '/*.yml'));
-                }
-                foreach ($filenames as $filename) {
-                    $conf = array_merge($conf, $this->loadConfig($directory . '/' . $filename));
+                foreach (glob($directory . '/' . $files) as $filename) {
+                    $conf = array_merge($conf, $this->loadConfig($filename));
                 }
             }
 

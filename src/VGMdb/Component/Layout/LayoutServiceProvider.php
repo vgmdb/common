@@ -18,16 +18,25 @@ class LayoutServiceProvider implements ServiceProviderInterface
     public function register(Application $app)
     {
         $app['layout.debug'] = false;
+        $app['layout.cache_dir'] = null;
+        $app['layout.cache_class'] = null;
+        $app['layout.base_dirs'] = array();
+        $app['layout.files'] = null;
         $app['layout.parameters'] = array();
         $app['layout.filters'] = array();
 
         $app['layout.config'] = $app->share(function ($app) {
+            $providers = $app['resource_locator']->getProviders();
+            foreach ($providers as $provider) {
+                $app['layout.base_dirs'] = array_merge($app['layout.base_dirs'], (array) $provider->getPath());
+            }
+
             $options = array(
                 'debug'       => $app['layout.debug'],
                 'cache_dir'   => $app['layout.cache_dir'],
                 'cache_class' => $app['layout.cache_class'],
                 'base_dirs'   => $app['layout.base_dirs'],
-                'files'       => null,
+                'files'       => $app['layout.files'],
                 'parameters'  => $app['layout.parameters']
             );
 
@@ -41,7 +50,7 @@ class LayoutServiceProvider implements ServiceProviderInterface
                 $config = $app['layout.loader']->load($config);
             }
 
-            return $config;
+            return isset($config['layouts']) ? $config['layouts'] : array();
         });
     }
 

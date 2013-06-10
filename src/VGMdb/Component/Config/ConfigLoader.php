@@ -58,16 +58,13 @@ class ConfigLoader extends Loader
 
     public function getConfig()
     {
-        $filenames = (array) $this->options['files'];
+        $files = $this->options['files'];
         $directories = (array) $this->options['base_dirs'];
 
         $conf = array();
         foreach ($directories as $directory) {
-            if (!$filenames) {
-                $filenames = array_map('basename', glob($directory . '/*.yml'));
-            }
-            foreach ($filenames as $filename) {
-                $conf = array_merge($conf, $this->loadConfig($directory . '/' . $filename));
+            foreach (glob($directory . '/' . $files) as $filename) {
+                $conf = array_merge($conf, $this->loadConfig($filename));
             }
         }
 
@@ -95,18 +92,12 @@ class ConfigLoader extends Loader
             throw new \RuntimeException('Unable to read yaml as the Symfony Yaml Component is not installed.');
         }
 
-        if (!file_exists($filename) && !file_exists($filename . '.dist')) {
-            throw new FileNotFoundException($filename . '.dist');
-        }
-
         $configs = array();
 
-        foreach (array($filename . '.dist', $filename) as $file) {
-            if (file_exists($file)) {
-                $configs[$file] = 'yaml' === $format
-                    ? Yaml::parse(file_get_contents($file))
-                    : json_decode(file_get_contents($file), true);
-            }
+        if (file_exists($filename)) {
+            $configs[$filename] = 'yaml' === $format
+                ? Yaml::parse(file_get_contents($filename))
+                : json_decode(file_get_contents($filename), true);
         }
 
         return $configs;
