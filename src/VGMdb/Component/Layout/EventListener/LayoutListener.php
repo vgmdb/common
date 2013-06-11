@@ -65,6 +65,10 @@ class LayoutListener implements EventSubscriberInterface
             $config['layout']['template'] = $layoutName;
         }
 
+        if (!$config['layout']['template']) {
+            return;
+        }
+
         $layoutData = $this->doReplacements($this->app['layout.default_data'], $replacements);
 
         $layout = new Layout($this->app, $config, $layoutData);
