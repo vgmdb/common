@@ -5,6 +5,7 @@ namespace VGMdb\Component\Silex\Tests;
 use VGMdb\Component\Silex\Loader\YamlFileLoader;
 use VGMdb\Component\Silex\Loader\Pass\DatabasePass;
 use VGMdb\Component\Silex\Loader\Pass\QueuePass;
+use VGMdb\Component\Silex\Loader\Pass\RoutingPass;
 use Silex\Application;
 use Symfony\Component\Config\FileLocator;
 
@@ -36,6 +37,7 @@ class YamlFileLoaderTest extends \PHPUnit_Framework_TestCase
         $this->loaderOverride = new YamlFileLoader($this->app, $locatorOverride, $options);
         $this->databasePass = new DatabasePass();
         $this->queuePass = new QueuePass();
+        $this->routingPass = new RoutingPass();
     }
 
     public function testLoadConfig()
@@ -225,5 +227,19 @@ class YamlFileLoaderTest extends \PHPUnit_Framework_TestCase
             )
         );
         $this->assertEquals($queueSources, $queueConfigs);
+    }
+
+    public function testRoutingPass()
+    {
+        $this->loader->addConfigPass($this->routingPass);
+        $this->loader->apply($this->loader->load('hosts.yml'));
+
+        $appHosts = $this->app['app.hosts'];
+        $routingHosts = array(
+            'routing.hosts.web.host' => 'foo.example.com',
+            'routing.hosts.api.host' => 'api.foo.example.com'
+        );
+        $this->assertEquals($appHosts['web.host'], $routingHosts['routing.hosts.web.host']);
+        $this->assertEquals($appHosts['api.host'], $routingHosts['routing.hosts.api.host']);
     }
 }
