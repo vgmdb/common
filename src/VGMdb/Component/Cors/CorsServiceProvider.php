@@ -40,19 +40,22 @@ class CorsServiceProvider implements ServiceProviderInterface
                 $defaults['allow_origin'] = true;
             }
 
-            $config = $app['cors.config'];
-            foreach ($config as $subdomain => $paths) {
-                foreach ($paths as $path => $options) {
-                    $options = array_filter($options);
+            $configs = array();
+            foreach ($app['cors.config'] as $config) {
+                foreach ((array) $config['host'] as $host) {
+                    $path = $config['path'];
+                    $options = array_filter($config);
+                    unset($options['host']);
+                    unset($options['path']);
                     if (isset($options['allow_origin']) && in_array('*', $options['allow_origin'])) {
                         $options['allow_origin'] = true;
                     }
 
-                    $config[$subdomain][$path] = $options;
+                    $configs[$host][$path] = $options;
                 }
             }
 
-            return new CorsListener($app['dispatcher'], $app['request_context'], $config, $defaults);
+            return new CorsListener($app['dispatcher'], $app['request_context'], $configs, $defaults);
         });
     }
 

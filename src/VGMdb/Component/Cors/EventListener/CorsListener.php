@@ -63,13 +63,13 @@ class CorsListener implements EventSubscriberInterface
         }
 
         $currentPath = $request->getPathInfo() ?: '/';
-        $currentSubdomain = $this->context->getSubdomain() ?: 'www';
+        $currentHost = $request->getHost();
 
-        if (!isset($this->paths[$currentSubdomain])) {
+        if (!isset($this->paths[$currentHost])) {
             return;
         }
 
-        foreach ($this->paths[$currentSubdomain] as $path => $options) {
+        foreach ($this->paths[$currentHost] as $path => $options) {
             if (preg_match('#'.$path.'#i', $currentPath)) {
                 $options = array_merge($this->defaults, $options);
                 $options['allow_headers'] = array_map('strtolower', $options['allow_headers']);
