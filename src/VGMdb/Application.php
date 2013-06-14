@@ -249,18 +249,6 @@ class Application extends BaseApplication
     /**
      * {@inheritdoc}
      */
-    public function handle(BaseRequest $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true)
-    {
-        if ($this['debug']) {
-            $catch = false;
-        }
-
-        return parent::handle($request, $type, $catch);;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function offsetSet($id, $value)
     {
         if (isset($this->readonly[$id]) && parent::offsetExists($id)) {

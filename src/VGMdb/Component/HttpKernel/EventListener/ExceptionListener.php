@@ -4,6 +4,7 @@ namespace VGMdb\Component\HttpKernel\EventListener;
 
 use VGMdb\Application;
 use VGMdb\Component\HttpKernel\Debug\ExceptionHandler;
+use VGMdb\Component\HttpKernel\Debug\ApiExceptionHandler;
 use VGMdb\Component\HttpFoundation\Response;
 use VGMdb\Component\HttpFoundation\JsonResponse;
 use VGMdb\Component\HttpFoundation\XmlResponse;
@@ -52,10 +53,14 @@ class ExceptionListener implements EventSubscriberInterface
         switch ($format = $event->getRequest()->getRequestFormat()) {
             case 'json':
             case 'js':
-                $response = new JsonResponse($this->getResponseData($code, $title, $exception), $code, $headers);
+                $handler = new ApiExceptionHandler($this->debug);
+                $data = $handler->createResponse($event->getException());
+                $response = new JsonResponse($data, $code, $headers);
                 break;
             case 'xml':
-                $response = new XmlResponse($this->getResponseData($code, $title, $exception), $code, $headers);
+                $handler = new ApiExceptionHandler($this->debug);
+                $data = $handler->createResponse($event->getException());
+                $response = new XmlResponse($data, $code, $headers);
                 break;
             case 'gif':
             case 'png':
@@ -78,20 +83,6 @@ class ExceptionListener implements EventSubscriberInterface
         }
 
         $event->setResponse($response);
-    }
-
-    protected function getResponseData($code, $title, \Exception $exception)
-    {
-        $data = array(
-            'error' => $code,
-            'message' => $title
-        );
-
-        if ($this->debug) {
-            $data['exception'] = $exception->getMessage();
-        }
-
-        return $data;
     }
 
     /**
