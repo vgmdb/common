@@ -7,6 +7,7 @@ use VGMdb\Component\Security\EventListener\XssProtectionListener;
 use VGMdb\Component\Security\EventListener\TransportSecurityListener;
 use VGMdb\Component\Security\Http\Authentication\AuthenticationSuccessHandler;
 use VGMdb\Component\Security\Http\Authentication\AuthenticationFailureHandler;
+use VGMdb\Component\Security\Core\User\StubUserProvider;
 use VGMdb\Component\Routing\Generator\LazyUrlGenerator;
 use Silex\Application;
 use Silex\LazyUrlMatcher;
@@ -30,6 +31,10 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
         parent::register($app);
 
         $that = $this;
+
+        $app['user_provider'] = $app->share(function ($app) {
+            return new StubUserProvider();
+        });
 
         $app['security.firewall'] = $app->share(function ($app) {
             foreach ($app['security.firewalls'] as $name => $firewall) {
