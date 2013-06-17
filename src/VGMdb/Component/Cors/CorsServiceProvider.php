@@ -42,6 +42,9 @@ class CorsServiceProvider implements ServiceProviderInterface
 
             $configs = array();
             foreach ($app['cors.config'] as $config) {
+                if (!isset($config['host'])) {
+                    continue;
+                }
                 foreach ((array) $config['host'] as $host) {
                     $path = $config['path'];
                     $options = array_filter($config);
