@@ -23,8 +23,6 @@ class YamlFileLoader extends BaseYamlFileLoader
      * @return RouteCollection A RouteCollection instance
      *
      * @throws \InvalidArgumentException When route can't be parsed
-     *
-     * @api
      */
     public function load($files, $type = null)
     {
@@ -39,5 +37,19 @@ class YamlFileLoader extends BaseYamlFileLoader
         }
 
         return $collection;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function parseRoute(RouteCollection $collection, $name, array $config, $path)
+    {
+        if (isset($config['requirements']) && isset($config['requirements']['_method'])) {
+            $config['requirements']['_method'] .= '|OPTIONS';
+        } else {
+            $config['requirements']['_method'] = 'GET|POST|OPTIONS';
+        }
+
+        parent::parseRoute($collection, $name, $config, $path);
     }
 }

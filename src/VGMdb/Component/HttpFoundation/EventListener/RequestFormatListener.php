@@ -94,11 +94,15 @@ class RequestFormatListener implements EventSubscriberInterface
     {
         $request = $event->getRequest();
         $result = $event->getControllerResult();
+        $statusCode = 200;
+        $headers = array();
 
         if ($result instanceof Response) {
             if (!$this->app['accept.format.override']) {
                 return $event->setResponse($result);
             } else {
+                $statusCode = $result->getStatusCode();
+                $headers = $result->headers;
                 $result = $result->getContent();
             }
         }
@@ -107,14 +111,14 @@ class RequestFormatListener implements EventSubscriberInterface
 
         switch ($format = $request->getRequestFormat()) {
             case 'html':
-                $response = new Response($result);
+                $response = new Response($result, $statusCode, $headers);
                 break;
             case 'json':
             case 'js':
-                $response = new JsonResponse($result);
+                $response = new JsonResponse($result, $statusCode, $headers);
                 break;
             case 'xml':
-                $response = new XmlResponse($result);
+                $response = new XmlResponse($result, $statusCode, $headers);
                 break;
             case 'qrcode':
                 $response = new QrCodeResponse();

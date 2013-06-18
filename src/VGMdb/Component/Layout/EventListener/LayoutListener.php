@@ -41,7 +41,8 @@ class LayoutListener implements EventSubscriberInterface
         }
 
         $route = $event->getRequest()->attributes->get('_route');
-        if (false !== $pos = strpos($route, TranslationRouteLoader::ROUTING_PREFIX)) {
+        if (class_exists('VGMdb\\Component\\Routing\\Translation\\TranslationRouteLoader')
+            && false !== $pos = strpos($route, TranslationRouteLoader::ROUTING_PREFIX)) {
             $route = substr($route, $pos + strlen(TranslationRouteLoader::ROUTING_PREFIX));
         }
 

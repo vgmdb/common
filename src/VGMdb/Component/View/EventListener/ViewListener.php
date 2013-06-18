@@ -47,7 +47,8 @@ class ViewListener implements EventSubscriberInterface
                 $route = $event->getRequest()->attributes->get('_route');
 
                 // remove the locale prefix from the route name, if applicable
-                if (false !== $pos = strpos($route, TranslationRouteLoader::ROUTING_PREFIX)) {
+                if (class_exists('VGMdb\\Component\\Routing\\Translation\\TranslationRouteLoader')
+                    && false !== $pos = strpos($route, TranslationRouteLoader::ROUTING_PREFIX)) {
                     $route = substr($route, $pos + strlen(TranslationRouteLoader::ROUTING_PREFIX));
                 }
 

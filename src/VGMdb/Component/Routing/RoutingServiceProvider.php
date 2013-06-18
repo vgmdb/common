@@ -5,6 +5,7 @@ namespace VGMdb\Component\Routing;
 use VGMdb\Component\Silex\AbstractResourceProvider;
 use VGMdb\Component\Routing\Loader\YamlFileLoader;
 use VGMdb\Component\Routing\Loader\ClosureLoaderResolver;
+use VGMdb\Component\Routing\Loader\AllowedMethodsLoader;
 use VGMdb\Component\Routing\Translation\TranslationRouter;
 use VGMdb\Component\Routing\Translation\RouteExclusionStrategy;
 use VGMdb\Component\Routing\Translation\PathGenerationStrategy;
@@ -12,6 +13,7 @@ use VGMdb\Component\Routing\Translation\LocaleResolver;
 use VGMdb\Component\Routing\Translation\TranslationRouteLoader;
 use VGMdb\Component\Routing\Translation\Extractor\YamlRouteExtractor;
 use VGMdb\Component\Routing\EventListener\RouteAttributeListener;
+use VGMdb\Component\Routing\EventListener\AllowedMethodsListener;
 use VGMdb\Component\Config\FileLocator;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -32,6 +34,7 @@ class RoutingServiceProvider extends AbstractResourceProvider implements Service
         $app['routing.matcher_proxy_class'] = 'VGMdb\\Component\\Routing\\Matcher\\RedirectableProxyUrlMatcher';
         $app['routing.matcher_cache_class'] = 'ProjectUrlMatcher';
         $app['routing.generator_cache_class'] = 'ProjectUrlGenerator';
+        $app['routing.methods_cache_class'] = 'ProjectUrlMethods';
         $app['routing.parameters'] = array();
         $app['routing.translation.strategy'] = 'prefix_except_default';
         $app['routing.translation.domain'] = 'routes';
@@ -133,10 +136,21 @@ class RoutingServiceProvider extends AbstractResourceProvider implements Service
         $app['routing.attribute_listener'] = $app->share(function ($app) {
             return new RouteAttributeListener($app['request_context'], $app['logger']);
         });
+
+        $app['routing.methods_loader'] = $app->share(function ($app) {
+            $cacheClass = implode('', array_map('ucfirst', explode('-', $app['routing.methods_cache_class'])));
+
+            return new AllowedMethodsLoader($app['router'], $app['routing.cache_dir'], $cacheClass, $app['debug']);
+        });
+
+        $app['routing.methods_listener'] = $app->share(function ($app) {
+            return new AllowedMethodsListener($app['routing.methods_loader']);
+        });
     }
 
     public function boot(Application $app)
     {
         $app['dispatcher']->addSubscriber($app['routing.attribute_listener']);
+        $app['dispatcher']->addSubscriber($app['routing.methods_listener']);
     }
 }
