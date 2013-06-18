@@ -4,6 +4,7 @@ namespace VGMdb\Component\User\Util;
 
 use VGMdb\Component\User\Model\UserManagerInterface;
 use VGMdb\Component\User\Model\UserInterface;
+use VGMdb\Component\User\Model\AbstractAuthProvider;
 
 /**
  * Executes some manipulations on the users
@@ -211,6 +212,10 @@ class UserManipulator
     {
         $user = $this->checkUser($user);
 
+        if (!is_numeric($provider)) {
+            $provider = AbstractAuthProvider::getProviderFromName($provider);
+        }
+
         if ($user->hasAuthProvider($provider, $providerId)) {
             return false;
         }
@@ -233,6 +238,10 @@ class UserManipulator
     public function removeAuthProvider($user, $provider, $providerId = null)
     {
         $user = $this->checkUser($user);
+
+        if (!is_numeric($provider)) {
+            $provider = AbstractAuthProvider::getProviderFromName($provider);
+        }
 
         if (false === $authProvider = $user->hasAuthProvider($provider, $providerId)) {
             return false;

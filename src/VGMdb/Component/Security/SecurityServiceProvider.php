@@ -32,9 +32,11 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
 
         $that = $this;
 
-        $app['user_provider'] = $app->share(function ($app) {
-            return new StubUserProvider();
-        });
+        if (!isset($app['user_provider'])) {
+            $app['user_provider'] = $app->share(function ($app) {
+                return new StubUserProvider();
+            });
+        }
 
         $app['security.firewall'] = $app->share(function ($app) {
             foreach ($app['security.firewalls'] as $name => $firewall) {

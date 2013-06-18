@@ -2,6 +2,7 @@
 
 namespace VGMdb\Component\Security\Core\Authentication\Provider;
 
+use VGMdb\Component\User\Provider\UserProvider;
 use VGMdb\Component\Security\Core\Authentication\Token\OpauthToken;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
@@ -33,6 +34,10 @@ class OpauthAuthenticationProvider implements AuthenticationProviderInterface
     public function authenticate(TokenInterface $token)
     {
         if (!$this->supports($token)) {
+            return null;
+        }
+
+        if (!$this->userProvider instanceof UserProvider) {
             return null;
         }
 
