@@ -65,33 +65,34 @@ class CorsListener implements EventSubscriberInterface
         $currentPath = $request->getPathInfo() ?: '/';
         $currentHost = $request->getHost();
 
-        if (!isset($this->paths[$currentHost])) {
-            return;
-        }
+        foreach ($this->paths as $host => $paths) {
+            if (substr($currentHost, -strlen($host)) !== $host) {
+                continue;
+            }
+            foreach ($paths as $path => $options) {
+                if (preg_match('#'.$path.'#i', $currentPath)) {
+                    $options = array_merge($this->defaults, $options);
+                    $options['allow_headers'] = array_map('strtolower', $options['allow_headers']);
 
-        foreach ($this->paths[$currentHost] as $path => $options) {
-            if (preg_match('#'.$path.'#i', $currentPath)) {
-                $options = array_merge($this->defaults, $options);
-                $options['allow_headers'] = array_map('strtolower', $options['allow_headers']);
+                    // perform preflight checks
+                    if ('OPTIONS' === $request->getMethod()) {
+                        $event->setResponse($this->getPreflightResponse($request, $options));
 
-                // perform preflight checks
-                if ('OPTIONS' === $request->getMethod()) {
-                    $event->setResponse($this->getPreflightResponse($request, $options));
+                        return;
+                    }
+
+                    if (!$this->checkOrigin($request, $options)) {
+                        $response = new Response('', 403, array('Access-Control-Allow-Origin' => 'null'));
+                        $event->setResponse($response);
+
+                        return;
+                    }
+
+                    $this->dispatcher->addListener(KernelEvents::RESPONSE, array($this, 'onKernelResponse'), -32);
+                    $this->options = $options;
 
                     return;
                 }
-
-                if (!$this->checkOrigin($request, $options)) {
-                    $response = new Response('', 403, array('Access-Control-Allow-Origin' => 'null'));
-                    $event->setResponse($response);
-
-                    return;
-                }
-
-                $this->dispatcher->addListener(KernelEvents::RESPONSE, array($this, 'onKernelResponse'), -32);
-                $this->options = $options;
-
-                return;
             }
         }
     }
