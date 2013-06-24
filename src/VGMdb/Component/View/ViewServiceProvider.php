@@ -25,12 +25,18 @@ class ViewServiceProvider implements ServiceProviderInterface
 
             $locale = $app['locale'] ? strtoupper($app['locale']) : strtoupper($app['locale_fallback']);
 
-            AbstractView::share(array(
+            $globals = array(
                 $locale  => true,
                 'DEBUG'  => $app['debug'],
-                'YEAR'   => $app['locale.formatter.year']->format(new \DateTime()),
-                'LOCALE' => $app['request_context']->getLocale()
-            ));
+                'LOCALE' => $app['request_context']->getLocale(),
+                'YEAR'   => date('Y')
+            );
+
+            if (isset($app['locale.formatter.year'])) {
+                $globals['YEAR'] = $app['locale.formatter.year']->format(new \DateTime());
+            }
+
+            AbstractView::share($globals);
 
             return $view_factory;
         });
