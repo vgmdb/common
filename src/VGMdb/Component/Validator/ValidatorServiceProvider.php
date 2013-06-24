@@ -2,9 +2,14 @@
 
 namespace VGMdb\Component\Validator;
 
+use VGMdb\Component\Validator\Mapping\Cache\FilesystemCache;
 use Silex\Application;
 use Silex\Provider\ValidatorServiceProvider as BaseValidatorServiceProvider;
-use Symfony\Component\Validator\Validator;
+use Symfony\Component\Validator\Mapping\ClassMetadataFactory;
+use Symfony\Component\Validator\Mapping\Loader\LoaderChain;
+use Symfony\Component\Validator\Mapping\Loader\StaticMethodLoader;
+use Symfony\Component\Validator\Mapping\Loader\YamlFilesLoader;
+use Doctrine\Common\Cache\FilesystemCache as BaseFilesystemCache;
 
 /**
  * Symfony Validator component Provider.
@@ -17,19 +22,36 @@ class ValidatorServiceProvider extends BaseValidatorServiceProvider
     {
         parent::register($app);
 
-        $app['validator'] = $app->share(function ($app) {
-            if (isset($app['translator'])) {
-                $r = new \ReflectionClass('Symfony\\Component\\Validator\\Validator');
-                $app['translator']->addResource('xliff', dirname($r->getFilename()).'/Resources/translations/validators.'.$app['locale'].'.xlf', $app['locale'], 'validators');
+        $app['validator.mapping.class_metadata_factory'] = $app->share(function ($app) {
+            return new ClassMetadataFactory(
+                $app['validator.mapping.loader.loader_chain'],
+                $app['validator.mapping.cache.filesystem']
+            );
+        });
+
+        $app['validator.mapping.loader.loader_chain'] = $app->share(function ($app) {
+            return new LoaderChain(array(
+                new StaticMethodLoader(),
+                new YamlFilesLoader($app['validator.mapping.loader.files'])
+            ));
+        });
+
+        $app['validator.mapping.loader.files'] = $app->share(function ($app) {
+            $directories = array($app['validator.base_dir']);
+            foreach ($app['resource_locator']->getProviders() as $provider) {
+                $directories[] = $provider->getPath() . '/Resources/config/validation';
             }
 
-            // Compatible with Symfony 2.2.x
-            return new Validator(
-                $app['validator.mapping.class_metadata_factory'],
-                $app['validator.validator_factory'],
-                $app['translator'],
-                'validators'
-            );
+            $files = array();
+            foreach ($directories as $directory) {
+                $files = array_merge($files, (array) glob($directory . '/*.yml'));
+            }
+
+            return $files;
+        });
+
+        $app['validator.mapping.cache.filesystem'] = $app->share(function ($app) {
+            return new FilesystemCache(new BaseFilesystemCache($app['validator.cache_dir']));
         });
     }
 }
