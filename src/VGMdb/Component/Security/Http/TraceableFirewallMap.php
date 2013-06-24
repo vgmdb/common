@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\Security;
+namespace VGMdb\Component\Security\Http;
 
 use Symfony\Component\HttpFoundation\RequestMatcherInterface;
 use Symfony\Component\HttpFoundation\Request;

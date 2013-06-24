@@ -1,9 +1,9 @@
 <?php
 
-namespace VGMdb\Component\Security\Core\Authentication\Provider;
+namespace VGMdb\Component\Opauth\Security\Core\Authentication\Provider;
 
+use VGMdb\Component\Opauth\Security\Core\Authentication\Token\OpauthToken;
 use VGMdb\Component\User\Provider\UserProvider;
-use VGMdb\Component\Security\Core\Authentication\Token\OpauthToken;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;

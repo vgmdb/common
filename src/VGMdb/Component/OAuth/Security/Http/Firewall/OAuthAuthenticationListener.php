@@ -1,9 +1,9 @@
 <?php
 
-namespace VGMdb\Component\Security\Http\Firewall;
+namespace VGMdb\Component\OAuth\Security\Http\Firewall;
 
+use VGMdb\Component\OAuth\Security\Core\Authentication\Token\OAuthToken;
 use VGMdb\Component\User\Util\UserManipulator;
-use VGMdb\Component\Security\Core\Authentication\Token\OpauthToken;
 use Symfony\Component\Form\Extension\Csrf\CsrfProvider\CsrfProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
@@ -19,15 +19,17 @@ use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
+use OAuth\Common\Service\ServiceInterface as OAuthServiceInterface;
+use OAuth\OAuth1\Service\ServiceInterface as OAuth1ServiceInterface;
 
 /**
  * Authentication listener handling OAuth Authentication responses.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class OpauthAuthenticationListener extends AbstractAuthenticationListener
+class OAuthAuthenticationListener extends AbstractAuthenticationListener
 {
-    private $oauthProvider;
+    private $oauthService;
     private $csrfProvider;
     private $trustResolver;
     private $userManipulator;
@@ -37,14 +39,14 @@ class OpauthAuthenticationListener extends AbstractAuthenticationListener
     /**
      * {@inheritdoc}
      */
-    public function __construct(SecurityContextInterface $securityContext, AuthenticationManagerInterface $authenticationManager, SessionAuthenticationStrategyInterface $sessionStrategy, HttpUtils $httpUtils, $providerKey, \Opauth $oauthProvider, AuthenticationTrustResolverInterface $trustResolver, UserManipulator $userManipulator, AuthenticationSuccessHandlerInterface $successHandler = null, AuthenticationFailureHandlerInterface $failureHandler = null, array $options = array(), LoggerInterface $logger = null, EventDispatcherInterface $dispatcher = null, CsrfProviderInterface $csrfProvider = null)
+    public function __construct(SecurityContextInterface $securityContext, AuthenticationManagerInterface $authenticationManager, SessionAuthenticationStrategyInterface $sessionStrategy, HttpUtils $httpUtils, $providerKey, OAuthServiceInterface $oauthService, AuthenticationTrustResolverInterface $trustResolver, UserManipulator $userManipulator, AuthenticationSuccessHandlerInterface $successHandler = null, AuthenticationFailureHandlerInterface $failureHandler = null, array $options = array(), LoggerInterface $logger = null, EventDispatcherInterface $dispatcher = null, CsrfProviderInterface $csrfProvider = null)
     {
         parent::__construct($securityContext, $authenticationManager, $sessionStrategy, $httpUtils, $providerKey, $successHandler, $failureHandler, array_merge(array(
             'csrf_parameter' => '_csrf_token',
             'intention'      => 'oauth',
             'post_only'      => false,
         ), $options), $logger, $dispatcher);
-        $this->oauthProvider   = $oauthProvider;
+        $this->oauthService    = $oauthService;
         $this->csrfProvider    = $csrfProvider;
         $this->trustResolver   = $trustResolver;
         $this->userManipulator = $userManipulator;
@@ -72,8 +74,6 @@ class OpauthAuthenticationListener extends AbstractAuthenticationListener
      */
     protected function attemptAuthentication(Request $request)
     {
-        $opauth = $this->oauthProvider;
-
         // redirect to auth provider
         if ($this->httpUtils->checkRequestPath($request, $this->options['login_path'])) {
             if ($this->options['post_only'] && !$request->isMethod('post')) {
@@ -92,61 +92,38 @@ class OpauthAuthenticationListener extends AbstractAuthenticationListener
                 }
             }
 
-            return $opauth->run();
-        }
-
-        $response = null;
-        switch($opauth->env['callback_transport']) {
-            case 'session':
-                $response = $_SESSION['opauth'];
-                unset($_SESSION['opauth']);
-                break;
-            case 'post':
-            case 'get':
-                $response = unserialize(base64_decode($request->request->get('opauth')));
-                break;
-            default:
-                throw new \LogicException(
-                    sprintf('The "%s" callback transport is not supported.', $opauth->env['callback_transport'])
+            $authorizationParameters = array();
+            if ($this->oauthService instanceof OAuth1ServiceInterface) {
+                $token = $this->oauthService->requestRequestToken();
+                $authorizationParameters = array(
+                    'oauth_token' => $token->getRequestToken()
                 );
+            }
+            $authorizationUri = $this->oauthService->getAuthorizationUri($authorizationParameters);
+
+            return $this->httpUtils->createRedirectResponse($request, $authorizationUri->getAbsoluteUri());
         }
 
-        if (is_null($response) || !is_array($response)) {
-            throw new AuthenticationException('Authentication response is invalid.');
-        }
-        if (array_key_exists('error', $response)) {
-            throw new AuthenticationException(sprintf('Authentication provider error: %s', $response['error']['code']));
-        }
-        if (!isset($response['auth']) || !isset($response['auth']['provider']) || !isset($response['auth']['uid']) || !isset($response['auth']['info'])) {
+        if (false === $userInfo = json_decode($this->oauthService->request($this->options['userinfo']['uri']), true)) {
             throw new AuthenticationException('Authentication data missing.');
         }
-        if (!$opauth->validate(sha1(print_r($response['auth'], true)), $response['timestamp'], $response['signature'], $reason)) {
-            throw new AuthenticationException(sprintf('Authentication signature invalid: %s', $reason));
+
+        $info = array();
+        foreach ($this->options['userinfo']['fields'] as $key => $field) {
+            $info[$key] = isset($userInfo[$field]) ? $userInfo[$field] : null;
         }
 
-        $username = '';
-        if (isset($response['auth']['info']['nickname'])) {
-            $username = $response['auth']['info']['nickname'];
+        if (!$info['name']) {
+            $info['name'] = $info['id'];
         }
-        if (!$username && isset($response['auth']['info']['name'])) {
-            $username = $response['auth']['info']['name'];
-        }
-        if (!$username) {
-            $username = $response['auth']['uid'];
+        if (!$info['email']) {
+            $info['email'] = str_replace(' ', '', $info['name']) . '@' . $this->options['provider'] . '.com';
         }
 
-        $email = '';
-        if (isset($response['auth']['info']['email'])) {
-            $email = $response['auth']['info']['email'];
-        }
-        if (!$email) {
-            $email = str_replace(' ', '', $username) . '@' . strtolower($response['auth']['provider']) . '.com';
-        }
-
-        $authToken = new OpauthToken($this->providerKey);
-        $authToken->setUser($username);
-        $authToken->provider = $response['auth']['provider'];
-        $authToken->providerId = $response['auth']['uid'];
+        $authToken = new OAuthToken($this->providerKey);
+        $authToken->setUser($info['name']);
+        $authToken->provider = $this->options['provider'];
+        $authToken->providerId = $info['id'];
 
         try {
             return $this->authenticationManager->authenticate($authToken);
@@ -155,7 +132,7 @@ class OpauthAuthenticationListener extends AbstractAuthenticationListener
             if ($this->token && !$this->trustResolver->isAnonymous($token)) {
                 $user = $this->token->getUser();
             } else {
-                $user = $this->userManipulator->createOrFindByEmail($username, $email);
+                $user = $this->userManipulator->createOrFindByEmail($info['name'], $info['email']);
             }
 
             $this->userManipulator->addAuthProvider($user, $authToken->provider, $authToken->providerId);

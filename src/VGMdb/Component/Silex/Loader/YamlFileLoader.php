@@ -39,6 +39,9 @@ class YamlFileLoader extends FileLoader
         $configs = $this->process($configs);
         $configs = $this->loadFromExtensions($configs);
 
+        // replace placeholders from extensions
+        $configs = $this->doReplacements($configs, $this->replacements);
+
         return $configs;
     }
 

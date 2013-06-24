@@ -1,9 +1,9 @@
 <?php
 
-namespace VGMdb\Component\OAuthClient;
+namespace VGMdb\Component\Opauth;
 
-use VGMdb\Component\Security\Http\Firewall\OpauthAuthenticationListener;
-use VGMdb\Component\Security\Core\Authentication\Provider\OpauthAuthenticationProvider;
+use VGMdb\Component\Opauth\Security\Http\Firewall\OpauthAuthenticationListener;
+use VGMdb\Component\Opauth\Security\Core\Authentication\Provider\OpauthAuthenticationProvider;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\HttpFoundation\RequestMatcher;
@@ -15,7 +15,7 @@ use Symfony\Component\Security\Http\EntryPoint\FormAuthenticationEntryPoint;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class OAuthClientServiceProvider implements ServiceProviderInterface
+class OpauthServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {

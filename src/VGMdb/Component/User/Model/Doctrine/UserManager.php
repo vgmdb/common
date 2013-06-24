@@ -162,7 +162,11 @@ class UserManager extends AbstractUserManager
     {
         if ($user instanceof Proxy) {
             // Doctrine Proxy class must be initialized, otherwise getId() returns null
-            $user = $this->objectManager->merge($user);
+            try {
+                $user = $this->objectManager->merge($user);
+            } catch (\Exception $e) {
+                return null;
+            }
         }
 
         return $this->userRepository->findOneBy(array('id' => $user->getId()));

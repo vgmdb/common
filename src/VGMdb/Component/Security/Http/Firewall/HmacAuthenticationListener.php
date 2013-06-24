@@ -47,16 +47,16 @@ class HmacAuthenticationListener implements ListenerInterface
     /**
      * Constructor.
      *
-     * @param SecurityContextInterface               $securityContext       A SecurityContext instance
-     * @param AuthenticationManagerInterface         $authenticationManager An AuthenticationManagerInterface instance
-     * @param HttpUtils                              $httpUtils             An HttpUtilsInterface instance
-     * @param string                                 $providerKey
-     * @param OAuth2                                 $oauthService          OAuth2 Server
-     * @param array                                  $options               An array of options
-     * @param SignatureInterface                     $signatureService
-     * @param ClientManagerInterface                 $clientManager
-     * @param LoggerInterface                        $logger                A LoggerInterface instance
-     * @param EventDispatcherInterface               $dispatcher            An EventDispatcherInterface instance
+     * @param SecurityContextInterface       $securityContext       A SecurityContext instance
+     * @param AuthenticationManagerInterface $authenticationManager An AuthenticationManagerInterface instance
+     * @param HttpUtils                      $httpUtils             An HttpUtilsInterface instance
+     * @param string                         $providerKey
+     * @param OAuth2                         $oauthService          OAuth2 Server
+     * @param array                          $options               An array of options
+     * @param SignatureInterface             $signatureService
+     * @param ClientManagerInterface         $clientManager
+     * @param LoggerInterface                $logger                A LoggerInterface instance
+     * @param EventDispatcherInterface       $dispatcher            An EventDispatcherInterface instance
      *
      * @throws \InvalidArgumentException
      */

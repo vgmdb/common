@@ -210,9 +210,9 @@ class UserServiceProvider implements ServiceProviderInterface
                 'urls' => array(
                     'login_check' => $app['security.firewalls'][$app['user.firewall_name']]['form']['check_path'],
                     'login_reset' => $app['security.firewalls'][$app['user.firewall_name']]['form']['reset_path'],
-                    'login_facebook' => $app['security.firewalls'][$app['user.firewall_name']]['opauth.facebook']['login_path'],
-                    'login_twitter' => $app['security.firewalls'][$app['user.firewall_name']]['opauth.twitter']['login_path'],
-                    'login_google' => $app['security.firewalls'][$app['user.firewall_name']]['opauth.google']['login_path']
+                    'login_facebook' => $app['security.firewalls'][$app['user.firewall_name']]['oauth.facebook']['login_path'],
+                    'login_twitter' => $app['security.firewalls'][$app['user.firewall_name']]['oauth.twitter']['login_path'],
+                    'login_google' => $app['security.firewalls'][$app['user.firewall_name']]['oauth.google']['login_path']
                 )
             );
         });

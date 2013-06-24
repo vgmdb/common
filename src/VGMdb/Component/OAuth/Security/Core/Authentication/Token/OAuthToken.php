@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\Security\Core\Authentication\Token;
+namespace VGMdb\Component\OAuth\Security\Core\Authentication\Token;
 
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 
@@ -9,7 +9,7 @@ use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class OpauthToken extends AbstractToken
+class OAuthToken extends AbstractToken
 {
     public $provider;
     public $providerId;
