@@ -19,7 +19,7 @@ class DataCollectorSubscriber implements EventSubscriberInterface
         $object = $event->getObject();
 
         if ($object instanceof TimeDataCollector) {
-            $this->stopwatchEvents = $object->getEvents();
+            $this->stopwatchEvents = (array) $object->getEvents();
         }
     }
 

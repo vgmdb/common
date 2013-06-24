@@ -3,6 +3,7 @@
 namespace VGMdb\Component\Guzzle\DataCollector;
 
 use Guzzle\Log\ArrayLogAdapter;
+use Guzzle\Http\Message\EntityEnclosingRequestInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
@@ -31,7 +32,9 @@ class GuzzleDataCollector extends DataCollector
                              . strtoupper(str_replace('https', 'http', $log['extras']['request']->getScheme()))
                              . '/' . $log['extras']['request']->getProtocolVersion()
             ) + $log['extras']['request']->getHeaders()->toArray();
-            $datum['requestBody'] = (string) $log['extras']['request']->getBody();
+            $datum['requestBody'] = $log['extras']['request'] instanceof EntityEnclosingRequestInterface
+                ? (string) $log['extras']['request']->getBody()
+                : '';
             $datum['response'] = array(
                 'Status' => 'HTTP/1.1 ' . $log['extras']['response']->getStatusCode() . ' '
                             . $log['extras']['response']->getReasonPhrase()

@@ -69,7 +69,7 @@ class DoctrineDataCollector extends DataCollector
 
     public function getQueryCount()
     {
-        return array_sum(array_map('count', $this->data['queries']));
+        return array_sum(array_map('count', (array) $this->data['queries']));
     }
 
     public function getQueries()
@@ -80,7 +80,7 @@ class DoctrineDataCollector extends DataCollector
     public function getTime()
     {
         $time = 0;
-        foreach ($this->data['queries'] as $query) {
+        foreach ((array) $this->data['queries'] as $query) {
             $time += $query['time'];
         }
 

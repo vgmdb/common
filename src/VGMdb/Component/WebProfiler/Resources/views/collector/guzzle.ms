@@ -69,7 +69,10 @@
 
     function prettyPrintJson(elements) {
         for (var i = 0; i < elements.length; ++i) {
-            var body = JSON.parse(elements[i].innerText);
+            var body;
+            if (elements[i].innerText.length) {
+                body = JSON.parse(elements[i].innerText);
+            }
             if (body) {
                 elements[i].innerText = JSON.stringify(body, undefined, 4);
                 elements[i].className = '';
