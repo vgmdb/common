@@ -47,12 +47,13 @@ class LayoutListener implements EventSubscriberInterface
         }
 
         $layoutName = $event->getRequest()->attributes->get('_layout');
+        $layoutData = $event->getRequest()->attributes->get('_layout_data', array());
         $layouts = $this->app['layout.config'];
-        $replacements = array(
+        $replacements = array_merge(array(
             '%locale%' => $this->app['request_context']->getLanguage(),
             '%app%' => $this->app['request_context']->getAppName(),
             '%client%' => $this->app['request_context']->getClient()
-        );
+        ), $this->app['layout.replacements']);
 
         $config = $layoutName && isset($layouts[$layoutName])
             ? $this->doReplacements($layouts[$layoutName], $replacements)
@@ -70,7 +71,8 @@ class LayoutListener implements EventSubscriberInterface
             return;
         }
 
-        $layoutData = $this->doReplacements($this->app['layout.default_data'], $replacements);
+        $layoutData = array_replace_recursive($this->app['layout.default_data'], $layoutData, $this->app['layout.data']);
+        $layoutData = $this->doReplacements($layoutData, $replacements);
 
         $layout = new Layout($this->app, $config, $layoutData);
         $result = $layout->wrap($result);
