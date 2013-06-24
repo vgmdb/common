@@ -79,7 +79,14 @@ class Application extends BaseApplication
 
         // replace the controller resolver
         $this['resolver'] = $this->share(function ($app) {
-            return new ControllerResolver($app, $app['controller_parser'], $app['logger']);
+            $resolver = new ControllerResolver($app, $app['controller_parser'], $app['logger']);
+            $resolver->setEmptyController($app['resolver.empty_controller']);
+
+            return $resolver;
+        });
+
+        $this['resolver.empty_controller'] = $this->protect(function () {
+            return array();
         });
 
         // replace the request context

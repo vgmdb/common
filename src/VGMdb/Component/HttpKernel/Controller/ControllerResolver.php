@@ -16,6 +16,7 @@ class ControllerResolver extends BaseControllerResolver
 {
     protected $parser;
     protected $logger;
+    protected $emptyController;
 
     /**
      * Constructor.
@@ -28,8 +29,19 @@ class ControllerResolver extends BaseControllerResolver
     {
         $this->parser = $parser;
         $this->logger = $logger;
+        $this->emptyController = null;
 
         parent::__construct($app, $logger);
+    }
+
+    /**
+     * Set the controller to be used if none is specified in the route definition.
+     *
+     * @param mixed $controller
+     */
+    public function setEmptyController($controller)
+    {
+        $this->emptyController = $controller;
     }
 
     /**
@@ -38,6 +50,10 @@ class ControllerResolver extends BaseControllerResolver
     public function getController(Request $request)
     {
         if (!$controller = $request->attributes->get('_controller')) {
+            $controller = $this->emptyController;
+        }
+
+        if (!$controller) {
             if (null !== $this->logger) {
                 $this->logger->warn('Unable to look for the controller as the "_controller" parameter is missing');
             }
