@@ -58,8 +58,12 @@ class Layout
         if (!isset($config['template'])) {
             $config['template'] = 'default';
         }
-
         $template = $this->getDefaultTemplate($config['template'], 'layouts');
+
+        if (!isset($config['data'])) {
+            $config['data'] = array();
+        }
+        $data = array_replace_recursive($data, $config['data']);
 
         $parentView = $this->onLayout($this->app['view']($template, $data), $config, $data);
 
@@ -72,6 +76,11 @@ class Layout
             ? $config['template']
             : $this->getDefaultTemplate($config['key']);
 
+        if (!isset($config['data'])) {
+            $config['data'] = array();
+        }
+        $data = array_replace_recursive($data, $config['data']);
+
         $childView = $this->onLayout($this->app['view']($template, $data), $config, $data);
 
         return $view->nest($childView, $config['key']);
@@ -81,6 +90,12 @@ class Layout
     {
         $widgetClass = $config['widget'];
         $widget = new $widgetClass($this->app);
+
+        if (!isset($config['data'])) {
+            $config['data'] = array();
+        }
+        $data = array_replace_recursive($data, $config['data']);
+
         $widget->with($data);
 
         $childView = $this->onLayout($widget, $config, $data);
