@@ -45,13 +45,15 @@ class Application extends BaseApplication
         // we don't pass $values into the parent constructor; we'll handle it ourselves
         parent::__construct();
 
+        self::$isBooting = false;
+
         $app = $this;
 
         $this['name'] = '';
 
         // replace the default exception handler
         $this['exception_handler'] = $this->share(function ($app) {
-            return new ExceptionListener($app['debug']);
+            return new ExceptionListener($app['debug'], $app['logger']);
         });
 
         $app['resource_locator'] = $app->share(function ($app) {
@@ -85,8 +87,8 @@ class Application extends BaseApplication
             return $resolver;
         });
 
-        $this['resolver.empty_controller'] = $this->protect(function () {
-            return array();
+        $this['resolver.empty_controller'] = $this->protect(function (Request $request) {
+            return $request->attributes->all();
         });
 
         // replace the request context

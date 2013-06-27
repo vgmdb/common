@@ -119,7 +119,7 @@ class Layout
 
     protected function getDefaultTemplate($name, $baseDir = 'sites')
     {
-        if ('@' === $name[0] || false !== strpos('/', $name)) {
+        if ('@' === $name[0] || false !== strpos($name, '/')) {
             return $name;
         }
 

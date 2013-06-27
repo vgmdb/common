@@ -19,7 +19,7 @@ class WebProfilerServiceProvider extends AbstractResourceProvider implements Ser
         $app['profiler.class'] = 'Symfony\\Component\\HttpKernel\\Profiler\\Profiler';
         $app['profiler_listener.class'] = 'Symfony\\Component\\HttpKernel\\EventListener\\ProfilerListener';
         $app['profiler_listener.only_exceptions'] = false;
-        $app['profiler_listener.only_master_requests'] = false;
+        $app['profiler_listener.only_master_requests'] = true;
         $app['profiler.request_matcher.class'] = 'Symfony\\Component\\HttpFoundation\\RequestMatcher';
         $app['profiler.request_matcher.path'] = null;
         $app['profiler.request_matcher.host'] = null;
