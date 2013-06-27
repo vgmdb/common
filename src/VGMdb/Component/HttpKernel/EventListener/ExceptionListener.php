@@ -94,7 +94,7 @@ class ExceptionListener implements EventSubscriberInterface
                 }, $code, $headers);
                 break;
             default:
-                if (HttpKernelInterface::MASTER_REQUEST === $event->getRequestType()) {
+                if (!$this->debug && HttpKernelInterface::MASTER_REQUEST === $event->getRequestType()) {
                     $subRequest = $event->getRequest()->duplicate(null, null, array(
                         'exception' => FlattenException::create($event->getException())
                     ), null, null, array(
