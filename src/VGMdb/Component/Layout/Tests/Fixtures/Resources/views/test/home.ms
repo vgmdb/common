@@ -1,0 +1,10 @@
+<html>
+<head>
+<title>{{header.title}}</title>
+</head>
+<body>
+{{{foo}}}
+{{{content}}}
+{{{bar}}}
+</body>
+</html>

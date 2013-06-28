@@ -1,0 +1,28 @@
+layouts:
+    test:
+        layout:
+            template: test/home
+            data:
+                header:
+                    title: Test Title
+            widgets:
+                foo:
+                    widget: VGMdb\Component\Layout\Tests\Fixtures\Widget\FooWidget
+                    data:
+                        foo: bar
+            views:
+                bar:
+                    template: test/bar
+                    data:
+                        bar: baz
+        views:
+            foo:
+                template: test/foo
+                data:
+                    foo: baz
+        widgets:
+            bar:
+                widget: VGMdb\Component\Layout\Tests\Fixtures\Widget\BarWidget
+                data:
+                    bar: foo
+                    no_footer: true
