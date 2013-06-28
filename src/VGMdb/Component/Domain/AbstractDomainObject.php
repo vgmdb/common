@@ -36,6 +36,11 @@ abstract class AbstractDomainObject extends \ArrayObject implements DomainObject
         return $this->entity;
     }
 
+    public function setHandler(ArrayAccessHandlerInterface $handler = null)
+    {
+        $this->handler = $handler;
+    }
+
     public function getHandler()
     {
         return $this->handler;

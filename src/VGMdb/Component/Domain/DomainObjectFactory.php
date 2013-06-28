@@ -18,7 +18,7 @@ class DomainObjectFactory
     protected $dispatcher;
     protected $logger;
 
-    public function __construct(array $config = array(), array $handlers = array(), EventDispatcherInterface $dispatcher, LoggerInterface $logger = null)
+    public function __construct(array $config = array(), $handlers = array(), EventDispatcherInterface $dispatcher, LoggerInterface $logger = null)
     {
         $this->config = array_replace(array(
             'classes' => array(),

@@ -13,14 +13,32 @@ use VGMdb\Component\Propel\Util\PropelInflector;
  */
 class PropelHandler implements ArrayAccessHandlerInterface
 {
+    protected $factory;
+
+    public function __construct(\Closure $factory)
+    {
+        $this->factory = $factory;
+    }
+
     public function save(DomainObjectInterface $object)
     {
-        $object->getEntity()->save();
+        $object->getEntity()->save($this->getConnection());
     }
 
     public function delete(DomainObjectInterface $object)
     {
-        $object->getEntity()->delete();
+        $object->getEntity()->delete($this->getConnection());
+    }
+
+    protected function getConnection()
+    {
+        static $connection;
+
+        if (null === $connection) {
+            $connection = call_user_func($this->factory);
+        }
+
+        return $connection;
     }
 
     public function offsetExists(DomainObjectInterface $object, $offset)

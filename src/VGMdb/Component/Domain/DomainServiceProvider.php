@@ -35,13 +35,27 @@ class DomainServiceProvider implements ServiceProviderInterface
         });
 
         $app['domain.object_handlers'] = $app->share(function ($app) {
-            return array(
-                'propel' => new PropelHandler(),
-                'propel1' => new PropelHandler(),
-                'doctrine' => new DoctrineHandler(function () use ($app) {
+            $handlers = new \Pimple();
+
+            $handlers['propel'] = $handlers->share(function ($app) {
+                return new PropelHandler(function () use ($app) {
+                    return $app['propel.connection']();
+                });
+            });
+
+            $handlers['propel1'] = $handlers->share(function ($app) {
+                return new PropelHandler(function () use ($app) {
+                    return $app['propel1.connection']();
+                });
+            });
+
+            $handlers['doctrine'] = $handlers->share(function ($app) {
+                return new DoctrineHandler(function () use ($app) {
                     return $app['doctrine'];
-                })
-            );
+                });
+            });
+
+            return $handlers;
         });
     }
 
