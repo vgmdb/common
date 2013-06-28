@@ -98,7 +98,8 @@ class ExceptionListener implements EventSubscriberInterface
                     $subRequest = $event->getRequest()->duplicate(null, null, array(
                         'exception' => FlattenException::create($event->getException())
                     ), null, null, array(
-                        'REQUEST_URI' => sprintf('/error/%d', $code)
+                        'REQUEST_URI' => sprintf('/error/%d', $code),
+                        'SERVER_NAME' => $event->getRequest()->getHost()
                     ));
                     $subRequest->setMethod('GET');
 
