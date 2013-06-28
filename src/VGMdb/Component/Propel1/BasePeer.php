@@ -85,8 +85,14 @@ class BasePeer
      */
     public static function doDelete(\Criteria $criteria, \PropelPDO $con)
     {
-        $db = \Propel::getDB($criteria->getDbName());
+        if ($con === null) {
+            $con = \Propel::getConnection($criteria->getDbName(), \Propel::CONNECTION_READ);
+        }
+
+        $dbName = $con->getAttribute(\PropelPDO::PROPEL_ATTR_CONNECTION_NAME);
         $dbMap = \Propel::getDatabaseMap($criteria->getDbName());
+        $db = \Propel::getDB($dbName);
+        $criteria->setDbName($dbName);
 
         //join are not supported with DELETE statement
         if (count($criteria->getJoins())) {
@@ -196,8 +202,17 @@ class BasePeer
     {
         // the primary key
         $id = null;
+        $baseCriteria = clone $criteria;
 
-        $db = \Propel::getDB($criteria->getDbName());
+        if ($con === null) {
+            $con = \Propel::getConnection($criteria->getDbName(), \Propel::CONNECTION_READ);
+        }
+
+        $dbName = $con->getAttribute(\PropelPDO::PROPEL_ATTR_CONNECTION_NAME);
+        $dbMap = \Propel::getDatabaseMap($criteria->getDbName());
+        $db = \Propel::getDB($dbName);
+        $criteria->setDbName($dbName);
+        $stmt = null;
 
         // Get the table name and method for determining the primary
         // key value.
@@ -208,13 +223,12 @@ class BasePeer
             throw new \PropelException("Database insert attempted without anything specified to insert");
         }
 
-        $dbMap = \Propel::getDatabaseMap($criteria->getDbName());
         $tableMap = $dbMap->getTable($tableName);
         $keyInfo = $tableMap->getPrimaryKeyMethodInfo();
         $useIdGen = $tableMap->isUseIdGenerator();
         //$keyGen = $con->getIdGenerator();
 
-        $pk = self::getPrimaryKey($criteria);
+        $pk = self::getPrimaryKey($baseCriteria);
 
         // only get a new key value if you need to
         // the reason is that a primary key might be defined
@@ -306,8 +320,14 @@ class BasePeer
      */
     public static function doUpdate(\Criteria $selectCriteria, \Criteria $updateValues, \PropelPDO $con)
     {
-        $db = \Propel::getDB($selectCriteria->getDbName());
+        if ($con === null) {
+            $con = \Propel::getConnection($selectCriteria->getDbName(), \Propel::CONNECTION_READ);
+        }
+
+        $dbName = $con->getAttribute(\PropelPDO::PROPEL_ATTR_CONNECTION_NAME);
         $dbMap = \Propel::getDatabaseMap($selectCriteria->getDbName());
+        $db = \Propel::getDB($dbName);
+        $selectCriteria->setDbName($dbName);
 
         // Get list of required tables, containing all columns
         $tablesColumns = $selectCriteria->getTablesColumns();
@@ -447,10 +467,6 @@ class BasePeer
         $db = \Propel::getDB($dbName);
         $criteria->setDbName($dbName);
         $stmt = null;
-
-        if ($con === null) {
-            $con = \Propel::getConnection($criteria->getDbName(), \Propel::CONNECTION_READ);
-        }
 
         try {
 
