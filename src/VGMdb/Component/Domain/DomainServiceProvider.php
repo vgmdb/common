@@ -37,19 +37,19 @@ class DomainServiceProvider implements ServiceProviderInterface
         $app['domain.object_handlers'] = $app->share(function ($app) {
             $handlers = new \Pimple();
 
-            $handlers['propel'] = $handlers->share(function ($app) {
+            $handlers['propel'] = $handlers->share(function ($handlers) use ($app) {
                 return new PropelHandler(function () use ($app) {
                     return $app['propel.connection']();
                 });
             });
 
-            $handlers['propel1'] = $handlers->share(function ($app) {
+            $handlers['propel1'] = $handlers->share(function ($handlers) use ($app) {
                 return new PropelHandler(function () use ($app) {
                     return $app['propel1.connection']();
                 });
             });
 
-            $handlers['doctrine'] = $handlers->share(function ($app) {
+            $handlers['doctrine'] = $handlers->share(function ($handlers) use ($app) {
                 return new DoctrineHandler(function () use ($app) {
                     return $app['doctrine'];
                 });
