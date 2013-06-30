@@ -3,6 +3,8 @@ The VGMdb Framework
 
 Extends the [Silex] [1] microframework to do the thing with the stuff.
 
+[![Build Status](https://travis-ci.org/vgmdb/common.png?branch=master)](https://travis-ci.org/vgmdb/common) [![Coverage Status](https://coveralls.io/repos/vgmdb/common/badge.png?branch=master)](https://coveralls.io/r/vgmdb/common?branch=master)
+
 ## Installation
 
 Create a `composer.json` file and use [Composer] [2] to install it:
