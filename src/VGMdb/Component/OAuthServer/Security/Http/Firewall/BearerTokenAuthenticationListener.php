@@ -1,8 +1,8 @@
 <?php
 
-namespace VGMdb\Component\Security\Http\Firewall;
+namespace VGMdb\Component\OAuthServer\Security\Http\Firewall;
 
-use VGMdb\Component\Security\Core\Authentication\Token\OAuthToken;
+use VGMdb\Component\OAuthServer\Security\Core\Authentication\Token\OAuthToken;
 use VGMdb\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,12 +20,12 @@ use OAuth2\OAuth2;
 use OAuth2\OAuth2ServerException;
 
 /**
- * Stateless authentication listener handling OAuth Authentication requests.
+ * Stateless authentication listener handling Bearer token requests.
  *
  * @author Arnaud Le Blanc <arnaud.lb@gmail.com>
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class OAuthAuthenticationListener implements ListenerInterface
+class BearerTokenAuthenticationListener implements ListenerInterface
 {
     private $options;
     private $logger;

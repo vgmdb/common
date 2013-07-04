@@ -9,9 +9,9 @@ use VGMdb\Component\OAuthServer\Model\Entity\ClientManager;
 use VGMdb\Component\OAuthServer\Model\Entity\AccessTokenManager;
 use VGMdb\Component\OAuthServer\Model\Entity\RefreshTokenManager;
 use VGMdb\Component\OAuthServer\Model\Entity\AuthCodeManager;
-use VGMdb\Component\Security\Http\Firewall\HmacAuthenticationListener;
-use VGMdb\Component\Security\Http\Firewall\OAuthAuthenticationListener;
-use VGMdb\Component\Security\Core\Authentication\Provider\OAuthAuthenticationProvider;
+use VGMdb\Component\OAuthServer\Security\Http\Firewall\BearerTokenAuthenticationListener;
+use VGMdb\Component\OAuthServer\Security\Http\Firewall\HmacAuthenticationListener;
+use VGMdb\Component\OAuthServer\Security\Core\Authentication\Provider\OAuthAuthenticationProvider;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\HttpFoundation\RequestMatcher;
@@ -83,18 +83,18 @@ class OAuthServerServiceProvider implements ServiceProviderInterface
         });
 
         // generate the authentication factory
-        $app['security.authentication_listener.factory.oauth'] = $app->protect(function($name, $options) use ($app) {
-            if (!isset($app['security.authentication_listener.'.$name.'.oauth'])) {
-                $app['security.authentication_listener.'.$name.'.oauth'] = $app['security.authentication_listener.oauth._proto']($name, $options);
+        $app['security.authentication_listener.factory.bearer'] = $app->protect(function($name, $options) use ($app) {
+            if (!isset($app['security.authentication_listener.'.$name.'.bearer'])) {
+                $app['security.authentication_listener.'.$name.'.bearer'] = $app['security.authentication_listener.bearer._proto']($name, $options);
             }
 
-            if (!isset($app['security.authentication_provider.'.$name.'.oauth'])) {
-                $app['security.authentication_provider.'.$name.'.oauth'] = $app['security.authentication_provider.oauth._proto']($name);
+            if (!isset($app['security.authentication_provider.'.$name.'.bearer'])) {
+                $app['security.authentication_provider.'.$name.'.bearer'] = $app['security.authentication_provider.oauth_server._proto']($name);
             }
 
             return array(
-                'security.authentication_provider.'.$name.'.oauth',
-                'security.authentication_listener.'.$name.'.oauth',
+                'security.authentication_provider.'.$name.'.bearer',
+                'security.authentication_listener.'.$name.'.bearer',
                 null,
                 'pre_auth'
             );
@@ -108,7 +108,7 @@ class OAuthServerServiceProvider implements ServiceProviderInterface
 
             // note: hmac uses the oauth provider
             if (!isset($app['security.authentication_provider.'.$name.'.hmac'])) {
-                $app['security.authentication_provider.'.$name.'.hmac'] = $app['security.authentication_provider.oauth._proto']($name);
+                $app['security.authentication_provider.'.$name.'.hmac'] = $app['security.authentication_provider.oauth_server._proto']($name);
             }
 
             return array(
@@ -119,9 +119,9 @@ class OAuthServerServiceProvider implements ServiceProviderInterface
             );
         });
 
-        $app['security.authentication_listener.oauth._proto'] = $app->protect(function ($providerKey, $options) use ($app) {
+        $app['security.authentication_listener.bearer._proto'] = $app->protect(function ($providerKey, $options) use ($app) {
             return $app->share(function () use ($app, $providerKey, $options) {
-                return new OAuthAuthenticationListener(
+                return new BearerTokenAuthenticationListener(
                     $app['security'],
                     $app['security.authentication_manager'],
                     $app['security.http_utils'],
@@ -151,7 +151,7 @@ class OAuthServerServiceProvider implements ServiceProviderInterface
             });
         });
 
-        $app['security.authentication_provider.oauth._proto'] = $app->protect(function ($name) use ($app) {
+        $app['security.authentication_provider.oauth_server._proto'] = $app->protect(function ($name) use ($app) {
             return $app->share(function () use ($app, $name) {
                 return new OAuthAuthenticationProvider(
                     $app['user_provider'],

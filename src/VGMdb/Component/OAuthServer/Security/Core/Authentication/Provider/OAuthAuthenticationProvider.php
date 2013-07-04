@@ -1,8 +1,8 @@
 <?php
 
-namespace VGMdb\Component\Security\Core\Authentication\Provider;
+namespace VGMdb\Component\OAuthServer\Security\Core\Authentication\Provider;
 
-use VGMdb\Component\Security\Core\Authentication\Token\OAuthToken;
+use VGMdb\Component\OAuthServer\Security\Core\Authentication\Token\OAuthToken;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;

@@ -1,11 +1,11 @@
 <?php
 
-namespace VGMdb\Component\Security\Http\Firewall;
+namespace VGMdb\Component\OAuthServer\Security\Http\Firewall;
 
-use VGMdb\Component\Security\Core\Authentication\Token\OAuthToken;
+use VGMdb\Component\OAuthServer\Security\Core\Authentication\Token\OAuthToken;
+use VGMdb\Component\OAuthServer\Model\ClientManagerInterface;
 use VGMdb\Component\Guzzle\Plugin\Signature\SignatureInterface;
 use VGMdb\Component\HttpFoundation\JsonResponse;
-use VGMdb\Component\OAuthServer\Model\ClientManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;

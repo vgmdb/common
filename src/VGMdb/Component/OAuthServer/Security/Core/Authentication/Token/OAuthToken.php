@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\Security\Core\Authentication\Token;
+namespace VGMdb\Component\OAuthServer\Security\Core\Authentication\Token;
 
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 
