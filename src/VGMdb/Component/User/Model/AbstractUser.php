@@ -142,7 +142,7 @@ abstract class AbstractUser implements UserInterface
             return $this;
         }
 
-        if (!in_array($role, $this->roles, true)) {
+        if (!in_array($role, $this->getRoles(), true)) {
             $this->roles[] = $role;
         }
 

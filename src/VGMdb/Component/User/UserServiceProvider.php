@@ -2,6 +2,7 @@
 
 namespace VGMdb\Component\User;
 
+use VGMdb\Component\Silex\AbstractResourceProvider;
 use VGMdb\Component\User\Form\Type\RegistrationFormType;
 use VGMdb\Component\User\Form\Flow\RegistrationFormFlow;
 use VGMdb\Component\User\Form\Type\ResetPasswordFormType;
@@ -36,7 +37,7 @@ use Symfony\Component\Security\Http\SecurityEvents;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class UserServiceProvider implements ServiceProviderInterface
+class UserServiceProvider extends AbstractResourceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {

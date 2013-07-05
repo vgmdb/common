@@ -25,8 +25,8 @@ class ClientRegistrationFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('name', null, array('label' => 'Name'))
-                ->add('redirect_uris', null, array('label' => 'Redirect URI'));
+        $builder->add('name', 'text', array('label' => 'Name'))
+                ->add('redirect_uris', 'text', array('label' => 'Redirect URI'));
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)
