@@ -25,7 +25,7 @@ use OAuth2\OAuth2ServerException;
  * @author Arnaud Le Blanc <arnaud.lb@gmail.com>
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class BearerTokenAuthenticationListener implements ListenerInterface
+class BearerAuthenticationListener implements ListenerInterface
 {
     private $options;
     private $logger;
@@ -97,10 +97,12 @@ class BearerTokenAuthenticationListener implements ListenerInterface
                 $response = $returnValue;
             }
         } catch (AuthenticationException $e) {
-            $response = $this->onFailure($event, $request, $e);
+            if ($response = $this->onFailure($event, $request, $e)) {
+                $event->setResponse($response);
+            } else {
+                throw $e;
+            }
         }
-
-        $event->setResponse($response);
     }
 
     protected function attemptAuthentication(Request $request)
@@ -119,23 +121,12 @@ class BearerTokenAuthenticationListener implements ListenerInterface
         return $this->authenticationManager->authenticate($token);
     }
 
-    private function onFailure(GetResponseEvent $event, Request $request, AuthenticationException $failed)
+    protected function onFailure(GetResponseEvent $event, Request $request, AuthenticationException $failed)
     {
         if (null !== $this->logger) {
             $this->logger->info(sprintf('OAuth authentication request failed: %s', $failed->getMessage()));
         }
 
         $this->securityContext->setToken(null);
-
-        if (null !== $previous = $failed->getPrevious()) {
-            $response = new JsonResponse(json_decode($previous->getResponseBody(), true), $previous->getHttpCode());
-        } else {
-            $response = new JsonResponse(array(
-                'error' => 'unauthorized',
-                'error_description' => $failed->getMessage()
-            ), $failed->getCode());
-        }
-
-        return $response;
     }
 }

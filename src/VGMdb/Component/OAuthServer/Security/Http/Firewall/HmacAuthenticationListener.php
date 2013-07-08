@@ -105,10 +105,12 @@ class HmacAuthenticationListener implements ListenerInterface
                 $response = $returnValue;
             }
         } catch (AuthenticationException $e) {
-            $response = $this->onFailure($event, $request, $e);
+            if ($response = $this->onFailure($event, $request, $e)) {
+                $event->setResponse($response);
+            } else {
+                throw $e;
+            }
         }
-
-        $event->setResponse($response);
     }
 
     protected function attemptAuthentication(Request $request)
@@ -205,23 +207,12 @@ class HmacAuthenticationListener implements ListenerInterface
         return $this->signatureService->verifySignature($guzzleRequest, $credentials, $attributes[3], $longDate, $secretKey);
     }
 
-    private function onFailure(GetResponseEvent $event, Request $request, AuthenticationException $failed)
+    protected function onFailure(GetResponseEvent $event, Request $request, AuthenticationException $failed)
     {
         if (null !== $this->logger) {
             $this->logger->info(sprintf('Authentication request failed: %s', $failed->getMessage()));
         }
 
         $this->securityContext->setToken(null);
-
-        if (null !== $previous = $failed->getPrevious()) {
-            $response = new JsonResponse(json_decode($previous->getResponseBody(), true), $previous->getHttpCode());
-        } else {
-            $response = new JsonResponse(array(
-                'error' => 'unauthorized',
-                'error_description' => $failed->getMessage()
-            ), $failed->getCode());
-        }
-
-        return $response;
     }
 }

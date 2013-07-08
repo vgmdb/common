@@ -17,7 +17,7 @@ use OAuth2\OAuth2ServerException;
  * @author Arnaud Le Blanc <arnaud.lb@gmail.com>
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class OAuthAuthenticationProvider implements AuthenticationProviderInterface
+class OAuthServerAuthenticationProvider implements AuthenticationProviderInterface
 {
     private $userProvider;
     private $userChecker;
@@ -80,7 +80,7 @@ class OAuthAuthenticationProvider implements AuthenticationProviderInterface
                 return $authenticatedToken;
             }
         } catch (OAuth2ServerException $e) {
-            throw new AuthenticationException('OAuth2 authentication failed', null, 0, $e);
+            throw new AuthenticationException('OAuth2 authentication failed', 0, $e);
         }
 
         throw new AuthenticationException('OAuth2 authentication failed');

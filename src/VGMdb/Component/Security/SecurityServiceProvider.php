@@ -8,6 +8,7 @@ use VGMdb\Component\Security\EventListener\TransportSecurityListener;
 use VGMdb\Component\Security\Http\LazyFirewallMap;
 use VGMdb\Component\Security\Http\Authentication\AuthenticationSuccessHandler;
 use VGMdb\Component\Security\Http\Authentication\AuthenticationFailureHandler;
+use VGMdb\Component\Security\Http\EntryPoint\FormAuthenticationEntryPoint;
 use VGMdb\Component\Security\Core\User\StubUserProvider;
 use VGMdb\Component\Routing\Generator\LazyUrlGenerator;
 use Silex\Application;
@@ -20,6 +21,7 @@ use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
 use Symfony\Component\Security\Http\Firewall\ExceptionListener;
 use Symfony\Component\Security\Http\Firewall\LogoutListener;
 use Symfony\Component\Security\Http\Logout\SessionLogoutHandler;
+use Symfony\Component\Security\Http\AccessMap;
 use Symfony\Component\Security\Http\HttpUtils;
 
 /**
@@ -172,6 +174,39 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
             return new Firewall($app['security.lazy_firewall_map'], $app['dispatcher']);
         });
 
+        // replace AccessMap so that it recognizes named parameters
+        $app['security.access_map'] = $app->share(function ($app) {
+            $map = new AccessMap();
+
+            foreach ($app['security.access_rules'] as $rule) {
+                if (isset($rule[0])) {
+                    if (is_string($rule[0])) {
+                        $rule[0] = new RequestMatcher($rule[0]);
+                    }
+
+                    $map->add($rule[0], (array) $rule[1], isset($rule[2]) ? $rule[2] : null);
+                } else {
+                    $rules = array_replace(array(
+                        'path' => null,
+                        'host' => null,
+                        'methods' => null,
+                        'ip' => null,
+                        'attributes' => array(),
+                        'roles' => array(),
+                        'requires_channel' => null
+                    ), $rule);
+
+                    $map->add(
+                        new RequestMatcher($rules['path'], $rules['host'], $rules['methods'], $rules['ip'], $rules['attributes']),
+                        (array) $rules['roles'],
+                        $rules['requires_channel']
+                    );
+                }
+            }
+
+            return $map;
+        });
+
         // replace HttpUtils so that it loads UrlGenerator and UrlMatcher lazily
         $app['security.http_utils'] = $app->share(function ($app) {
             return new HttpUtils(
@@ -225,12 +260,19 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
         });
 
         /**
-         * Special handling for authentication exceptions thrown by the /api route.
-         * Normally the exception listener redirects to an entry point, however in this case
+         * Special handling for authentication exceptions thrown by API routes.
+         * Normally the handler redirects to an entry point, however in this case
          * we just return an exception to the client (usually 401 Unauthorized)
-         *
-         * @todo Create an AccessDeniedHandler that converts exceptions to appropriate responses
          */
+        $app['security.entry_point.form._proto'] = $app->protect(function ($name, array $options) use ($app) {
+            return $app->share(function () use ($app, $options) {
+                $loginPath = isset($options['login_path']) ? $options['login_path'] : '/login';
+                $useForward = isset($options['use_forward']) ? $options['use_forward'] : false;
+
+                return new FormAuthenticationEntryPoint($app, $app['security.http_utils'], $loginPath, $useForward);
+            });
+        });
+
         $app['security.exception_listener.api'] = $app->share(function ($app) {
             return new ExceptionListener(
                 $app['security'],

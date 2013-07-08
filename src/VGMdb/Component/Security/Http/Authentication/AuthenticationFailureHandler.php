@@ -7,7 +7,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authentication\DefaultAuthenticationFailureHandler;
 
 /**
- * Class with custom authentication failure handling logic. (Currently does nothing.)
+ * Class with custom authentication failure handling logic.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
@@ -18,6 +18,10 @@ class AuthenticationFailureHandler extends DefaultAuthenticationFailureHandler
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
+        if ('html' !== $request->getRequestFormat()) {
+            throw $exception;
+        }
+
         return parent::onAuthenticationFailure($request, $exception);
     }
 }

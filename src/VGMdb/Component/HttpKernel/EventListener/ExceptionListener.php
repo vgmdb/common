@@ -15,7 +15,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Exception\FlattenException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Thrift\Exception\TApplicationException;
 use Thrift\Type\TMessageType;
 use Psr\Log\LoggerInterface;
@@ -51,6 +53,11 @@ class ExceptionListener implements EventSubscriberInterface
 
         $this->logException($exception, sprintf('Uncaught PHP Exception %s: "%s" at %s line %s', get_class($exception), $exception->getMessage(), $exception->getFile(), $exception->getLine()));
 
+        if ($exception instanceof AuthenticationException) {
+            $authType = 'html' === $format ? 'Basic' : 'OAuth';
+            $exception = new UnauthorizedHttpException(sprintf('%s realm="%s"', $authType, $event->getRequest()->getSchemeAndHttpHost()), 'Authentication credentials missing or incorrect.', $exception);
+        }
+
         if ($exception instanceof HttpExceptionInterface) {
             $code = $exception->getStatusCode();
             $headers = $exception->getHeaders();
@@ -71,12 +78,12 @@ class ExceptionListener implements EventSubscriberInterface
             case 'json':
             case 'js':
                 $handler = new ApiExceptionHandler($this->debug);
-                $data = $handler->createResponse($event->getException());
+                $data = $handler->createResponse($exception);
                 $response = new JsonResponse($data, $code, $headers);
                 break;
             case 'xml':
                 $handler = new ApiExceptionHandler($this->debug);
-                $data = $handler->createResponse($event->getException());
+                $data = $handler->createResponse($exception);
                 $response = new XmlResponse($data, $code, $headers);
                 break;
             case 'gif':
@@ -96,7 +103,7 @@ class ExceptionListener implements EventSubscriberInterface
             default:
                 if (!$this->debug && HttpKernelInterface::MASTER_REQUEST === $event->getRequestType()) {
                     $subRequest = $event->getRequest()->duplicate(null, null, array(
-                        'exception' => FlattenException::create($event->getException())
+                        'exception' => FlattenException::create($exception)
                     ), null, null, array(
                         'REQUEST_URI' => sprintf('/error/%d', $code),
                         'SERVER_NAME' => $event->getRequest()->getHost()
@@ -112,7 +119,7 @@ class ExceptionListener implements EventSubscriberInterface
                 }
                 if (null === $response) {
                     $handler = new ExceptionHandler($this->debug);
-                    $response = $handler->createResponse($event->getException());
+                    $response = $handler->createResponse($exception);
                 }
                 break;
         }
