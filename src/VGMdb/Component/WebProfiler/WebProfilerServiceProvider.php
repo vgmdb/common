@@ -95,6 +95,9 @@ class WebProfilerServiceProvider extends AbstractResourceProvider implements Ser
             return new $app['data_collector.router.class']();
         });
         $app['data_collector.security'] = $app->share(function ($app) {
+            if (!isset($app['security'])) {
+                return -1;
+            }
             return new $app['data_collector.security.class']($app['security']);
         });
         $app['data_collector.container'] = $app->share(function ($app) {
