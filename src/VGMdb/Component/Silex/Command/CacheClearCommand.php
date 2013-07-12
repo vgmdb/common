@@ -99,11 +99,16 @@ EOF
 
     protected function warmUp($warmupDir, $enableOptionalWarmers = true)
     {
-        $warmer = new CacheWarmerAggregate(array(
+        $warmers = array(
             new ConfigCacheWarmer($this->app['framework.loader.cache'], 'configs'),
-            new RouterCacheWarmer($this->app['router'], 'configs'),
-            new ProxyCacheWarmer($this->app['doctrine'])
-        ));
+            new RouterCacheWarmer($this->app['router'], 'configs')
+        );
+
+        if (isset($this->app['doctrine'])) {
+            $warmers[] = new ProxyCacheWarmer($this->app['doctrine']);
+        }
+
+        $warmer = new CacheWarmerAggregate($warmers);
 
         if ($enableOptionalWarmers) {
             $warmer->enableOptionalWarmers();
