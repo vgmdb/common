@@ -15,6 +15,7 @@ use Silex\Application;
 use Silex\LazyUrlMatcher;
 use Silex\Provider\SecurityServiceProvider as BaseSecurityServiceProvider;
 use Symfony\Component\HttpFoundation\RequestMatcher;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Symfony\Component\Security\Http\Firewall;
 use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
@@ -163,7 +164,7 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
         $app['security.firewall'] = $app->share(function ($app) {
             foreach ($app['security.firewalls'] as $name => $firewall) {
                 $app['security.user_provider.'.$name] = $app->share(function ($app) {
-                    if (!isset($app['user_provider'])) {
+                    if (!isset($app['user_provider']) || !$app['user_provider'] instanceof UserProviderInterface) {
                         $app['user_provider'] = new StubUserProvider();
                     }
 
