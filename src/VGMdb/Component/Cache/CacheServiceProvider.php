@@ -42,7 +42,7 @@ class CacheServiceProvider implements ServiceProviderInterface
         });
 
         $app['cache.driver.filesystem'] = $app->share(function ($app) {
-            return new FileSystem($app['cache.driver.filesystem.path']);
+            return new FileSystem($app['cache.drivers']['filesystem']);
         });
 
         $app['cache.driver.memcache'] = $app->share(function ($app) {
