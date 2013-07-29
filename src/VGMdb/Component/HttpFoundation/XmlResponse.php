@@ -99,7 +99,9 @@ class XmlResponse extends Response
             $data = $data->getArrayCopy(true);
         }
 
-        $data = array('content' => $data);
+        if (!is_array($data)) {
+            $data = array('content' => $data);
+        }
 
         if ($this->serializer) {
             $data = $this->serializer->serialize($data, 'xml');
