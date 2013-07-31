@@ -127,7 +127,7 @@ EOF
         /**
          * @todo Get routing files from all resource providers
          */
-        $routeExtractor->extract($app['routing.config_dirs'], $catalogue);
+        $routeExtractor->extract($app['routing.resource'], $catalogue);
 
         // load any existing messages from the translation files
         $output->writeln('Loading translation files...');
