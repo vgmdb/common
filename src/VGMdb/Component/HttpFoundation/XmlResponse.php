@@ -83,7 +83,7 @@ class XmlResponse extends Response
         }
 
         $this->data = $data;
-        $this->setContent($data);
+        $this->setContent('');
 
         return $this;
     }
@@ -93,7 +93,7 @@ class XmlResponse extends Response
      */
     public function sendContent()
     {
-        $data = $this->content;
+        $data = $this->data;
 
         if ($data instanceof \ArrayObject) {
             $data = $data->getArrayCopy(true);
