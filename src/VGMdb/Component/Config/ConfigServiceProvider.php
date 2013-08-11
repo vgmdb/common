@@ -53,10 +53,14 @@ class ConfigServiceProvider implements ServiceProviderInterface
         foreach ($this->options['config.base_dirs'] as $dir) {
             foreach ($this->options['config.files'] as $file) {
                 if (file_exists($dir . '/' . $file . '.dist')) {
-                    $app['config.loader']->load($dir . '/' . $file . '.dist');
+                    foreach ($app['config.loader']->load($dir . '/' . $file . '.dist') as $key => $value) {
+                        $app[$key] = $value;
+                    }
                 }
                 if (file_exists($dir . '/' . $file)) {
-                    $app['config.loader']->load($dir . '/' . $file);
+                    foreach ($app['config.loader']->load($dir . '/' . $file) as $key => $value) {
+                        $app[$key] = $value;
+                    }
                 }
             }
         }

@@ -24,7 +24,7 @@ class DoctrineBuildCommand extends Command
             ->setDescription('Generate Doctrine model files from MySQL Workbench schema.')
             ->setDefinition(array(
                 new InputArgument(
-                    'file', InputArgument::OPTIONAL, 'Schema definition file.', getcwd() . '/data/db/propertydb.mwb'
+                    'file', InputArgument::OPTIONAL, 'Schema definition file.', getcwd() . '/data/db/db.mwb'
                 ),
                 new InputArgument(
                     'dest', InputArgument::OPTIONAL, 'Temporary output directory.', getcwd() . '/build/entities'
@@ -47,9 +47,9 @@ EOT
             Formatter::CFG_INDENTATION               => 4,
             Formatter::CFG_FILENAME                  => '%entity%.%extension%',
             Formatter::CFG_ANNOTATION_PREFIX         => 'ORM\\',
-            Formatter::CFG_BUNDLE_NAMESPACE          => 'Guru\\Core\\Models',
+            Formatter::CFG_BUNDLE_NAMESPACE          => 'VGMdb\\Model',
             Formatter::CFG_ENTITY_NAMESPACE          => 'Entity',
-            Formatter::CFG_REPOSITORY_NAMESPACE      => 'Guru\\Core\\Models\\Repository',
+            Formatter::CFG_REPOSITORY_NAMESPACE      => 'VGMdb\\Model\\Repository',
             Formatter::CFG_AUTOMATIC_REPOSITORY      => false,
             Formatter::CFG_SKIP_GETTER_SETTER        => false,
             Formatter::CFG_BACKUP_FILE               => false,
