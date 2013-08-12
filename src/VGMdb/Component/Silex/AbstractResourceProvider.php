@@ -17,6 +17,7 @@ use Symfony\Component\Finder\Finder;
 abstract class AbstractResourceProvider implements ResourceProviderInterface
 {
     protected $name;
+    protected $config = 'config.yml';
     protected $reflected;
 
     /**
@@ -43,7 +44,7 @@ abstract class AbstractResourceProvider implements ResourceProviderInterface
 
         $loader = new YamlFileLoader($app, new FileLocator($paths), $options);
 
-        return $loader->load('config.yml');
+        return $loader->load($this->config);
     }
 
     /**
