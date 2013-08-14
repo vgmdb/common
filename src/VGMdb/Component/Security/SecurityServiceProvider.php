@@ -225,42 +225,6 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
         });
 
         /**
-         * This adds support for invalidate_session option in /logout
-         * At this time, Symfony 2.1 has a bug on PHP 5.4 where a fatal error is thrown upon logout
-         * This only occurs if the session is invalidated through SessionLogoutHandler
-         * invalidate_session = false will prevent the handler from getting registered
-         *
-         * @todo Verify status of the bug on Symfony 2.2 or 2.3
-         */
-        $app['security.authentication_listener.logout._proto'] = $app->protect(function ($name, $options) use ($app, $that) {
-            return $app->share(function () use ($app, $name, $options, $that) {
-                $that->addFakeRoute(
-                    'get',
-                    $tmp = isset($options['logout_path']) ? $options['logout_path'] : '/logout',
-                    str_replace('/', '_', ltrim($tmp, '/'))
-                );
-
-                if (!isset($app['security.authentication.logout_handler.'.$name])) {
-                    $app['security.authentication.logout_handler.'.$name] = $app['security.authentication.logout_handler._proto']($name, $options);
-                }
-
-                $listener = new LogoutListener(
-                    $app['security'],
-                    $app['security.http_utils'],
-                    $app['security.authentication.logout_handler.'.$name],
-                    $options,
-                    isset($options['with_csrf']) && $options['with_csrf'] && isset($app['form.csrf_provider']) ? $app['form.csrf_provider'] : null
-                );
-
-                if (!(isset($options['invalidate_session']) && $options['invalidate_session'] === false)) {
-                    $listener->addHandler(new SessionLogoutHandler());
-                }
-
-                return $listener;
-            });
-        });
-
-        /**
          * Special handling for authentication exceptions thrown by API routes.
          * Normally the handler redirects to an entry point, however in this case
          * we just return an exception to the client (usually 401 Unauthorized)
