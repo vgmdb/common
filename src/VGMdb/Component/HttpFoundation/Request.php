@@ -3,6 +3,7 @@
 namespace VGMdb\Component\HttpFoundation;
 
 use Symfony\Component\HttpFoundation\Request as BaseRequest;
+use Symfony\Component\HttpFoundation\IpUtils;
 
 /**
  * Representation of a HTTP request, with additional logic for versioning.
@@ -26,6 +27,40 @@ class Request extends BaseRequest
         foreach (static::$additionalFormats as $format => $mimeTypes) {
             $this->setFormat($format, $mimeTypes);
         }
+    }
+
+    /**
+     * Copied from Symfony 2.3. REMOVE THIS WHEN UPGRADING
+     */
+    public function getClientIp()
+    {
+        $ip = $this->server->get('REMOTE_ADDR');
+
+        if (!self::$trustProxy) {
+            return $ip;
+        }
+
+        if (!self::$trustedHeaders[self::HEADER_CLIENT_IP] || !$this->headers->has(self::$trustedHeaders[self::HEADER_CLIENT_IP])) {
+            return $ip;
+        }
+
+        $clientIps = array_map('trim', explode(',', $this->headers->get(self::$trustedHeaders[self::HEADER_CLIENT_IP])));
+        $clientIps[] = $ip;
+
+        $trustedProxies = self::$trustProxy && !self::$trustedProxies ? array($ip) : self::$trustedProxies;
+        $ip = $clientIps[0];
+
+        foreach ($clientIps as $key => $clientIp) {
+            foreach ($trustedProxies as $trustedProxy) {
+                if (IpUtils::checkIp($clientIp, $trustedProxy)) {
+                    unset($clientIps[$key]);
+
+                    continue 2;
+                }
+            }
+        }
+
+        return $clientIps ? array_pop($clientIps) : $ip;
     }
 
     /**

@@ -163,13 +163,15 @@ class SecurityServiceProvider extends BaseSecurityServiceProvider
 
         $app['security.firewall'] = $app->share(function ($app) {
             foreach ($app['security.firewalls'] as $name => $firewall) {
-                $app['security.user_provider.'.$name] = $app->share(function ($app) {
-                    if (!isset($app['user_provider']) || !$app['user_provider'] instanceof UserProviderInterface) {
-                        $app['user_provider'] = new StubUserProvider();
-                    }
+                if (!isset($app['security.user_provider.'.$name])) {
+                    $app['security.user_provider.'.$name] = $app->share(function ($app) {
+                        if (!isset($app['user_provider']) || !$app['user_provider'] instanceof UserProviderInterface) {
+                            $app['user_provider'] = new StubUserProvider();
+                        }
 
-                    return $app['user_provider'];
-                });
+                        return $app['user_provider'];
+                    });
+                }
             }
 
             return new Firewall($app['security.lazy_firewall_map'], $app['dispatcher']);
