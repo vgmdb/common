@@ -123,7 +123,7 @@ EOF
         }
 
         $output->writeln('Parsing YAML routes...');
-        $routeExtractor = $app['routing.translation.extractor'];
+        $routeExtractor = $app['translator.routing.extractor'];
         /**
          * @todo Get routing files from all resource providers
          */

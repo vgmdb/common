@@ -5,7 +5,7 @@ namespace VGMdb\Component\View\EventListener;
 use VGMdb\Application;
 use VGMdb\Component\HttpFoundation\Response;
 use VGMdb\Component\View\ViewInterface;
-use VGMdb\Component\Routing\Translation\TranslationRouteLoader;
+use VGMdb\Component\Translation\Routing\TranslationRouteLoader;
 use Symfony\Component\HttpFoundation\Response as BaseResponse;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
@@ -47,7 +47,7 @@ class ViewListener implements EventSubscriberInterface
                 $route = $event->getRequest()->attributes->get('_route');
 
                 // remove the locale prefix from the route name, if applicable
-                if (class_exists('VGMdb\\Component\\Routing\\Translation\\TranslationRouteLoader')
+                if (class_exists('VGMdb\\Component\\Translation\\Routing\\TranslationRouteLoader')
                     && false !== $pos = strpos($route, TranslationRouteLoader::ROUTING_PREFIX)) {
                     $route = substr($route, $pos + strlen(TranslationRouteLoader::ROUTING_PREFIX));
                 }

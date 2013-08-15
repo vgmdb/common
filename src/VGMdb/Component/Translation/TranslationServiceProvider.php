@@ -2,6 +2,12 @@
 
 namespace VGMdb\Component\Translation;
 
+use VGMdb\Component\Translation\Routing\TranslationRouter;
+use VGMdb\Component\Translation\Routing\RouteExclusionStrategy;
+use VGMdb\Component\Translation\Routing\PathGenerationStrategy;
+use VGMdb\Component\Translation\Routing\LocaleResolver;
+use VGMdb\Component\Translation\Routing\TranslationRouteLoader;
+use VGMdb\Component\Translation\Routing\Extractor\YamlRouteExtractor;
 use VGMdb\Component\Silex\AbstractResourceProvider;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -136,6 +142,51 @@ class TranslationServiceProvider extends AbstractResourceProvider implements Ser
 
             return $translator;
         });
+
+        // override router
+        $app['routing.router_class'] = 'VGMdb\\Component\\Translation\\Routing\\TranslationRouter';
+        $app['translator.routing.strategy'] = 'prefix_except_default';
+        $app['translator.routing.domain'] = 'routes';
+
+        $app['translator.routing.extractor'] = $app->share(function ($app) {
+            return new YamlRouteExtractor($app['router'], $app['translator.routing.exclusion_strategy']);
+        });
+
+        $app['translator.routing.exclusion_strategy'] = $app->share(function ($app) {
+            return new RouteExclusionStrategy();
+        });
+
+        $app['translator.routing.path_generation_strategy'] = $app->share(function ($app) {
+            return new PathGenerationStrategy(
+                $app['translator.routing.strategy'],
+                $app['translator'],
+                explode('|', $app['translator.routing.locales']),
+                $app['translator.routing.cache_dir'],
+                $app['translator.routing.domain'],
+                $app['translator.routing.locale']
+            );
+        });
+
+        $app['translator.routing.locale_resolver'] = $app->share(function ($app) {
+            return new LocaleResolver();
+        });
+
+        $app['translator.routing.loader'] = $app->share(function ($app) {
+            return new TranslationRouteLoader(
+                $app['translator.routing.exclusion_strategy'],
+                $app['translator.routing.path_generation_strategy']
+            );
+        });
+
+        $app['router'] = $app->share($app->extend('router', function ($router, $app) {
+            if ($router instanceof TranslationRouter) {
+                $router->setLocaleResolver($app['translator.routing.locale_resolver']);
+                $router->setTranslationLoader($app['translator.routing.loader']);
+                $router->setDefaultLocale($app['translator.routing.locale']);
+            }
+
+            return $router;
+        }));
     }
 
     public function boot(Application $app)

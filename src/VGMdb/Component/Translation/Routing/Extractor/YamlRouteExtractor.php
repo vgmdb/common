@@ -1,9 +1,9 @@
 <?php
 
-namespace VGMdb\Component\Routing\Translation\Extractor;
+namespace VGMdb\Component\Translation\Routing\Extractor;
 
-use VGMdb\Component\Routing\Translation\RouteExclusionStrategyInterface;
-use VGMdb\Component\Routing\Translation\TranslationRouter;
+use VGMdb\Component\Translation\Routing\RouteExclusionStrategyInterface;
+use VGMdb\Component\Translation\Routing\TranslationRouter;
 use VGMdb\Component\Translation\Extractor\AbstractExtractor;
 use VGMdb\Component\Translation\Extractor\Model\FileSource;
 use VGMdb\Component\Translation\Extractor\Model\Message;

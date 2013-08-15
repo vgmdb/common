@@ -9,7 +9,7 @@
 namespace VGMdb\Component\Routing\EventListener;
 
 use VGMdb\Component\Routing\Loader\AllowedMethodsLoaderInterface;
-use VGMdb\Component\Routing\Translation\TranslationRouteLoader;
+use VGMdb\Component\Translation\Routing\TranslationRouteLoader;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
@@ -59,7 +59,7 @@ class AllowedMethodsListener implements EventSubscriberInterface
         $allowedMethods = $this->loader->getAllowedMethods();
         $route = $event->getRequest()->get('_route');
 
-        if (class_exists('VGMdb\\Component\\Routing\\Translation\\TranslationRouteLoader')
+        if (class_exists('VGMdb\\Component\\Translation\\Routing\\TranslationRouteLoader')
             && false !== $pos = strpos($route, TranslationRouteLoader::ROUTING_PREFIX)) {
             $route = substr($route, $pos + strlen(TranslationRouteLoader::ROUTING_PREFIX));
         }

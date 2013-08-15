@@ -17,34 +17,35 @@
  * limitations under the License.
  */
 
-namespace VGMdb\Component\Routing\Translation;
+namespace VGMdb\Component\Translation\Routing;
 
 use Symfony\Component\Routing\Route;
-use Symfony\Component\Routing\RouteCollection;
 
 /**
- * Implementations are responsible for generating the translated paths for a given route.
+ * The default route exclusion strategy.
+ *
+ * This strategy ignores all routes if at least one of the following is true:
+ *
+ *     - the route name starts with an underscore
+ *     - the option "_translate" is set to false
  *
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
-interface PathGenerationStrategyInterface
+class RouteExclusionStrategy implements RouteExclusionStrategyInterface
 {
     /**
-     * Returns the translated paths for a given route.
-     *
-     * @param string $routeName
-     * @param Route  $route
-     *
-     * @return array<string, array<string>> an array mapping the path to an array of locales
+     * {@inheritDoc}
      */
-    function generateTranslatedPaths($routeName, Route $route);
+    public function shouldExcludeRoute($routeName, Route $route)
+    {
+        if ('_' === $routeName[0]) {
+            return true;
+        }
 
-    /**
-     * You may add possible resources to the translated collection.
-     *
-     * This may for example be translation resources.
-     *
-     * @param RouteCollection $routeCollection
-     */
-    function addResources(RouteCollection $routeCollection);
+        if (false === $route->getOption('_translate')) {
+            return true;
+        }
+
+        return false;
+    }
 }

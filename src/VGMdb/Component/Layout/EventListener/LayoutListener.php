@@ -5,7 +5,7 @@ namespace VGMdb\Component\Layout\EventListener;
 use VGMdb\Application;
 use VGMdb\Component\Layout\Layout;
 use VGMdb\Component\View\ViewInterface;
-use VGMdb\Component\Routing\Translation\TranslationRouteLoader;
+use VGMdb\Component\Translation\Routing\TranslationRouteLoader;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -41,7 +41,7 @@ class LayoutListener implements EventSubscriberInterface
         }
 
         $route = $event->getRequest()->attributes->get('_route');
-        if (class_exists('VGMdb\\Component\\Routing\\Translation\\TranslationRouteLoader')
+        if (class_exists('VGMdb\\Component\\Translation\\Routing\\TranslationRouteLoader')
             && false !== $pos = strpos($route, TranslationRouteLoader::ROUTING_PREFIX)) {
             $route = substr($route, $pos + strlen(TranslationRouteLoader::ROUTING_PREFIX));
         }

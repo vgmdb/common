@@ -1,15 +1,15 @@
 <?php
 
-namespace VGMdb\Component\Routing\Tests;
+namespace VGMdb\Component\Translation\Tests;
 
 use VGMdb\Application;
 use VGMdb\Component\Routing\Loader\YamlFileLoader;
-use VGMdb\Component\Routing\Translation\TranslationRouter;
-use VGMdb\Component\Routing\Translation\TranslationRouteLoader;
-use VGMdb\Component\Routing\Translation\RouteExclusionStrategy;
-use VGMdb\Component\Routing\Translation\PathGenerationStrategy;
-use VGMdb\Component\Routing\Translation\LocaleResolver;
 use VGMdb\Component\Routing\RequestContext;
+use VGMdb\Component\Translation\Routing\TranslationRouter;
+use VGMdb\Component\Translation\Routing\TranslationRouteLoader;
+use VGMdb\Component\Translation\Routing\RouteExclusionStrategy;
+use VGMdb\Component\Translation\Routing\PathGenerationStrategy;
+use VGMdb\Component\Translation\Routing\LocaleResolver;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Translation\MessageSelector;

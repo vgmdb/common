@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-namespace VGMdb\Component\Routing\Translation;
+namespace VGMdb\Component\Translation\Routing;
 
 use Symfony\Component\Routing\Route;
 

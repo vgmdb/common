@@ -4,6 +4,7 @@ namespace VGMdb\Component\Routing\Matcher;
 
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
+use Symfony\Component\Routing\Matcher\RedirectableUrlMatcherInterface;
 use Symfony\Component\Routing\RequestContext;
 
 /**
@@ -11,7 +12,7 @@ use Symfony\Component\Routing\RequestContext;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class RedirectableProxyUrlMatcher implements UrlMatcherInterface
+class RedirectableProxyUrlMatcher implements UrlMatcherInterface, RedirectableUrlMatcherInterface
 {
     protected $matcher;
 

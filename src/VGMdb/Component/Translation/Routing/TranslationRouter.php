@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-namespace VGMdb\Component\Routing\Translation;
+namespace VGMdb\Component\Translation\Routing;
 
 use VGMdb\Component\Routing\LazyRouter;
 use VGMdb\Component\Routing\Exception\NotAcceptableLanguageHttpException;
@@ -106,7 +106,7 @@ class TranslationRouter extends LazyRouter
         $currentLocale = $this->getContext()->getParameter('_locale');
         if (isset($parameters['_locale'])) {
             $locale = $parameters['_locale'];
-        } else if ($currentLocale) {
+        } elseif ($currentLocale) {
             $locale = $currentLocale;
         } else {
             $locale = $this->defaultLocale;
@@ -215,7 +215,7 @@ class TranslationRouter extends LazyRouter
 
             unset($params['_locales']);
             $params['_locale'] = $currentLocale;
-        } else if (isset($params['_locale']) && 0 < $pos = strpos($params['_route'], TranslationRouteLoader::ROUTING_PREFIX)) {
+        } elseif (isset($params['_locale']) && 0 < $pos = strpos($params['_route'], TranslationRouteLoader::ROUTING_PREFIX)) {
             $params['_route'] = substr($params['_route'], $pos + strlen(TranslationRouteLoader::ROUTING_PREFIX));
         }
 

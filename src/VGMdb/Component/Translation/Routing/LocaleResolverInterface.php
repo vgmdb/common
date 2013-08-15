@@ -17,35 +17,27 @@
  * limitations under the License.
  */
 
-namespace VGMdb\Component\Routing\Translation;
+namespace VGMdb\Component\Translation\Routing;
 
-use Symfony\Component\Routing\Route;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
- * The default route exclusion strategy.
+ * Interface for Locale Resolvers.
  *
- * This strategy ignores all routes if at least one of the following is true:
- *
- *     - the route name starts with an underscore
- *     - the option "_translate" is set to false
+ * A resolver implementation is triggered only if we match a route that is
+ * available for multiple locales.
  *
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
-class RouteExclusionStrategy implements RouteExclusionStrategyInterface
+interface LocaleResolverInterface
 {
     /**
-     * {@inheritDoc}
+     * Resolves the locale in case a route is available for multiple locales.
+     *
+     * @param array $availableLocales
+     *
+     * @return string|null May return null if no suitable locale is found, may also
+     *                     return a locale which is not available for the matched route
      */
-    public function shouldExcludeRoute($routeName, Route $route)
-    {
-        if ('_' === $routeName[0]) {
-            return true;
-        }
-
-        if (false === $route->getOption('_translate')) {
-            return true;
-        }
-
-        return false;
-    }
+    public function resolveLocale(Request $request, array $availableLocales);
 }

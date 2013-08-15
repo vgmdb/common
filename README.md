@@ -1,5 +1,5 @@
-The VGMdb Framework
-===================
+The VGMdb Library Commons
+=========================
 
 Extends the [Silex] [1] microframework to do the thing with the stuff.
 
