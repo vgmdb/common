@@ -19,7 +19,7 @@ class AuthenticationSuccessHandler extends DefaultAuthenticationSuccessHandler
     public function onAuthenticationSuccess(Request $request, TokenInterface $token)
     {
         if ($request->hasSession()) {
-            $request->getSession()->setFlash('success', 'You are now logged in.');
+            $request->getSession()->getFlashBag()->set('success', 'You are now logged in.');
         }
 
         return parent::onAuthenticationSuccess($request, $token);
