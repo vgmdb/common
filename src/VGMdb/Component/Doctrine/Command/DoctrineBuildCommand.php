@@ -5,6 +5,7 @@ namespace VGMdb\Component\Doctrine\Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use MwbExporter\Bootstrap;
@@ -28,6 +29,9 @@ class DoctrineBuildCommand extends Command
                 ),
                 new InputArgument(
                     'dest', InputArgument::OPTIONAL, 'Temporary output directory.', getcwd() . '/build/entities'
+                ),
+                new InputOption(
+                    'namespace', null, InputOption::VALUE_REQUIRED, 'Class namespace', null
                 )
             ))
             ->setHelp(<<<EOT
@@ -47,9 +51,9 @@ EOT
             Formatter::CFG_INDENTATION               => 4,
             Formatter::CFG_FILENAME                  => '%entity%.%extension%',
             Formatter::CFG_ANNOTATION_PREFIX         => 'ORM\\',
-            Formatter::CFG_BUNDLE_NAMESPACE          => 'VGMdb\\Model',
+            Formatter::CFG_BUNDLE_NAMESPACE          => $input->getOption('namespace'),
             Formatter::CFG_ENTITY_NAMESPACE          => 'Entity',
-            Formatter::CFG_REPOSITORY_NAMESPACE      => 'VGMdb\\Model\\Repository',
+            Formatter::CFG_REPOSITORY_NAMESPACE      => $input->getOption('namespace') . '\\Repository',
             Formatter::CFG_AUTOMATIC_REPOSITORY      => false,
             Formatter::CFG_SKIP_GETTER_SETTER        => false,
             Formatter::CFG_BACKUP_FILE               => false,
