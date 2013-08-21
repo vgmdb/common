@@ -146,7 +146,7 @@ class RequestFormatListener implements EventSubscriberInterface
 
         if ($response instanceof JsonResponse) {
             $callback = $request->query->get('callback');
-            if ($callback && isset($this->app['validator'])) {
+            if ($callback && $callback !== '?' && isset($this->app['validator'])) {
                 $errors = $this->app['validator']->validateValue($callback, new JsonpCallback());
                 if (count($errors)) {
                     $this->app->abort(400, 'Invalid JSONP callback.');
