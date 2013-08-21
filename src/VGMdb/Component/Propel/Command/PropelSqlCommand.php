@@ -6,14 +6,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Finder\Finder;
-use Propel\Generator\Command\ModelBuildCommand;
+use Propel\Generator\Command\SqlBuildCommand;
 
 /**
- * Task for generating Propel models.
+ * Task for generating SQL from Propel schema.
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class PropelBuildCommand extends ModelBuildCommand
+class PropelSqlCommand extends SqlBuildCommand
 {
     private $schema;
 
@@ -21,9 +21,9 @@ class PropelBuildCommand extends ModelBuildCommand
     {
         parent::configure();
 
-        $this->setName('propel:build');
-        $this->getDefinition()->getOption('input-dir')->setDefault(getcwd() . '/data/db/xml');
-        $this->getDefinition()->getOption('output-dir')->setDefault(getcwd() . '/build/model');
+        $this->setName('propel:sql');
+        $this->getDefinition()->getOption('input-dir')->setDefault(getcwd() . '/data/db/sql');
+        $this->getDefinition()->getOption('output-dir')->setDefault(getcwd() . '/build/db/sql');
         $this->getDefinition()->addArgument(new InputArgument('schema', InputArgument::OPTIONAL, 'The schema', '*'));
     }
 
