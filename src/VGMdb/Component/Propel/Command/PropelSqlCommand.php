@@ -22,7 +22,7 @@ class PropelSqlCommand extends SqlBuildCommand
         parent::configure();
 
         $this->setName('propel:sql');
-        $this->getDefinition()->getOption('input-dir')->setDefault(getcwd() . '/data/db/sql');
+        $this->getDefinition()->getOption('input-dir')->setDefault(getcwd() . '/data/db/xml');
         $this->getDefinition()->getOption('output-dir')->setDefault(getcwd() . '/build/db/sql');
         $this->getDefinition()->addArgument(new InputArgument('schema', InputArgument::OPTIONAL, 'The schema', '*'));
     }
