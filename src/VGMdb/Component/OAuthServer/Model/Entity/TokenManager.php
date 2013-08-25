@@ -61,6 +61,8 @@ class TokenManager extends BaseTokenManager
     {
         $this->em->persist($token);
         $this->em->flush();
+
+        return $token;
     }
 
     /**

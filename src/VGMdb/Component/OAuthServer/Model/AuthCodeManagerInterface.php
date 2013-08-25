@@ -43,6 +43,7 @@ interface AuthCodeManagerInterface
      * Update a given auth code.
      *
      * @param AuthCodeInterface $authCode
+     * @return AuthCodeInterface
      */
     function updateAuthCode(AuthCodeInterface $authCode);
 

@@ -60,6 +60,8 @@ class AuthCodeManager extends BaseAuthCodeManager
     {
         $this->em->persist($authCode);
         $this->em->flush();
+
+        return $authCode;
     }
 
     /**

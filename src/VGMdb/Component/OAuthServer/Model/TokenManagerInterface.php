@@ -41,6 +41,7 @@ interface TokenManagerInterface
      * Save or update a given token.
      *
      * @param TokenInterface $token The token to save or update.
+     * @return TokenInterface
      */
     function updateToken(TokenInterface $token);
 

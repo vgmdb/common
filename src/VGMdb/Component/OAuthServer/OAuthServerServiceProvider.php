@@ -27,10 +27,10 @@ class OAuthServerServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
+        $app['oauth_server.scopes'] = array();
+
         $app['oauth_server.config'] = array(
-            OAuth2::CONFIG_SUPPORTED_SCOPES => array(
-                'listing_read'
-            )
+            OAuth2::CONFIG_SUPPORTED_SCOPES => $app['oauth_server.scopes']
         );
 
         $app['oauth_server.client.class'] = '';
