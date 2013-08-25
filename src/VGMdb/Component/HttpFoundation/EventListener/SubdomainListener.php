@@ -31,7 +31,7 @@ class SubdomainListener implements EventSubscriberInterface
         $this->app['request_context']->setSubdomain($subdomain);
 
         if ($subdomain === 'api') {
-            $this->app['accept.format.priorities'] = array('json');
+            $this->app['accept.format.priorities'] = array('json', 'xml', 'html');
             $this->app['accept.format.fallback'] = 'json';
         }
 

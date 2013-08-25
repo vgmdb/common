@@ -159,7 +159,7 @@ class RequestFormatListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            KernelEvents::REQUEST  => array(array('onKernelRequest', 128)),
+            KernelEvents::REQUEST  => array(array('onKernelRequest', 16)),
             KernelEvents::VIEW     => array(array('onKernelView', Application::LATE_EVENT)),
             KernelEvents::RESPONSE => array(array('onKernelResponse', -16)),
         );
