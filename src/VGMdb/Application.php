@@ -87,8 +87,8 @@ class Application extends BaseApplication
             return $resolver;
         });
 
-        $this['resolver.empty_controller'] = $this->protect(function (Request $request) {
-            return $request->attributes->all();
+        $this['resolver.empty_controller'] = $this->protect(function (Request $request = null) {
+            return $request ? $request->attributes->all() : array();
         });
 
         // replace the request context
