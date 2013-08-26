@@ -62,7 +62,6 @@ class RequestFormatListener implements EventSubscriberInterface
             $this->app['accept.format.default_version']
         );
 
-        $request->setRequestVersion($version);
         $this->app['request_context']->setVersion($version);
 
         // decode JSON request body
