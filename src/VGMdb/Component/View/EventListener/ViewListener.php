@@ -85,6 +85,7 @@ class ViewListener implements EventSubscriberInterface
         $content = (string) $view;
 
         if ($view->hasException()) {
+            $view['_error'] = $view->getException()->getMessage();
             $content = '<pre>'.json_encode($view->getArrayCopy(), JSON_PRETTY_PRINT).'</pre>';
             //throw $view->getException();
         }
