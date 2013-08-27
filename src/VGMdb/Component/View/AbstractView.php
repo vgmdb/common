@@ -82,6 +82,18 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
     }
 
     /**
+     * Records an exception.
+     *
+     * @param \Exception $e;
+     */
+    public static function setException(\Exception $e = null)
+    {
+        static::$exception = $e
+            ? new \RuntimeException($e->getMessage(), $e->getCode(), self::getException() ?: $e)
+            : null;
+    }
+
+    /**
      * Return recorded exceptions.
      *
      * @return \Exception
@@ -220,7 +232,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
             $content = $this->render();
         } catch (\Exception $e) {
             if (isset($this['DEBUG']) && $this['DEBUG'] === true) {
-                self::$exception = new \RuntimeException($e->getMessage(), $e->getCode(), self::$exception ?: $e);
+                self::setException($e);
             }
             $content = '';
         }

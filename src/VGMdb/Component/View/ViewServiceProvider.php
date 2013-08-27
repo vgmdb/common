@@ -36,6 +36,7 @@ class ViewServiceProvider implements ServiceProviderInterface
                 $globals['YEAR'] = $app['locale.formatter.year']->format(new \DateTime());
             }
 
+            AbstractView::setException(null);
             AbstractView::share($globals);
 
             return $view_factory;
