@@ -89,7 +89,7 @@ abstract class AbstractView extends \ArrayObject implements ViewInterface
     public static function setException(\Exception $e = null)
     {
         static::$exception = $e
-            ? new \RuntimeException($e->getMessage(), $e->getCode(), self::getException() ?: $e)
+            ? new \RuntimeException($e->getMessage(), $e->getCode(), static::$exception ?: $e)
             : null;
     }
 
