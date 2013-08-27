@@ -17,12 +17,16 @@ class Widget extends AbstractView
      *
      * @param ViewInterface $view
      * @param \Closure      $callback
-     * @return void
      */
-    public function __construct(ViewInterface $view, $callback = null)
+    public function __construct(ViewInterface $view = null, $callback = null)
     {
-        $this->view = $view;
-        $this->callback = $callback;
+        if ($view) {
+            $this->view = $view;
+        }
+
+        if ($callback) {
+            $this->callback = $callback;
+        }
     }
 
     /**
