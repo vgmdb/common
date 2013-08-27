@@ -32,6 +32,10 @@ class FilesystemLoader extends \Mustache_Loader_FilesystemLoader
      */
     protected function getFileName($name)
     {
+        if (false !== strpos($name, ':')) {
+            $name = '@' . str_replace(':', '/', $name);
+        }
+
         if ('@' === $name[0]) {
             $name = implode('/Resources/views/', explode('/', $name, 2));
             if (substr($name, 0 - strlen($this->extension)) !== $this->extension) {
