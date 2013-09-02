@@ -72,6 +72,19 @@ class DatabasePass implements ConfigPassInterface
             $config['services']['doctrine']['dbs.options'] = $connections;
         }
 
+        if (isset($config['services']['illuminate.db'])) {
+            $connections = array();
+            foreach ($config['app.databases'] as $name => $params) {
+                $params = array_replace($config['app.database'], $params);
+                $params['username'] = $params['user'];
+                $params['database'] = $params['dbname'];
+                unset($params['user']);
+                unset($params['dbname']);
+                $connections[$name] = $params;
+            }
+            $config['services']['illuminate.db']['options'] = $connections;
+        }
+
         unset($config['app.database']);
         unset($config['app.databases']);
 
