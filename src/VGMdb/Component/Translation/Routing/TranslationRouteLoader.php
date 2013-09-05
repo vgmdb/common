@@ -64,6 +64,7 @@ class TranslationRouteLoader
                     $catchMultipleRoute = clone $route;
                     $catchMultipleRoute->setPattern($pattern);
                     $catchMultipleRoute->setDefault('_locales', $locales);
+                    $catchMultipleRoute->setDefault('_original_route', $name);
                     $translatedCollection->add(implode('_', $locales).static::ROUTING_PREFIX.$name, $catchMultipleRoute);
                 }
 
@@ -71,6 +72,7 @@ class TranslationRouteLoader
                     $localeRoute = clone $route;
                     $localeRoute->setPattern($pattern);
                     $localeRoute->setDefault('_locale', $locale);
+                    $localeRoute->setDefault('_original_route', $name);
                     $translatedCollection->add($locale.static::ROUTING_PREFIX.$name, $localeRoute);
                 }
             }

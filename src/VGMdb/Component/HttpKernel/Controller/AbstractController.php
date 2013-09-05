@@ -2,7 +2,10 @@
 
 namespace VGMdb\Component\HttpKernel\Controller;
 
-use Silex\Application;
+use VGMdb\Component\HttpKernel\Controller\Traits\ContainerAwareTrait;
+use VGMdb\Component\HttpKernel\Controller\Traits\UrlGeneratorTrait;
+use VGMdb\Component\HttpKernel\Controller\Traits\ResponseFactoryTrait;
+use VGMdb\Component\HttpKernel\Controller\Traits\HostGeneratorTrait;
 
 /**
  * Base class for application controllers.
@@ -11,25 +14,5 @@ use Silex\Application;
  */
 abstract class AbstractController
 {
-    protected $app;
-
-    /**
-     * Constructor.
-     *
-     * @param Application $app
-     */
-    public function __construct(Application $app = null)
-    {
-        $this->setContainer($app);
-    }
-
-    /**
-     * Attaches the application context.
-     *
-     * @param Application $app
-     */
-    public function setContainer(Application $app = null)
-    {
-        $this->app = $app;
-    }
+    use ContainerAwareTrait, UrlGeneratorTrait, ResponseFactoryTrait, HostGeneratorTrait;
 }

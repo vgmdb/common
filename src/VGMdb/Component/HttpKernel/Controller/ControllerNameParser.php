@@ -3,6 +3,7 @@
 namespace VGMdb\Component\HttpKernel\Controller;
 
 use VGMdb\Component\Silex\ResourceLocatorInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * ControllerNameParser converts controller from the short notation a:b:c
@@ -10,10 +11,12 @@ use VGMdb\Component\Silex\ResourceLocatorInterface;
  * (BlogService\Controller\Api\PostController::indexAction).
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ * @author Gigablah <gigablah@vgmdb.net>
  */
 class ControllerNameParser
 {
     protected $locator;
+    protected $request;
 
     /**
      * Constructor.
@@ -23,6 +26,16 @@ class ControllerNameParser
     public function __construct(ResourceLocatorInterface $locator)
     {
         $this->locator = $locator;
+    }
+
+    /**
+     * Sets the current request.
+     *
+     * @param Request $request A Request instance
+     */
+    public function setRequest(Request $request)
+    {
+        $this->request = $request;
     }
 
     /**
@@ -49,6 +62,10 @@ class ControllerNameParser
         foreach ($this->locator->getProvider($provider, false) as $prov) {
             $try = $prov->getNamespace().'\\Controller\\'.$controller.'Controller';
             if (class_exists($try)) {
+                if (null !== $this->request) {
+                    $this->request->attributes->set('_provider', $prov->getName());
+                }
+
                 return $try.'::'.$action.'Action';
             }
 

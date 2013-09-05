@@ -44,21 +44,17 @@ class ViewListener implements EventSubscriberInterface
 
         if (!$result instanceof ViewInterface) {
             if (null === $view = $event->getRequest()->attributes->get('_view')) {
-                $route = $event->getRequest()->attributes->get('_route');
-
-                // remove the locale prefix from the route name, if applicable
-                if (class_exists('VGMdb\\Component\\Translation\\Routing\\TranslationRouteLoader')
-                    && false !== $pos = strpos($route, TranslationRouteLoader::ROUTING_PREFIX)) {
-                    $route = substr($route, $pos + strlen(TranslationRouteLoader::ROUTING_PREFIX));
-                }
+                $route = $event->getRequest()->attributes->get(
+                    '_original_route',
+                    $event->getRequest()->attributes->get('_route')
+                );
 
                 // automatically generate the template path
-                $view = sprintf(
-                    'sites/%s/%s/%s',
-                    $this->app['request_context']->getAppName(),
-                    $this->app['request_context']->getClient(),
-                    $route
-                );
+                if ($provider = $event->getRequest()->attributes->get('_provider')) {
+                    $view = sprintf('%s:%s', $provider, $route);
+                } else {
+                    $view = $route;
+                }
             }
 
             $result = $this->app['view']($view, $result);

@@ -3,7 +3,7 @@
 namespace VGMdb\Component\HttpKernel\Controller;
 
 use Silex\Application;
-use Silex\ControllerResolver as BaseControllerResolver;
+use Symfony\Component\HttpKernel\Controller\ControllerResolver as BaseControllerResolver;
 use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
 
@@ -14,6 +14,7 @@ use Psr\Log\LoggerInterface;
  */
 class ControllerResolver extends BaseControllerResolver
 {
+    protected $app;
     protected $parser;
     protected $logger;
     protected $emptyController;
@@ -27,11 +28,34 @@ class ControllerResolver extends BaseControllerResolver
      */
     public function __construct(Application $app, ControllerNameParser $parser, LoggerInterface $logger = null)
     {
+        $this->app = $app;
         $this->parser = $parser;
         $this->logger = $logger;
         $this->emptyController = null;
 
-        parent::__construct($app, $logger);
+        parent::__construct($logger);
+    }
+
+    /**
+     * Adds Application as a valid argument for controllers.
+     *
+     * @param Request $request
+     * @param mixed   $controller
+     * @param array   $parameters
+     *
+     * @return array
+     */
+    protected function doGetArguments(Request $request, $controller, array $parameters)
+    {
+        foreach ($parameters as $param) {
+            if ($param->getClass() && $param->getClass()->isInstance($this->app)) {
+                $request->attributes->set($param->getName(), $this->app);
+
+                break;
+            }
+        }
+
+        return parent::doGetArguments($request, $controller, $parameters);
     }
 
     /**
@@ -73,6 +97,7 @@ class ControllerResolver extends BaseControllerResolver
             }
         }
 
+        $this->parser->setRequest($request);
         $callable = $this->createController($controller);
 
         if ($callable instanceof \Closure) {
@@ -125,11 +150,8 @@ class ControllerResolver extends BaseControllerResolver
                     if (is_string($controller)) {
                         $controller = new $controller();
                     }
-                    if ($controller instanceof AbstractController) {
-                        $controller->setContainer($this->app);
-                    }
 
-                    return array($controller, $method.'Action');
+                    return array($this->initializeController($controller), $method.'Action');
                 }
 
                 throw new \LogicException(sprintf('Unable to parse the controller service "%s".', $service));
@@ -153,10 +175,31 @@ class ControllerResolver extends BaseControllerResolver
         }
 
         $controller = new $class();
-        if ($controller instanceof AbstractController) {
+
+        return array($this->initializeController($controller), $method);
+    }
+
+    /**
+     * Initializes a controller object based on its traits.
+     *
+     * @param object $controller A Controller instance
+     *
+     * @return object
+     */
+    protected function initializeController($controller)
+    {
+        $traits = array();
+        $class = get_class($controller);
+        do {
+            $traits = array_merge(class_uses($class), $traits);
+        } while ($class = get_parent_class($class));
+
+        if (array_key_exists('VGMdb\\Component\\HttpKernel\\Controller\\Traits\\ContainerAwareTrait', $traits)) {
             $controller->setContainer($this->app);
+
+            return $controller;
         }
 
-        return array($controller, $method);
+        return $controller;
     }
 }

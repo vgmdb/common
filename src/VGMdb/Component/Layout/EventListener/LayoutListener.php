@@ -40,11 +40,10 @@ class LayoutListener implements EventSubscriberInterface
             return;
         }
 
-        $route = $event->getRequest()->attributes->get('_route');
-        if (class_exists('VGMdb\\Component\\Translation\\Routing\\TranslationRouteLoader')
-            && false !== $pos = strpos($route, TranslationRouteLoader::ROUTING_PREFIX)) {
-            $route = substr($route, $pos + strlen(TranslationRouteLoader::ROUTING_PREFIX));
-        }
+        $route = $event->getRequest()->attributes->get(
+            '_original_route',
+            $event->getRequest()->attributes->get('_route')
+        );
 
         $layoutName = $event->getRequest()->attributes->get('_layout');
         $layoutData = $event->getRequest()->attributes->get('_layout_data', array());
