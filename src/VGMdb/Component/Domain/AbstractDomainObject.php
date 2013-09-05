@@ -109,7 +109,7 @@ abstract class AbstractDomainObject extends \ArrayObject implements DomainObject
 
     public function __call($method, $arguments)
     {
-        $this->handler->proxy($this, $method, $arguments);
+        return $this->handler->proxy($this, $method, $arguments);
     }
 
     public function toArray()
