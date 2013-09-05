@@ -31,7 +31,7 @@ class LayoutListener implements EventSubscriberInterface
             return;
         }
 
-        if ($event->getRequest()->getRequestFormat() !== 'html') {
+        if ($event->getRequest()->getRequestFormat() !== 'html' && $event->getRequest()->getRequestFormat() !== 'pdf') {
             return;
         }
 

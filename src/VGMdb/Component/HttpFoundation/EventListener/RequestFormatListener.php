@@ -6,6 +6,7 @@ use VGMdb\Application;
 use VGMdb\Component\HttpFoundation\Response;
 use VGMdb\Component\HttpFoundation\JsonResponse;
 use VGMdb\Component\HttpFoundation\XmlResponse;
+use VGMdb\Component\HttpFoundation\PdfResponse;
 use VGMdb\Component\HttpFoundation\BeaconResponse;
 use VGMdb\Component\HttpFoundation\QrCodeResponse;
 use VGMdb\Component\Validator\Constraints\JsonpCallback;
@@ -118,6 +119,9 @@ class RequestFormatListener implements EventSubscriberInterface
                 break;
             case 'xml':
                 $response = new XmlResponse($result, $statusCode, $headers);
+                break;
+            case 'pdf':
+                $response = new PdfResponse($result, $statusCode, $headers);
                 break;
             case 'qrcode':
                 $response = new QrCodeResponse();

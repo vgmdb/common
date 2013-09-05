@@ -18,7 +18,7 @@ class FormatNegotiatorProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['accept.format.extensions'] = array('json', 'xml', 'gif', 'qrcode');
+        $app['accept.format.extensions'] = array('json', 'xml', 'pdf', 'qrcode');
         $app['accept.format.default_version'] = '1.0';
         $app['accept.format.override'] = false;
         $app['accept.hosts'] = array();
@@ -40,6 +40,7 @@ class FormatNegotiatorProvider implements ServiceProviderInterface
         });
 
         Request::addFormat('gif', array('image/gif'));
+        Request::addFormat('pdf', array('application/pdf'));
         Request::addFormat('qrcode', array('image/png'));
     }
 
