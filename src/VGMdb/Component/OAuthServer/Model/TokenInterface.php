@@ -3,7 +3,6 @@
 namespace VGMdb\Component\OAuthServer\Model;
 
 use OAuth2\Model\IOAuth2Token;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * (c) FriendsOfSymfony <http://friendsofsymfony.github.com/>
@@ -31,9 +30,9 @@ interface TokenInterface extends IOAuth2Token
     function setScope($scope);
 
     /**
-     * @param UserInterface $user
+     * @param mixed $user
      */
-    function setUser(UserInterface $user);
+    function setUser($user);
 
     /**
      * @return UserInterface
@@ -41,7 +40,7 @@ interface TokenInterface extends IOAuth2Token
     function getUser();
 
     /**
-     * @param ClientInterface $client
+     * @param mixed $client
      */
-    function setClient(ClientInterface $client);
+    function setClient($client);
 }

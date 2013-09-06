@@ -2,8 +2,6 @@
 
 namespace VGMdb\Component\OAuthServer\Model;
 
-use Symfony\Component\Security\Core\User\UserInterface;
-
 /**
  * (c) FriendsOfSymfony <http://friendsofsymfony.github.com/>
  */
@@ -138,7 +136,7 @@ class Token implements TokenInterface
     /**
      * {@inheritdoc}
      */
-    public function setUser(UserInterface $user)
+    public function setUser($user)
     {
         $this->user = $user;
     }
@@ -162,7 +160,7 @@ class Token implements TokenInterface
     /**
      * {@inheritdoc}
      */
-    public function setClient(ClientInterface $client)
+    public function setClient($client)
     {
         $this->client = $client;
     }
