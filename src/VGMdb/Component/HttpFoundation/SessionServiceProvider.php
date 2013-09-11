@@ -20,9 +20,13 @@ use Symfony\Component\HttpKernel\Event\PostResponseEvent;
  */
 class SessionServiceProvider extends BaseSessionServiceProvider
 {
+    private $app;
+
     public function register(Application $app)
     {
         parent::register($app);
+
+        $this->app = $app;
 
         $app['session.storage.handler'] = $app->share(function ($app) {
             if (extension_loaded('redis')) {
@@ -31,6 +35,14 @@ class SessionServiceProvider extends BaseSessionServiceProvider
                 return new NativeFileSessionHandler($app['session.storage.save_path']);
             }
         });
+
+        $app['session.storage.options'] = array(
+            'cookie_lifetime' => 10800,
+            'cookie_path' => '/',
+            'cookie_domain' => '',
+            'cookie_secure' => false,
+            'cookie_httponly' => false
+        );
     }
 
     public function onKernelResponse(FilterResponseEvent $event)
@@ -40,8 +52,16 @@ class SessionServiceProvider extends BaseSessionServiceProvider
         }
 
         $session = $event->getRequest()->getSession();
+
         if ($session && $session->isStarted()) {
-            $params = session_get_cookie_params();
+            $params = array(
+                'lifetime' => $this->app['session.storage.options']['cookie_lifetime'],
+                'path' => $this->app['session.storage.options']['cookie_path'],
+                'domain' => $this->app['session.storage.options']['cookie_domain'],
+                'secure' => $this->app['session.storage.options']['cookie_secure'],
+                'httponly' => $this->app['session.storage.options']['cookie_httponly']
+            );
+
             $event->getResponse()->headers->setCookie(new Cookie($session->getName(), $session->getId(), 0 === $params['lifetime'] ? 0 : time() + $params['lifetime'], $params['path'], $params['domain'], $params['secure'], $params['httponly']));
 
             $session->save();
