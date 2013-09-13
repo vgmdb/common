@@ -27,11 +27,19 @@ class OAuthServerServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
+        $app['oauth_server.access_token_lifetime'] = 3600;
+        $app['oauth_server.refresh_token_lifetime'] = 1209600;
+        $app['oauth_server.auth_code_lifetime'] = 30;
         $app['oauth_server.scopes'] = array();
 
-        $app['oauth_server.config'] = array(
-            OAuth2::CONFIG_SUPPORTED_SCOPES => $app['oauth_server.scopes']
-        );
+        $app['oauth_server.config'] = $app->share(function ($app) {
+            return array(
+                OAuth2::CONFIG_ACCESS_LIFETIME  => $app['oauth_server.access_token_lifetime'],
+                OAuth2::CONFIG_REFRESH_LIFETIME => $app['oauth_server.refresh_token_lifetime'],
+                OAuth2::CONFIG_AUTH_LIFETIME    => $app['oauth_server.auth_code_lifetime'],
+                OAuth2::CONFIG_SUPPORTED_SCOPES => $app['oauth_server.scopes']
+            );
+        });
 
         $app['oauth_server.client.class'] = '';
         $app['oauth_server.access_token.class'] = '';
