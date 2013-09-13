@@ -62,9 +62,6 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
 
             AnnotationReader::addGlobalIgnoredName('implements');
 
-            $ref = new \ReflectionClass('Doctrine\\ORM\\Configuration');
-            AnnotationRegistry::registerFile(dirname($ref->getFilename()) . '/Mapping/Driver/DoctrineAnnotations.php');
-
             foreach ($app['doctrine.orm.entity_managers'] as $name => $options) {
                 $app['entity_manager.' . $name] = $app->share(function ($app) use ($options, $metadataCache, $queryCache, $driver) {
                     $config = new Configuration();
@@ -119,10 +116,8 @@ class DoctrineServiceProvider extends BaseDoctrineServiceProvider
     public function boot(Application $app)
     {
         // force Doctrine annotations to be loaded
-        // should be removed when a better solution is found in Doctrine
-        if (isset($app['doctrine.orm.entity_dir'])) {
-            class_exists('Doctrine\\ORM\\Mapping\\Driver\\AnnotationDriver');
-        }
+        $ref = new \ReflectionClass('Doctrine\\ORM\\Configuration');
+        AnnotationRegistry::registerFile(dirname($ref->getFilename()) . '/Mapping/Driver/DoctrineAnnotations.php');
 
         // autoload Doctrine proxies. Not PSR-0 compliant!
         if (isset($app['doctrine.orm.proxy_dir'])) {
