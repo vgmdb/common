@@ -4,7 +4,7 @@ namespace VGMdb\Component\Silex;
 
 use VGMdb\Component\Silex\Loader\YamlFileLoader;
 use VGMdb\Component\Silex\Loader\CachedYamlFileLoader;
-use Silex\Application;
+use Silex\Application as BaseApplication;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Application as ConsoleApplication;
 use Symfony\Component\Finder\Finder;
@@ -23,11 +23,11 @@ abstract class AbstractResourceProvider implements ResourceProviderInterface
     /**
      * Loads a specific configuration.
      *
-     * @param Application $app An application instance
+     * @param BaseApplication $app An application instance
      *
      * @return array
      */
-    public function load(Application $app)
+    public function load(BaseApplication $app)
     {
         $options = array(
             'parameters' => array(

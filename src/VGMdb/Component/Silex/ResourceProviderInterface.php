@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\Silex;
 
-use Silex\Application;
+use Silex\Application as BaseApplication;
 
 /**
  * Interface for resource providers.
@@ -14,11 +14,11 @@ interface ResourceProviderInterface
     /**
      * Loads a specific configuration.
      *
-     * @param Application $app An application instance
+     * @param BaseApplication $app An application instance
      *
      * @return array
      */
-    public function load(Application $app);
+    public function load(BaseApplication $app);
 
     /**
      * Checks if the provider is enabled.
