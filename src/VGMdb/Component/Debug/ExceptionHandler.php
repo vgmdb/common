@@ -1,10 +1,10 @@
 <?php
 
-namespace VGMdb\Component\HttpKernel\Debug;
+namespace VGMdb\Component\Debug;
 
 use VGMdb\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\FlattenException;
-use Symfony\Component\HttpKernel\Debug\ExceptionHandler as BaseExceptionHandler;
+use Symfony\Component\Debug\Exception\FlattenException;
+use Symfony\Component\Debug\ExceptionHandler as BaseExceptionHandler;
 
 /**
  * Handles exceptions.

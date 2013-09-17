@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\HttpKernel;
+namespace VGMdb\Component\Debug;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -10,7 +10,7 @@ use Silex\ServiceProviderInterface;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class DebuggerServiceProvider implements ServiceProviderInterface
+class DebugServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
@@ -22,14 +22,14 @@ class DebuggerServiceProvider implements ServiceProviderInterface
         });
 
         // deprecation listener
-        $app['debug.deprecation_logger_listener.class'] = 'Symfony\\Component\\HttpKernel\\EventListener\\DeprecationLoggerListener';
+        $app['debug.deprecation_logger_listener.class'] = 'Symfony\\Component\\HttpKernel\\EventListener\\ErrorsLoggerListener';
 
         $app['debug.deprecation_logger_listener'] = $app->share(function ($app) {
-            return new $app['debug.deprecation_logger_listener.class']($app['logger']);
+            return new $app['debug.deprecation_logger_listener.class']('deprecation', $app['logger']);
         });
 
         // replace dispatcher class with traceable implementation
-        $app['debug.dispatcher.class'] = 'VGMdb\\Component\\HttpKernel\\Debug\\TraceableEventDispatcher';
+        $app['debug.dispatcher.class'] = 'VGMdb\\Component\\EventDispatcher\\Debug\\TraceableEventDispatcher';
 
         $app['dispatcher'] = $app->share($app->extend('dispatcher', function ($dispatcher) use ($app) {
             $debugDispatcher = new $app['debug.dispatcher.class']($dispatcher, $app['debug.stopwatch'], $app['logger']);

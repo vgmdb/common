@@ -4,8 +4,8 @@ namespace VGMdb\Component\HttpKernel;
 
 use VGMdb\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Client as BaseClient;
-use Symfony\Component\BrowserKit\Request as DomRequest;
 use Symfony\Component\HttpKernel\TerminableInterface;
+use Symfony\Component\BrowserKit\Request as DomRequest;
 
 /**
  * Overrides the Request object with our own implementation.

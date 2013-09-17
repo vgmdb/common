@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\HttpKernel\Debug;
+namespace VGMdb\Component\EventDispatcher\Debug;
 
 use Symfony\Component\Stopwatch\Stopwatch;
 use Symfony\Component\HttpKernel\KernelEvents;

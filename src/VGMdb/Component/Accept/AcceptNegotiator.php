@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\HttpFoundation\Util;
+namespace VGMdb\Component\Accept;
 
 use Symfony\Component\HttpFoundation\AcceptHeader;
 use Symfony\Component\HttpFoundation\Request;

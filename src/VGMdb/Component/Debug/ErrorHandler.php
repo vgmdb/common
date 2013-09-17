@@ -1,8 +1,8 @@
 <?php
 
-namespace VGMdb\Component\HttpKernel\Debug;
+namespace VGMdb\Component\Debug;
 
-use Symfony\Component\HttpKernel\Debug\ErrorHandler as BaseErrorHandler;
+use Symfony\Component\Debug\ErrorHandler as BaseErrorHandler;
 
 /**
  * Handles general errors.
