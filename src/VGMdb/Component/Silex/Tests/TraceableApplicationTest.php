@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\Silex\Tests;
 
-use VGMdb\TraceableApplication;
+use VGMdb\Component\Silex\TraceableApplication;
 
 /**
  * TraceableApplication test cases.

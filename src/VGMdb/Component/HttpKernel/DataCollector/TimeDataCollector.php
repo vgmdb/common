@@ -2,8 +2,8 @@
 
 namespace VGMdb\Component\HttpKernel\DataCollector;
 
-use VGMdb\Application;
-use VGMdb\TraceableApplication;
+use VGMdb\Component\Silex\TraceableApplication;
+use Silex\Application;
 use Symfony\Component\HttpKernel\DataCollector\TimeDataCollector as BaseTimeDataCollector;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\Thrift;
 
-use VGMdb\Application;
+use Silex\Application;
 
 /**
  * Base class for Thrift service handlers.

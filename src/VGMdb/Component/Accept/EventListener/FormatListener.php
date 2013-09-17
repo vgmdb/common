@@ -1,8 +1,7 @@
 <?php
 
-namespace VGMdb\Component\HttpFoundation\EventListener;
+namespace VGMdb\Component\Accept\EventListener;
 
-use VGMdb\Application;
 use VGMdb\Component\HttpFoundation\Response;
 use VGMdb\Component\HttpFoundation\JsonResponse;
 use VGMdb\Component\HttpFoundation\XmlResponse;
@@ -10,6 +9,7 @@ use VGMdb\Component\HttpFoundation\PdfResponse;
 use VGMdb\Component\HttpFoundation\BeaconResponse;
 use VGMdb\Component\HttpFoundation\QrCodeResponse;
 use VGMdb\Component\Validator\Constraints\JsonpCallback;
+use Silex\Application;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
@@ -22,7 +22,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class RequestFormatListener implements EventSubscriberInterface
+class FormatListener implements EventSubscriberInterface
 {
     private $app;
 
@@ -34,6 +34,11 @@ class RequestFormatListener implements EventSubscriberInterface
     public function onKernelRequest(GetResponseEvent $event)
     {
         $request = $event->getRequest();
+
+        $request->setFormat('gif', array('image/gif'));
+        $request->setFormat('pdf', array('application/pdf'));
+        $request->setFormat('qrcode', array('image/png'));
+
         $format = null;
 
         if (!empty($this->app['accept.format.priorities'])) {

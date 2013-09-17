@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\Silex\EventListener;
 
-use VGMdb\TraceableApplication;
+use VGMdb\Component\Silex\TraceableApplication;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;

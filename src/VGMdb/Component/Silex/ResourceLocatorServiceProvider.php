@@ -2,7 +2,6 @@
 
 namespace VGMdb\Component\Silex;
 
-use Silex\Application;
 use Silex\ServiceProviderInterface;
 
 /**

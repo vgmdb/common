@@ -1,8 +1,8 @@
 <?php
 
-namespace VGMdb\Component\HttpFoundation;
+namespace VGMdb\Component\Session;
 
-use VGMdb\Component\HttpFoundation\Session\Storage\Handler\NativeRedisSessionHandler;
+use VGMdb\Component\Session\Storage\Handler\NativeRedisSessionHandler;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Silex\Provider\SessionServiceProvider as BaseSessionServiceProvider;

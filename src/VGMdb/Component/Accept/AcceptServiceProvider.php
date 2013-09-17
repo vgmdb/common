@@ -1,11 +1,11 @@
 <?php
 
-namespace VGMdb\Component\HttpFoundation;
+namespace VGMdb\Component\Accept;
 
-use VGMdb\Component\HttpFoundation\Util\AcceptNegotiator;
-use VGMdb\Component\HttpFoundation\EventListener\SubdomainListener;
-use VGMdb\Component\HttpFoundation\EventListener\ExtensionListener;
-use VGMdb\Component\HttpFoundation\EventListener\RequestFormatListener;
+use VGMdb\Component\Accept\AcceptNegotiator;
+use VGMdb\Component\Accept\EventListener\SubdomainListener;
+use VGMdb\Component\Accept\EventListener\ExtensionListener;
+use VGMdb\Component\Accept\EventListener\FormatListener;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
@@ -14,7 +14,7 @@ use Silex\ServiceProviderInterface;
  *
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class FormatNegotiatorProvider implements ServiceProviderInterface
+class AcceptServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
@@ -35,19 +35,15 @@ class FormatNegotiatorProvider implements ServiceProviderInterface
             return new ExtensionListener($app);
         });
 
-        $app['accept.request_format_listener'] = $app->share(function ($app) {
-            return new RequestFormatListener($app, $app['request_context']);
+        $app['accept.format_listener'] = $app->share(function ($app) {
+            return new FormatListener($app, $app['request_context']);
         });
-
-        Request::addFormat('gif', array('image/gif'));
-        Request::addFormat('pdf', array('application/pdf'));
-        Request::addFormat('qrcode', array('image/png'));
     }
 
     public function boot(Application $app)
     {
         $app['dispatcher']->addSubscriber($app['accept.subdomain_listener']); // 512
         $app['dispatcher']->addSubscriber($app['accept.extension_listener']); // 256
-        $app['dispatcher']->addSubscriber($app['accept.request_format_listener']); // 128, -512, -16
+        $app['dispatcher']->addSubscriber($app['accept.format_listener']); // 128, -512, -16
     }
 }

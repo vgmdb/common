@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\Assetic\EventListener;
 
-use VGMdb\Application;
+use Silex\Application;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;

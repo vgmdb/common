@@ -2,8 +2,8 @@
 
 namespace VGMdb\Component\Layout\Tests\Fixtures\Widget;
 
-use VGMdb\Application;
 use VGMdb\Component\View\Widget;
+use Silex\Application;
 
 class BarWidget extends Widget
 {

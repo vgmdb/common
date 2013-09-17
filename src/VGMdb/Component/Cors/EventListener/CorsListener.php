@@ -8,8 +8,8 @@
 
 namespace VGMdb\Component\Cors\EventListener;
 
-use VGMdb\Application;
 use VGMdb\Component\Routing\RequestContext;
+use Silex\Application;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;

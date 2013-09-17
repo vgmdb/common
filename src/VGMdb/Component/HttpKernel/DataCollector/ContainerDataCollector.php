@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\HttpKernel\DataCollector;
 
-use VGMdb\TraceableApplication;
+use VGMdb\Component\Silex\TraceableApplication;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;

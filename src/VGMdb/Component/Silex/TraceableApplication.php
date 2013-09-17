@@ -1,8 +1,7 @@
 <?php
 
-namespace VGMdb;
+namespace VGMdb\Component\Silex;
 
-use VGMdb\Application;
 use VGMdb\Component\Silex\EventListener\ContainerTraceListener;
 
 /**

@@ -2,7 +2,6 @@
 
 namespace VGMdb\Component\HttpKernel\EventListener;
 
-use VGMdb\Application;
 use VGMdb\Component\HttpKernel\Debug\ExceptionHandler;
 use VGMdb\Component\HttpKernel\Debug\ApiExceptionHandler;
 use VGMdb\Component\HttpFoundation\Response;
@@ -10,6 +9,7 @@ use VGMdb\Component\HttpFoundation\JsonResponse;
 use VGMdb\Component\HttpFoundation\XmlResponse;
 use VGMdb\Component\HttpFoundation\BeaconResponse;
 use VGMdb\Component\Thrift\ThriftResponse;
+use Silex\Application;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\HttpKernelInterface;

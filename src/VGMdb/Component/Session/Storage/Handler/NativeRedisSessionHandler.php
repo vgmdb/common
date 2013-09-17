@@ -1,6 +1,6 @@
 <?php
 
-namespace VGMdb\Component\HttpFoundation\Session\Storage\Handler;
+namespace VGMdb\Component\Session\Storage\Handler;
 
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\NativeSessionHandler;
 

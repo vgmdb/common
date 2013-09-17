@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\Swiftmailer\EventListener;
 
-use VGMdb\Application;
+use Silex\Application;
 use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

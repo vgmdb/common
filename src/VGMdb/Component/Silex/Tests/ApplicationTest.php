@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\Silex\Tests;
 
-use VGMdb\Application;
+use VGMdb\Component\Silex\Application;
 
 /**
  * Application test cases.

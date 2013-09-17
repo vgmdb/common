@@ -1,8 +1,8 @@
 <?php
 
-namespace VGMdb\Component\HttpFoundation\EventListener;
+namespace VGMdb\Component\Accept\EventListener;
 
-use VGMdb\Application;
+use Silex\Application;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

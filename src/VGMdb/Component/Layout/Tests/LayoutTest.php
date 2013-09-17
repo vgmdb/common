@@ -2,11 +2,11 @@
 
 namespace VGMdb\Component\Layout\Tests;
 
-use VGMdb\Application;
 use VGMdb\Component\Config\ConfigLoader;
 use VGMdb\Component\View\View;
 use VGMdb\Component\View\Engine\MustacheView;
 use VGMdb\Component\Layout\Layout;
+use Silex\Application;
 
 /**
  * Layout test cases.

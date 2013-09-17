@@ -2,10 +2,10 @@
 
 namespace VGMdb\Component\Layout\EventListener;
 
-use VGMdb\Application;
 use VGMdb\Component\Layout\Layout;
 use VGMdb\Component\View\ViewInterface;
 use VGMdb\Component\Translation\Routing\TranslationRouteLoader;
+use Silex\Application;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\KernelEvents;

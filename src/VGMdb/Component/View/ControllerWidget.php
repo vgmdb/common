@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\View;
 
-use VGMdb\Application;
+use Silex\Application;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 

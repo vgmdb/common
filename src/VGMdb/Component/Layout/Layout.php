@@ -2,8 +2,8 @@
 
 namespace VGMdb\Component\Layout;
 
-use VGMdb\Application;
 use VGMdb\Component\View\ViewInterface;
+use Silex\Application;
 
 /**
  * Represents a template layout.

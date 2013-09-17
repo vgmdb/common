@@ -2,7 +2,7 @@
 
 namespace VGMdb\Component\Cache;
 
-use VGMdb\Application;
+use Silex\Application;
 use Stash\Pool;
 use Stash\Driver\Composite;
 use Psr\Log\LoggerInterface;

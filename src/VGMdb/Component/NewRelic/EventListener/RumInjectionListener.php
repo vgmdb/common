@@ -2,8 +2,8 @@
 
 namespace VGMdb\Component\NewRelic\EventListener;
 
-use VGMdb\Application;
 use VGMdb\Component\NewRelic\MonitorInterface;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
