@@ -15,6 +15,8 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
@@ -35,9 +37,9 @@ class FormatListener implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        $request->setFormat('gif', array('image/gif'));
-        $request->setFormat('pdf', array('application/pdf'));
-        $request->setFormat('qrcode', array('image/png'));
+        foreach ($this->app['accept.format.mimetypes'] as $name => $mimetypes) {
+            $request->setFormat($name, (array) $mimetypes);
+        }
 
         $format = null;
 
@@ -48,12 +50,14 @@ class FormatListener implements EventSubscriberInterface
                 $this->app['accept.format.prefer_extension']
             );
         }
+
         if ($format === null) {
             $format = $this->app['accept.format.fallback'];
         }
+
         if ($format === null) {
             if (HttpKernelInterface::MASTER_REQUEST === $event->getRequestType()) {
-                throw new HttpException(406, 'No matching accepted Request format could be determined.');
+                throw new NotAcceptableHttpException('No matching accepted Request format could be determined.');
             }
 
             return;
@@ -157,7 +161,7 @@ class FormatListener implements EventSubscriberInterface
             if ($callback && $callback !== '?' && isset($this->app['validator'])) {
                 $errors = $this->app['validator']->validateValue($callback, new JsonpCallback());
                 if (count($errors)) {
-                    $this->app->abort(400, 'Invalid JSONP callback.');
+                    throw new BadRequestHttpException('Invalid JSONP callback.');
                 }
                 $response->setCallback($callback);
             }

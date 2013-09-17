@@ -2,6 +2,8 @@
 
 namespace VGMdb\Component\Routing\Exception;
 
+use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
+
 class NotAcceptableLanguageHttpException extends NotAcceptableHttpException
 {
     private $requestedLanguage;

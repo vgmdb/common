@@ -18,7 +18,8 @@ class AcceptServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['accept.format.extensions'] = array('json', 'xml', 'pdf', 'qrcode');
+        $app['accept.format.mimetypes'] = array();
+        $app['accept.format.extensions'] = array('json');
         $app['accept.format.default_version'] = '1.0';
         $app['accept.format.override'] = false;
         $app['accept.hosts'] = array();
