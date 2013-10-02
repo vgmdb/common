@@ -9,6 +9,7 @@ use VGMdb\Component\HttpFoundation\XmlResponse;
 use VGMdb\Component\HttpFoundation\PdfResponse;
 use VGMdb\Component\HttpFoundation\BeaconResponse;
 use VGMdb\Component\HttpFoundation\QrCodeResponse;
+use VGMdb\Component\HttpFoundation\TextResponse;
 use VGMdb\Component\Validator\Constraints\JsonpCallback;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -125,6 +126,9 @@ class RequestFormatListener implements EventSubscriberInterface
                 break;
             case 'qrcode':
                 $response = new QrCodeResponse();
+                break;
+            case 'txt':
+                $response = new TextResponse($result, $statusCode, $headers);
                 break;
             case 'gif':
             case 'png':
