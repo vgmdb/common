@@ -28,6 +28,7 @@ class SubdomainListener implements EventSubscriberInterface
         $request = $event->getRequest();
 
         $subdomain = $this->getSubdomain($request->getHost());
+        $this->app['request_context']->fromRequest($request);
         $this->app['request_context']->setSubdomain($subdomain);
 
         if ($subdomain === 'api') {
