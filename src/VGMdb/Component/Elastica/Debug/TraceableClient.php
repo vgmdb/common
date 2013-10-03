@@ -20,17 +20,10 @@ use Elastica\Request;
  */
 class TraceableClient extends Client
 {
-    protected $logger;
-
-    public function setLogger(ElasticaLogger $logger)
-    {
-        $this->logger = $logger;
-    }
-
     public function request($path, $method = Request::GET, $data = array(), array $query = array())
     {
-        if (null !== $this->logger) {
-            $this->logger->startQuery($path, $method, $data, $query);
+        if (null !== $this->_logger && $this->_logger instanceof ElasticaLogger) {
+            $this->_logger->startQuery($path, $method, $data, $query);
         }
 
         $start = microtime(true);
@@ -39,8 +32,8 @@ class TraceableClient extends Client
         $time = microtime(true) - $start;
         $response->setQueryTime($time);
 
-        if (null !== $this->logger) {
-            $this->logger->stopQuery($path, $method, $data, $query, $response);
+        if (null !== $this->_logger && $this->_logger instanceof ElasticaLogger) {
+            $this->_logger->stopQuery($path, $method, $data, $query, $response);
         }
 
         return $response;

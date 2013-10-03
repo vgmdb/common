@@ -10,6 +10,7 @@ namespace VGMdb\Component\Elastica\Logger;
 
 use Symfony\Component\Stopwatch\Stopwatch;
 use Psr\Log\LoggerInterface;
+use Psr\Log\AbstractLogger;
 
 /**
  * Logger for Elastica.
@@ -17,7 +18,7 @@ use Psr\Log\LoggerInterface;
  * @author Gordon Franke <info@nevalon.de>
  * @author Gigablah <gigablah@vgmdb.net>
  */
-class ElasticaLogger
+class ElasticaLogger extends AbstractLogger
 {
     protected $logger;
     protected $stopwatch;
@@ -26,13 +27,22 @@ class ElasticaLogger
     /**
      * Constructor.
      *
-     * @param LoggerInterface $logger The logger
+     * @param LoggerInterface $logger    The logger
+     * @param Stopwatch       $stopwatch A Stopwatch instance
      */
     public function __construct(LoggerInterface $logger = null, Stopwatch $stopwatch = null)
     {
         $this->logger = $logger;
         $this->stopwatch = $stopwatch;
         $this->queries = array();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function log($level, $message, array $context = array())
+    {
+        $this->logger->log($level, $message, $context);
     }
 
     /**
