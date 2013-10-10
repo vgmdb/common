@@ -3,6 +3,7 @@
 namespace VGMdb\Component\OAuthServer\Security\Core\Authentication\Provider;
 
 use VGMdb\Component\OAuthServer\Security\Core\Authentication\Token\OAuthToken;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -60,7 +61,7 @@ class OAuthServerAuthenticationProvider implements AuthenticationProviderInterfa
                 $scope = $accessToken->getScope();
                 $user  = $accessToken->getUser();
 
-                $roles = (null !== $user) ? $user->getRoles() : array();
+                $roles = (null !== $user && $user instanceof UserInterface) ? $user->getRoles() : array();
 
                 if (!empty($scope)) {
                     foreach (explode(' ', $scope) as $role) {
@@ -72,7 +73,7 @@ class OAuthServerAuthenticationProvider implements AuthenticationProviderInterfa
                 $authenticatedToken->setAuthenticated(true);
                 $authenticatedToken->setToken($tokenString);
 
-                if (null !== $user) {
+                if (null !== $user && $user instanceof UserInterface) {
                     $this->userChecker->checkPostAuth($user);
                     $authenticatedToken->setUser($user);
                 }
