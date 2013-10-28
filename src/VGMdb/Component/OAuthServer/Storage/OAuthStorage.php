@@ -178,6 +178,14 @@ class OAuthStorage implements IOAuth2RefreshTokens, IOAuth2GrantUser, IOAuth2Gra
     /**
      * {@inheritdoc}
      */
+    public function markAuthCodeAsUsed($code)
+    {
+        // do nothing for now
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getRefreshToken($tokenString)
     {
         return $this->refreshTokenManager->findTokenByToken($tokenString);
