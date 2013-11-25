@@ -30,6 +30,11 @@ class Queue extends JobQueue
         $this->logger = $logger;
     }
 
+    public function getProvider()
+    {
+        return $this->queueProvider;
+    }
+
     public function addJob($newJob = null)
     {
         $data = array(
