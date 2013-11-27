@@ -35,8 +35,7 @@ class QueueWorkCommand extends Command
                 ),
                 new InputOption(
                     'no-wait', null, InputOption::VALUE_NONE,
-                    'Whether to wait for a job',
-                    false
+                    'Whether to wait for a job'
                 )
             ))
             ->setDescription('Process jobs on a queue')
