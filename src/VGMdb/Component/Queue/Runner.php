@@ -13,12 +13,14 @@ class Runner
 
     protected $worker;
     protected $interval;
+    protected $wait;
     protected $counter;
 
     public function __construct(WorkerInterface $worker, array $options = array())
     {
         $this->worker = $worker;
         $this->interval = isset($options['interval']) ? intval($options['interval']) : self::INTERVAL;
+        $this->wait = isset($options['wait']) ? (Boolean) $options['wait'] : true;
         $this->counter = null;
     }
 
@@ -39,6 +41,10 @@ class Runner
                     // BackOffStrategy?
                 }
                 if ($this->counter) {
+                    $this->counter--;
+                }
+            } else {
+                if (!$this->wait) {
                     $this->counter--;
                 }
             }

@@ -33,6 +33,11 @@ class QueueWorkCommand extends Command
                     'run-once', null, InputOption::VALUE_NONE,
                     'Whether to run the job once'
                 ),
+                new InputOption(
+                    'no-wait', null, InputOption::VALUE_NONE,
+                    'Whether to wait for a job',
+                    false
+                )
             ))
             ->setDescription('Process jobs on a queue')
             ->setHelp(<<<EOF
@@ -61,8 +66,9 @@ EOF
         }
 
         $counter = intval($input->getOption('run-once')) ?: null;
+        $wait = $input->getOption('no-wait') ? false : true;
 
-        $runner = new Runner($worker, array());
+        $runner = new Runner($worker, array('wait' => $wait));
         $runner->run($counter);
     }
 
