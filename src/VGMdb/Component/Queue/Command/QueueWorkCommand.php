@@ -30,6 +30,10 @@ class QueueWorkCommand extends Command
                 new InputArgument('queue', InputArgument::REQUIRED, 'The queue identifier'),
                 new InputArgument('worker', InputArgument::REQUIRED, 'The worker class'),
                 new InputOption(
+                    'run-count', 'n', InputOption::VALUE_OPTIONAL,
+                    'How many jobs to process'
+                ),
+                new InputOption(
                     'run-once', null, InputOption::VALUE_NONE,
                     'Whether to run the job once'
                 ),
@@ -64,7 +68,7 @@ EOF
             $worker->setContainer($app);
         }
 
-        $counter = intval($input->getOption('run-once')) ?: null;
+        $counter = intval($input->getOption('run-once')) ?: intval($input->getOption('run-count')) ?: null;
         $wait = $input->getOption('no-wait') ? false : true;
 
         $runner = new Runner($worker, array('wait' => $wait));
