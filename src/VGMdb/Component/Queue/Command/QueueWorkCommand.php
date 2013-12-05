@@ -30,7 +30,7 @@ class QueueWorkCommand extends Command
                 new InputArgument('queue', InputArgument::REQUIRED, 'The queue identifier'),
                 new InputArgument('worker', InputArgument::REQUIRED, 'The worker class'),
                 new InputOption(
-                    'run-count', 'n', InputOption::VALUE_OPTIONAL,
+                    'run-count', null, InputOption::VALUE_OPTIONAL,
                     'How many jobs to process'
                 ),
                 new InputOption(
