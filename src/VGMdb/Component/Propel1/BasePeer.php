@@ -471,7 +471,7 @@ class BasePeer
         try {
 
             $params = array();
-            $sql = self::createSelectSql($criteria, $params);
+            $sql = self::createSelectSql($criteria, $params, $dbMap);
 
             $stmt = $con->prepare($sql);
 
@@ -529,12 +529,12 @@ class BasePeer
                     }
                     $db->turnSelectColumnsToAliases($criteria);
                 }
-                $selectSql = self::createSelectSql($criteria, $params);
+                $selectSql = self::createSelectSql($criteria, $params, $dbMap);
                 $sql = 'SELECT COUNT(*) FROM (' . $selectSql . ') propelmatch4cnt';
             } else {
                 // Replace SELECT columns with COUNT(*)
                 $criteria->clearSelectColumns()->addSelectColumn('COUNT(*)');
-                $sql = self::createSelectSql($criteria, $params);
+                $sql = self::createSelectSql($criteria, $params, $dbMap);
             }
 
             $stmt = $con->prepare($sql);
@@ -649,10 +649,12 @@ class BasePeer
      * @return string
      * @throws PropelException Trouble creating the query string.
      */
-    public static function createSelectSql(\Criteria $criteria, &$params)
+    public static function createSelectSql(\Criteria $criteria, &$params, $dbMap = null)
     {
         $db = \Propel::getDB($criteria->getDbName());
-        $dbMap = \Propel::getDatabaseMap($criteria->getDbName());
+        if (!$dbMap) {
+            $dbMap = \Propel::getDatabaseMap($criteria->getDbName());
+        }
 
         $fromClause = array();
         $joinClause = array();
@@ -817,7 +819,7 @@ class BasePeer
 
         // add subQuery to From after adding quotes
         foreach ($criteria->getSelectQueries() as $subQueryAlias => $subQueryCriteria) {
-            $fromClause[] = '(' . \BasePeer::createSelectSql($subQueryCriteria, $params) . ') AS ' . $subQueryAlias;
+            $fromClause[] = '(' . self::createSelectSql($subQueryCriteria, $params, $dbMap) . ') AS ' . $subQueryAlias;
         }
 
         // build from-clause
