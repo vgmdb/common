@@ -39,7 +39,7 @@ class PropelBuildCommand extends ModelBuildCommand
         $output->writeln('Generated in ' . strval(intval($end - $start)) . 'ms.');
     }
 
-    protected function getSchemas($directory)
+    protected function getSchemas($directory, $recursive = false)
     {
         $finder = new Finder();
 
